@@ -52,6 +52,17 @@ export class IWalletAccountReadOnly {
   }
 
   /**
+   * Verifies a message's signature.
+   *
+   * @param {string} message - The original message.
+   * @param {string} signature - The signature to verify.
+   * @returns {Promise<boolean>} True if the signature is valid.
+   */
+  async verify (message, signature) {
+    throw new NotImplementedError('verify(message, signature)')
+  }
+
+  /**
    * Returns the account's native token balance.
    *
    * @returns {Promise<bigint>} The native token balance.
@@ -137,6 +148,18 @@ export default class WalletAccountReadOnly {
     }
 
     return this._address
+  }
+
+  /**
+   * Verifies a message's signature.
+   *
+   * @abstract
+   * @param {string} message - The original message.
+   * @param {string} signature - The signature to verify.
+   * @returns {Promise<boolean>} True if the signature is valid.
+   */
+  async verify (message, signature) {
+    throw new NotImplementedError('verify(message, signature)')
   }
 
   /**

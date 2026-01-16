@@ -69,17 +69,6 @@ export class IWalletAccount extends IWalletAccountReadOnly {
   }
 
   /**
-   * Verifies a message's signature.
-   *
-   * @param {string} message - The original message.
-   * @param {string} signature - The signature to verify.
-   * @returns {Promise<boolean>} True if the signature is valid.
-   */
-  async verify (message, signature) {
-    throw new NotImplementedError('verify(message, signature)')
-  }
-
-  /**
    * Sends a transaction.
    *
    * @param {Transaction} tx - The transaction.
