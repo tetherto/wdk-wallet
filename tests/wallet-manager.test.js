@@ -53,7 +53,7 @@ describe('WalletManager', () => {
   })
 
   describe('static getRandomSeedPhrase', () => {
-    test('should generate a valid 12-word seed phrase', () => {
+    test('should generate a valid 12-word seed phrase by default', () => {
       const seedPhrase = WalletManager.getRandomSeedPhrase()
 
       const words = seedPhrase.trim()
@@ -65,6 +65,22 @@ describe('WalletManager', () => {
         expect(bip39.wordlists.EN.includes(word))
           .not.toBe(-1)
       })
+    })
+
+    test('should generate a valid 12-word seed phrase', () => {
+      const seedPhrase = WalletManager.getRandomSeedPhrase(12)
+      const words = seedPhrase.trim().split(/\s+/)
+
+      expect(words).toHaveLength(12)
+      expect(WalletManager.isValidSeedPhrase(seedPhrase)).toBe(true)
+    })
+
+    test('should generate a valid 24-word seed phrase', () => {
+      const seedPhrase = WalletManager.getRandomSeedPhrase(24)
+      const words = seedPhrase.trim().split(/\s+/)
+
+      expect(words).toHaveLength(24)
+      expect(WalletManager.isValidSeedPhrase(seedPhrase)).toBe(true)
     })
   })
 
