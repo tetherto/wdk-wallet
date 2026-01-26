@@ -72,10 +72,12 @@ export default class WalletManager {
   /**
    * Returns a random [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) seed phrase.
    *
+   * @param {12 | 24} [wordCount=12] - The number of words in the seed phrase.
    * @returns {string} The seed phrase.
    */
-  static getRandomSeedPhrase () {
-    return bip39.generateMnemonic()
+  static getRandomSeedPhrase (wordCount = 12) {
+    const strength = wordCount === 24 ? 256 : 128
+    return bip39.generateMnemonic(strength)
   }
 
   /**

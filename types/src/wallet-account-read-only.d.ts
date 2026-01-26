@@ -7,6 +7,15 @@ export interface IWalletAccountReadOnly {
      */
     getAddress(): Promise<string>;
     /**
+     * Verifies a message's signature.
+     *
+     * @param {string} message - The original message.
+     * @param {string} signature - The signature to verify.
+     * @returns {Promise<boolean>} True if the signature is valid.
+     * @throws {Error} If the read-only wallet account class is not able to provide an implementation for the method.
+     */
+    verify(message: string, signature: string): Promise<boolean>;
+    /**
      * Returns the account's native token balance.
      *
      * @returns {Promise<bigint>} The native token balance.
@@ -67,6 +76,16 @@ export default abstract class WalletAccountReadOnly implements IWalletAccountRea
      * @returns {Promise<string>} The account's address.
      */
     getAddress(): Promise<string>;
+    /**
+     * Verifies a message's signature.
+     *
+     * @abstract
+     * @param {string} message - The original message.
+     * @param {string} signature - The signature to verify.
+     * @returns {Promise<boolean>} True if the signature is valid.
+     * @throws {Error} If the read-only wallet account class is not able to provide an implementation for the method.
+     */
+    abstract verify(message: string, signature: string): Promise<boolean>;
     /**
      * Returns the account's native token balance.
      *

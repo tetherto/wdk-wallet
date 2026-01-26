@@ -3,9 +3,10 @@ export default abstract class WalletManager {
     /**
      * Returns a random [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) seed phrase.
      *
+     * @param {12 | 24} [wordCount=12] - The number of words in the seed phrase.
      * @returns {string} The seed phrase.
      */
-    static getRandomSeedPhrase(): string;
+    static getRandomSeedPhrase(wordCount?: 12 | 24): string;
     /**
      * Checks if a seed phrase is valid.
      *
