@@ -15,7 +15,6 @@ import { NotImplementedError } from './errors.js'
 
 /** @interface */
 export class IWalletAccountMultisigReadOnly {
-
   /**
    * Returns the address/identifier of the signer associated with this account
    * (the individual key, not the multisig address).
