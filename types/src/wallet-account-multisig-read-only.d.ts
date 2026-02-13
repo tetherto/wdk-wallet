@@ -6,6 +6,14 @@
  * @property {number} confirmations - Number of confirmations
  * @property {number} threshold - Required threshold for execution
  */
+/**
+ * @typedef {Object} MessageInfo
+ * @property {string} messageHash - The message hash
+ * @property {string} message - The original message
+ * @property {number} confirmations - Number of confirmations
+ * @property {number} threshold - Required threshold
+ * @property {string | null} combinedSignature - Final combined signature when threshold is met
+ */
 /** @interface */
 export class IWalletAccountMultisigReadOnly {
     /**
@@ -37,12 +45,12 @@ export class IWalletAccountMultisigReadOnly {
      */
     getProposal(proposalId: string): Promise<MultisigProposal | null>;
     /**
-     * Checks if a proposal has enough signatures to be executed.
+     * Returns a message proposal by its hash.
      *
-     * @param {string} proposalId - The proposal identifier
-     * @returns {Promise<boolean>} True if ready to execute
+     * @param {string} messageHash - The message hash
+     * @returns {Promise<MessageInfo | null>} The message info or null if not found
      */
-    isReadyToExecute(proposalId: string): Promise<boolean>;
+    getMessage(messageHash: string): Promise<MessageInfo | null>;
 }
 /**
  * A chain-agnostic proposal object representing a pending multisig transaction.
@@ -60,4 +68,26 @@ export type MultisigProposal = {
      * - Required threshold for execution
      */
     threshold: number;
+};
+export type MessageInfo = {
+    /**
+     * - The message hash
+     */
+    messageHash: string;
+    /**
+     * - The original message
+     */
+    message: string;
+    /**
+     * - Number of confirmations
+     */
+    confirmations: number;
+    /**
+     * - Required threshold
+     */
+    threshold: number;
+    /**
+     * - Final combined signature when threshold is met
+     */
+    combinedSignature: string | null;
 };

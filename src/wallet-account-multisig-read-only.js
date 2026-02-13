@@ -13,6 +13,15 @@ import { NotImplementedError } from './errors.js'
  * @property {number} threshold - Required threshold for execution
  */
 
+/**
+ * @typedef {Object} MessageInfo
+ * @property {string} messageHash - The message hash
+ * @property {string} message - The original message
+ * @property {number} confirmations - Number of confirmations
+ * @property {number} threshold - Required threshold
+ * @property {string | null} combinedSignature - Final combined signature when threshold is met
+ */
+
 /** @interface */
 export class IWalletAccountMultisigReadOnly {
   /**
@@ -56,12 +65,12 @@ export class IWalletAccountMultisigReadOnly {
   }
 
   /**
-   * Checks if a proposal has enough signatures to be executed.
+   * Returns a message proposal by its hash.
    *
-   * @param {string} proposalId - The proposal identifier
-   * @returns {Promise<boolean>} True if ready to execute
+   * @param {string} messageHash - The message hash
+   * @returns {Promise<MessageInfo | null>} The message info or null if not found
    */
-  async isReadyToExecute (proposalId) {
-    throw new NotImplementedError('isReadyToExecute(proposalId)')
+  async getMessage (messageHash) {
+    throw new NotImplementedError('getMessage(messageHash)')
   }
 }

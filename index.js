@@ -24,8 +24,11 @@
 /** @typedef {import('./src/wallet-account.js').KeyPair} KeyPair */
 
 /** @typedef {import('./src/wallet-account-multisig-read-only.js').MultisigProposal} MultisigProposal */
+/** @typedef {import('./src/wallet-account-multisig-read-only.js').MessageInfo} MessageInfo */
+
 /** @typedef {import('./src/wallet-account-multisig.js').MultisigResult} MultisigResult */
 /** @typedef {import('./src/wallet-account-multisig.js').MultisigExecuteResult} MultisigExecuteResult */
+/** @typedef {import('./src/wallet-account-multisig.js').MessageProposal} MessageProposal */
 
 export { default } from './src/wallet-manager.js'
 

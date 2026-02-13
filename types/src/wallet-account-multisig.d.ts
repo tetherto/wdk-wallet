@@ -8,8 +8,31 @@
  * @typedef {Object} MultisigExecuteResult
  * @property {string} hash - The finalized on-chain transaction identifier
  */
+/**
+ * @typedef {Object} MessageProposal
+ * @property {string} messageHash - Unique identifier for the message proposal
+ * @property {string} signature - This signer's signature
+ * @property {number} confirmations - Number of confirmations
+ * @property {number} threshold - Required threshold
+ * @property {string | null} combinedSignature - Final combined signature when threshold is met
+ */
 /** @interface */
-export class IWalletAccountMultisig extends IWalletAccountMultisigReadOnly {
+export class IWalletAccountMultisig extends IWalletAccount {
+    /**
+     * Proposes signing a message with the multisig.
+     * The proposer's signature is included automatically.
+     *
+     * @param {string} message - The message to sign
+     * @returns {Promise<MessageProposal>} The message proposal result
+     */
+    proposeMessage(message: string): Promise<MessageProposal>;
+    /**
+     * Approves an existing message proposal.
+     *
+     * @param {string} messageHash - The message hash to approve
+     * @returns {Promise<MessageProposal>} The approval result
+     */
+    approveMessage(messageHash: string): Promise<MessageProposal>;
     /**
      * Creates a new proposal for a transaction.
      * The proposer's signature is included automatically.
@@ -95,4 +118,26 @@ export type MultisigExecuteResult = {
      */
     hash: string;
 };
-import { IWalletAccountMultisigReadOnly } from './wallet-account-multisig-read-only.js';
+export type MessageProposal = {
+    /**
+     * - Unique identifier for the message proposal
+     */
+    messageHash: string;
+    /**
+     * - This signer's signature
+     */
+    signature: string;
+    /**
+     * - Number of confirmations
+     */
+    confirmations: number;
+    /**
+     * - Required threshold
+     */
+    threshold: number;
+    /**
+     * - Final combined signature when threshold is met
+     */
+    combinedSignature: string | null;
+};
+import { IWalletAccount } from './wallet-account.js';

@@ -2,7 +2,7 @@
 
 'use strict'
 
-import { IWalletAccountMultisigReadOnly } from './wallet-account-multisig-read-only.js'
+import { IWalletAccount } from './wallet-account.js'
 import { NotImplementedError } from './errors.js'
 
 /**
@@ -17,8 +17,38 @@ import { NotImplementedError } from './errors.js'
  * @property {string} hash - The finalized on-chain transaction identifier
  */
 
+/**
+ * @typedef {Object} MessageProposal
+ * @property {string} messageHash - Unique identifier for the message proposal
+ * @property {string} signature - This signer's signature
+ * @property {number} confirmations - Number of confirmations
+ * @property {number} threshold - Required threshold
+ * @property {string | null} combinedSignature - Final combined signature when threshold is met
+ */
+
 /** @interface */
-export class IWalletAccountMultisig extends IWalletAccountMultisigReadOnly {
+export class IWalletAccountMultisig extends IWalletAccount {
+  /**
+   * Proposes signing a message with the multisig.
+   * The proposer's signature is included automatically.
+   *
+   * @param {string} message - The message to sign
+   * @returns {Promise<MessageProposal>} The message proposal result
+   */
+  async proposeMessage (message) {
+    throw new NotImplementedError('proposeMessage(message)')
+  }
+
+  /**
+   * Approves an existing message proposal.
+   *
+   * @param {string} messageHash - The message hash to approve
+   * @returns {Promise<MessageProposal>} The approval result
+   */
+  async approveMessage (messageHash) {
+    throw new NotImplementedError('approveMessage(messageHash)')
+  }
+
   // ==========================================
   // Proposal Lifecycle
   // ==========================================
