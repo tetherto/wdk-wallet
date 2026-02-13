@@ -10,6 +10,7 @@ export type TransactionResult = import("./src/wallet-account-read-only.js").Tran
 export type TransferOptions = import("./src/wallet-account-read-only.js").TransferOptions;
 export type TransferResult = import("./src/wallet-account-read-only.js").TransferResult;
 export type KeyPair = import("./src/wallet-account.js").KeyPair;
+export type MultisigInfo = import("./src/wallet-account-multisig-read-only.js").MultisigInfo;
 export type MultisigProposal = import("./src/wallet-account-multisig-read-only.js").MultisigProposal;
 export type MessageInfo = import("./src/wallet-account-multisig-read-only.js").MessageInfo;
 export type MultisigResult = import("./src/wallet-account-multisig.js").MultisigResult;

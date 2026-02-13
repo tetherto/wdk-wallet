@@ -23,6 +23,7 @@
 
 /** @typedef {import('./src/wallet-account.js').KeyPair} KeyPair */
 
+/** @typedef {import('./src/wallet-account-multisig-read-only.js').MultisigInfo} MultisigInfo */
 /** @typedef {import('./src/wallet-account-multisig-read-only.js').MultisigProposal} MultisigProposal */
 /** @typedef {import('./src/wallet-account-multisig-read-only.js').MessageInfo} MessageInfo */
 

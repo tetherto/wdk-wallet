@@ -5,7 +5,15 @@
 import { NotImplementedError } from './errors.js'
 
 /**
- * A chain-agnostic proposal object representing a pending multisig transaction.
+ * @typedef {Object} MultisigInfo
+ * @property {string} address - The multisig address
+ * @property {string[]} owners - Array of owner identifiers
+ * @property {number} threshold - Required number of signatures
+ * @property {boolean} [isCreated] - Whether the multisig wallet has been created
+ */
+
+/**
+ * A proposal object representing a pending multisig transaction.
  *
  * @typedef {Object} MultisigProposal
  * @property {string} proposalId - Unique identifier for the created proposal
@@ -25,14 +33,22 @@ import { NotImplementedError } from './errors.js'
 /** @interface */
 export class IWalletAccountMultisigReadOnly {
   /**
-   * Returns the address/identifier of the signer associated with this account
-   * (the individual key, not the multisig address).
+   * Returns the address/identifier of the signer associated with this account wallet
    * Returns null if no signer is associated.
    *
    * @returns {Promise<string | null>} The signer's identifier
    */
   async getSignerAddress () {
     throw new NotImplementedError('getSignerAddress()')
+  }
+
+  /**
+   * Returns the multisig wallet info.
+   *
+   * @returns {Promise<MultisigInfo>} The multisig info
+  */
+  async getMultisigInfo () {
+    throw new NotImplementedError('getMultisigInfo()')
   }
 
   /**
