@@ -15,7 +15,7 @@
  * @property {string | null} combinedSignature - Final combined signature when threshold is met
  */
 /** @interface */
-export class IWalletAccountMultisigReadOnly {
+export interface IWalletAccountMultisigReadOnly {
     /**
      * Returns the address/identifier of the signer associated with this account
      * (the individual key, not the multisig address).
