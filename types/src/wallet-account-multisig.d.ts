@@ -17,7 +17,7 @@
  * @property {string | null} combinedSignature - Final combined signature when threshold is met
  */
 /** @interface */
-export class IWalletAccountMultisig extends IWalletAccount {
+export interface IWalletAccountMultisig extends IWalletAccount {
     /**
      * Proposes signing a message with the multisig.
      * The proposer's signature is included automatically.
