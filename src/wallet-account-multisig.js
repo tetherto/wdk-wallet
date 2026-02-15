@@ -27,7 +27,7 @@ import { NotImplementedError } from './errors.js'
  */
 
 /** @interface */
-export class IWalletAccountMultisig extends IWalletAccount {
+export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
   /**
    * Proposes signing a message with the multisig.
    * The proposer's signature is included automatically.
