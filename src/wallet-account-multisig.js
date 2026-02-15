@@ -57,7 +57,7 @@ export class IWalletAccountMultisig extends IWalletAccount {
    * The proposer's signature is included automatically.
    *
    *
-   * @param {import('./wallet-account-read-only.js').Transaction} tx - The transaction to propose
+   * @param {Transaction} tx - The transaction to propose
    * @returns {Promise<MultisigResult>} The proposal result
    */
   async propose (tx) {
