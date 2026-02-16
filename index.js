@@ -26,8 +26,8 @@
 /** @typedef {import('./src/wallet-account-read-only-multisig.js').MultisigInfo} MultisigInfo */
 /** @typedef {import('./src/wallet-account-read-only-multisig.js').MultisigProposal} MultisigProposal */
 /** @typedef {import('./src/wallet-account-read-only-multisig.js').MessageInfo} MessageInfo */
+/** @typedef {import('./src/wallet-account-read-only-multisig.js').MultisigProposal} MultisigResult */
 
-/** @typedef {import('./src/wallet-account-multisig.js').MultisigProposal} MultisigResult */
 /** @typedef {import('./src/wallet-account-multisig.js').MultisigExecuteResult} MultisigExecuteResult */
 /** @typedef {import('./src/wallet-account-multisig.js').MessageProposal} MessageProposal */
 
