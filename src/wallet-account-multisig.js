@@ -1,16 +1,24 @@
-// src/wallet-account-multisig.js
+// Copyright 2024 Tether Operations Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 'use strict'
 
 import { IWalletAccount } from './wallet-account.js'
 import { NotImplementedError } from './errors.js'
 
-/**
- * @typedef {Object} MultisigResult
- * @property {string} proposalId - Unique identifier for the created proposal
- * @property {number} confirmations - Number of confirmations
- * @property {number} threshold - Required threshold for execution
- */
+/** @typedef {import('./wallet-account-read-only.js').Transaction} Transaction */
+/** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigResult */
 
 /**
  * @typedef {Object} MultisigExecuteResult
@@ -27,7 +35,7 @@ import { NotImplementedError } from './errors.js'
  */
 
 /** @interface */
-export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
+export class IWalletAccountMultisig extends IWalletAccount {
   /**
    * Proposes signing a message with the multisig.
    * The proposer's signature is included automatically.
@@ -55,7 +63,6 @@ export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
   /**
    * Creates a new proposal for a transaction.
    * The proposer's signature is included automatically.
-   *
    *
    * @param {Transaction} tx - The transaction to propose
    * @returns {Promise<MultisigResult>} The proposal result

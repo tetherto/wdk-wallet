@@ -1,9 +1,5 @@
-/**
- * @typedef {Object} MultisigResult
- * @property {string} proposalId - Unique identifier for the created proposal
- * @property {number} confirmations - Number of confirmations
- * @property {number} threshold - Required threshold for execution
- */
+/** @typedef {import('./wallet-account-read-only.js').Transaction} Transaction */
+/** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigResult */
 /**
  * @typedef {Object} MultisigExecuteResult
  * @property {string} hash - The finalized on-chain transaction identifier
@@ -37,11 +33,10 @@ export interface IWalletAccountMultisig extends IWalletAccount {
      * Creates a new proposal for a transaction.
      * The proposer's signature is included automatically.
      *
-     *
-     * @param {import('./wallet-account-read-only.js').Transaction} tx - The transaction to propose
+     * @param {Transaction} tx - The transaction to propose
      * @returns {Promise<MultisigResult>} The proposal result
      */
-    propose(tx: import("./wallet-account-read-only.js").Transaction): Promise<MultisigResult>;
+    propose(tx: Transaction): Promise<MultisigResult>;
     /**
      * Adds the current signer's approval to an existing proposal.
      *
@@ -98,20 +93,8 @@ export interface IWalletAccountMultisig extends IWalletAccount {
      */
     changeThreshold(newThreshold: number): Promise<MultisigResult>;
 }
-export type MultisigResult = {
-    /**
-     * - Unique identifier for the created proposal
-     */
-    proposalId: string;
-    /**
-     * - Number of confirmations
-     */
-    confirmations: number;
-    /**
-     * - Required threshold for execution
-     */
-    threshold: number;
-};
+export type Transaction = import("./wallet-account-read-only.js").Transaction;
+export type MultisigResult = import("./wallet-account-read-only-multisig.js").MultisigProposal;
 export type MultisigExecuteResult = {
     /**
      * - The finalized on-chain transaction identifier

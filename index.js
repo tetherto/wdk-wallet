@@ -23,11 +23,11 @@
 
 /** @typedef {import('./src/wallet-account.js').KeyPair} KeyPair */
 
-/** @typedef {import('./src/wallet-account-multisig-read-only.js').MultisigInfo} MultisigInfo */
-/** @typedef {import('./src/wallet-account-multisig-read-only.js').MultisigProposal} MultisigProposal */
-/** @typedef {import('./src/wallet-account-multisig-read-only.js').MessageInfo} MessageInfo */
+/** @typedef {import('./src/wallet-account-read-only-multisig.js').MultisigInfo} MultisigInfo */
+/** @typedef {import('./src/wallet-account-read-only-multisig.js').MultisigProposal} MultisigProposal */
+/** @typedef {import('./src/wallet-account-read-only-multisig.js').MessageInfo} MessageInfo */
 
-/** @typedef {import('./src/wallet-account-multisig.js').MultisigResult} MultisigResult */
+/** @typedef {import('./src/wallet-account-multisig.js').MultisigProposal} MultisigResult */
 /** @typedef {import('./src/wallet-account-multisig.js').MultisigExecuteResult} MultisigExecuteResult */
 /** @typedef {import('./src/wallet-account-multisig.js').MessageProposal} MessageProposal */
 
@@ -37,7 +37,7 @@ export { default as WalletAccountReadOnly, IWalletAccountReadOnly } from './src/
 
 export { IWalletAccount } from './src/wallet-account.js'
 
-export { IWalletAccountMultisigReadOnly } from './src/wallet-account-multisig-read-only.js'
+export { IWalletAccountReadOnlyMultisig } from './src/wallet-account-read-only-multisig.js'
 
 export { IWalletAccountMultisig } from './src/wallet-account-multisig.js'
 

@@ -14,6 +14,7 @@
 
 'use strict'
 
+import { IWalletAccountReadOnly } from './wallet-account-read-only.js'
 import { NotImplementedError } from './errors.js'
 
 /**
@@ -25,7 +26,6 @@ import { NotImplementedError } from './errors.js'
  */
 
 /**
- * A proposal object representing a pending multisig transaction.
  *
  * @typedef {Object} MultisigProposal
  * @property {string} proposalId - Unique identifier for the created proposal
@@ -43,7 +43,7 @@ import { NotImplementedError } from './errors.js'
  */
 
 /** @interface */
-export class IWalletAccountMultisigReadOnly {
+export class IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnly {
   /**
    * Returns the address/identifier of the signer associated with this account wallet
    * Returns null if no signer is associated.
@@ -64,41 +64,22 @@ export class IWalletAccountMultisigReadOnly {
   }
 
   /**
-   * Returns the list of owners/co-signers of the multisig wallet.
-   * The format of each entry is chain-specific (address, pubkey, etc).
+   * Returns a list of proposals by their identifiers.
    *
-   * @returns {Promise<string[]>} Array of owner identifiers
+   * @param {string[]} proposalIds - The list of proposal identifiers
+   * @returns {Promise<(MultisigProposal | null)[]>} The proposal details, or null for proposals not found
    */
-  async getOwners () {
-    throw new NotImplementedError('getOwners()')
+  async getProposals (proposalIds) {
+    throw new NotImplementedError('getProposals(proposalIds)')
   }
 
   /**
-   * Returns the number of required signatures to execute a transaction.
+   * Returns a list of message proposals by their hashes.
    *
-   * @returns {Promise<number>} The threshold
+   * @param {string[]} messageHashes - The list of message hashes
+   * @returns {Promise<(MessageInfo | null)[]>} The message details, or null for messages not found
    */
-  async getThreshold () {
-    throw new NotImplementedError('getThreshold()')
-  }
-
-  /**
-   * Returns a proposal by its identifier.
-   *
-   * @param {string} proposalId - The proposal identifier
-   * @returns {Promise<MultisigProposal | null>} The proposal details, or null if not found
-   */
-  async getProposal (proposalId) {
-    throw new NotImplementedError('getProposal(proposalId)')
-  }
-
-  /**
-   * Returns a message proposal by its hash.
-   *
-   * @param {string} messageHash - The message hash
-   * @returns {Promise<MessageInfo | null>} The message info or null if not found
-   */
-  async getMessage (messageHash) {
-    throw new NotImplementedError('getMessage(messageHash)')
+  async getMessages (messageHashes) {
+    throw new NotImplementedError('getMessages(messageHashes)')
   }
 }
