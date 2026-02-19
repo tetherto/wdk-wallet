@@ -34,6 +34,11 @@ import { NotImplementedError } from './errors.js'
  * @property {string | null} combinedSignature - Final combined signature when threshold is met
  */
 
+/**
+ * @typedef {Object} MultisigOptions
+ * @property {number} threshold - The number of approvals required to execute a transaction.
+ */
+
 /** @interface */
 export class IWalletAccountMultisig extends IWalletAccount {
   /**
@@ -97,7 +102,7 @@ export class IWalletAccountMultisig extends IWalletAccount {
    * Submits a fully-signed proposal for on-chain execution.
    *
    * @param {string} proposalId - The proposal identifier to execute
-   * @returns {Promise<MultisigExecuteResult>} The transaction hash
+   * @returns {Promise<MultisigTransactionResult>} The transaction hash
    */
   async execute (proposalId) {
     throw new NotImplementedError('execute(proposalId)')
@@ -111,11 +116,11 @@ export class IWalletAccountMultisig extends IWalletAccount {
    * Proposes adding a new owner to the multisig.
    *
    * @param {string} owner - The new owner's identifier (address/pubkey).
-   * @param {number} [newThreshold] - Optional new threshold.
+   * @param {MultisigOptions} [options] - The new multisig options.
    * @returns {Promise<MultisigResult>} The proposal result.
    * @throws {Error} If the operation is not supported.
    */
-  async addOwner (owner, newThreshold) {
+  async addOwner (owner, options) {
     throw new NotImplementedError('addOwner(owner, newThreshold)')
   }
 
@@ -123,10 +128,11 @@ export class IWalletAccountMultisig extends IWalletAccount {
    * Proposes removing an owner from the multisig.
    *
    * @param {string} owner - The owner's identifier to remove
-   * @param {number} [newThreshold] - Optional new threshold
+   * @param {MultisigOptions} [options] - The new multisig options.
    * @returns {Promise<MultisigResult>} The proposal result
+   * @throws {Error} If the operation is not supported.
    */
-  async removeOwner (owner, newThreshold) {
+  async removeOwner (owner, options) {
     throw new NotImplementedError('removeOwner(owner, newThreshold)')
   }
 
@@ -136,6 +142,7 @@ export class IWalletAccountMultisig extends IWalletAccount {
    * @param {string} oldOwner - The owner to replace
    * @param {string} newOwner - The replacement owner
    * @returns {Promise<MultisigResult>} The proposal result
+   * @throws {Error} If the operation is not supported.
    */
   async swapOwner (oldOwner, newOwner) {
     throw new NotImplementedError('swapOwner(oldOwner, newOwner)')
@@ -146,6 +153,7 @@ export class IWalletAccountMultisig extends IWalletAccount {
    *
    * @param {number} newThreshold - The new threshold
    * @returns {Promise<MultisigResult>} The proposal result
+   * @throws {Error} If the operation is not supported.
    */
   async changeThreshold (newThreshold) {
     throw new NotImplementedError('changeThreshold(newThreshold)')

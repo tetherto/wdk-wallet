@@ -1,7 +1,7 @@
 /** @typedef {import('./wallet-account-read-only.js').Transaction} Transaction */
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigResult */
 /**
- * @typedef {Object} MultisigExecuteResult
+ * @typedef {Object} MultisigTransactionResult
  * @property {string} hash - The finalized on-chain transaction identifier
  */
 /**
@@ -11,6 +11,10 @@
  * @property {number} confirmations - Number of confirmations
  * @property {number} threshold - Required threshold
  * @property {string | null} combinedSignature - Final combined signature when threshold is met
+ */
+/**
+ * @typedef {Object} MultisigOptions
+ * @property {number} threshold - The number of approvals required to execute a transaction.
  */
 /** @interface */
 export interface IWalletAccountMultisig extends IWalletAccount {
@@ -57,32 +61,34 @@ export interface IWalletAccountMultisig extends IWalletAccount {
      * Submits a fully-signed proposal for on-chain execution.
      *
      * @param {string} proposalId - The proposal identifier to execute
-     * @returns {Promise<MultisigExecuteResult>} The transaction hash
+     * @returns {Promise<MultisigTransactionResult>} The transaction hash
      */
-    execute(proposalId: string): Promise<MultisigExecuteResult>;
+    execute(proposalId: string): Promise<MultisigTransactionResult>;
     /**
      * Proposes adding a new owner to the multisig.
-     * throw NotImplementedError if not supported.
      *
-     * @param {string} owner - The new owner's identifier (address/pubkey)
-     * @param {number} [newThreshold] - Optional new threshold
-     * @returns {Promise<MultisigResult>} The proposal result
+     * @param {string} owner - The new owner's identifier (address/pubkey).
+     * @param {MultisigOptions} [options] - The new multisig options.
+     * @returns {Promise<MultisigResult>} The proposal result.
+     * @throws {Error} If the operation is not supported.
      */
-    addOwner(owner: string, newThreshold?: number): Promise<MultisigResult>;
+    addOwner(owner: string, options?: MultisigOptions): Promise<MultisigResult>;
     /**
      * Proposes removing an owner from the multisig.
      *
      * @param {string} owner - The owner's identifier to remove
-     * @param {number} [newThreshold] - Optional new threshold
+     * @param {MultisigOptions} [options] - The new multisig options.
      * @returns {Promise<MultisigResult>} The proposal result
+     * @throws {Error} If the operation is not supported.
      */
-    removeOwner(owner: string, newThreshold?: number): Promise<MultisigResult>;
+    removeOwner(owner: string, options?: MultisigOptions): Promise<MultisigResult>;
     /**
      * Proposes replacing one owner with another.
      *
      * @param {string} oldOwner - The owner to replace
      * @param {string} newOwner - The replacement owner
      * @returns {Promise<MultisigResult>} The proposal result
+     * @throws {Error} If the operation is not supported.
      */
     swapOwner(oldOwner: string, newOwner: string): Promise<MultisigResult>;
     /**
@@ -90,12 +96,13 @@ export interface IWalletAccountMultisig extends IWalletAccount {
      *
      * @param {number} newThreshold - The new threshold
      * @returns {Promise<MultisigResult>} The proposal result
+     * @throws {Error} If the operation is not supported.
      */
     changeThreshold(newThreshold: number): Promise<MultisigResult>;
 }
 export type Transaction = import("./wallet-account-read-only.js").Transaction;
 export type MultisigResult = import("./wallet-account-read-only-multisig.js").MultisigProposal;
-export type MultisigExecuteResult = {
+export type MultisigTransactionResult = {
     /**
      * - The finalized on-chain transaction identifier
      */
@@ -122,5 +129,11 @@ export type MessageProposal = {
      * - Final combined signature when threshold is met
      */
     combinedSignature: string | null;
+};
+export type MultisigOptions = {
+    /**
+     * - The number of approvals required to execute a transaction.
+     */
+    threshold: number;
 };
 import { IWalletAccount } from './wallet-account.js';

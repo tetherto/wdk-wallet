@@ -30,6 +30,7 @@
 
 /** @typedef {import('./src/wallet-account-multisig.js').MultisigExecuteResult} MultisigExecuteResult */
 /** @typedef {import('./src/wallet-account-multisig.js').MessageProposal} MessageProposal */
+/** @typedef {import('./src/wallet-account-multisig.js').MultisigOptions} MultisigOptions */
 
 export { default } from './src/wallet-manager.js'
 
