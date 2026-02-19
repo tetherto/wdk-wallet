@@ -109,11 +109,11 @@ export class IWalletAccountMultisig extends IWalletAccount {
 
   /**
    * Proposes adding a new owner to the multisig.
-   * throw NotImplementedError if not supported.
    *
-   * @param {string} owner - The new owner's identifier (address/pubkey)
-   * @param {number} [newThreshold] - Optional new threshold
-   * @returns {Promise<MultisigResult>} The proposal result
+   * @param {string} owner - The new owner's identifier (address/pubkey).
+   * @param {number} [newThreshold] - Optional new threshold.
+   * @returns {Promise<MultisigResult>} The proposal result.
+   * @throws {Error} If the operation is not supported.
    */
   async addOwner (owner, newThreshold) {
     throw new NotImplementedError('addOwner(owner, newThreshold)')
