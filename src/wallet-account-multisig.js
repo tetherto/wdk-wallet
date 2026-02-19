@@ -21,7 +21,7 @@ import { NotImplementedError } from './errors.js'
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigResult */
 
 /**
- * @typedef {Object} MultisigExecuteResult
+ * @typedef {Object} MultisigTransactionResult
  * @property {string} hash - The finalized on-chain transaction identifier
  */
 
