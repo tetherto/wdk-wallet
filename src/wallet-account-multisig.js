@@ -23,16 +23,12 @@ import { NotImplementedError } from './errors.js'
 
 /**
  * @typedef {Object} MultisigTransactionResult
- * @property {string} hash - The transaction hash (proposal hash if not executed, on-chain hash if executed)
- * @property {bigint} fee - The estimated transaction fee
+ * @property {string} proposalId - The proposal identifier
+ * @property {string} [hash] - The on-chain transaction hash
+ * @property {bigint} [fee] - The transaction fee
  * @property {number} confirmations - Current number of confirmations
  * @property {number} threshold - Required threshold for execution
  * @property {boolean} executed - Whether the transaction was executed on-chain
- */
-
-/**
- * @typedef {Object} MultisigExecuteResult
- * @property {string} hash - The on-chain transaction hash
  */
 
 /**
@@ -147,7 +143,7 @@ export class IWalletAccountMultisig extends IWalletAccount {
    * Submits a fully-signed proposal for on-chain execution.
    *
    * @param {string} proposalId - The proposal identifier to execute
-   * @returns {Promise<MultisigExecuteResult>} The execution result
+   * @returns {Promise<MultisigTransactionResult>} The execution result
    */
   async execute (proposalId) {
     throw new NotImplementedError('execute(proposalId)')

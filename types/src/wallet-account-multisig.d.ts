@@ -3,15 +3,12 @@
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigResult */
 /**
  * @typedef {Object} MultisigTransactionResult
- * @property {string} hash - The transaction hash (proposal hash if not executed, on-chain hash if executed)
- * @property {bigint} fee - The estimated transaction fee
+ * @property {string} proposalId - The proposal identifier
+ * @property {string} [hash] - The on-chain transaction hash
+ * @property {bigint} [fee] - The transaction fee
  * @property {number} confirmations - Current number of confirmations
  * @property {number} threshold - Required threshold for execution
  * @property {boolean} executed - Whether the transaction was executed on-chain
- */
-/**
- * @typedef {Object} MultisigExecuteResult
- * @property {string} hash - The on-chain transaction hash
  */
 /**
  * @typedef {Object} MultisigSendOptions
@@ -98,9 +95,9 @@ export interface IWalletAccountMultisig extends IWalletAccount, IWalletAccountRe
      * Submits a fully-signed proposal for on-chain execution.
      *
      * @param {string} proposalId - The proposal identifier to execute
-     * @returns {Promise<MultisigExecuteResult>} The execution result
+     * @returns {Promise<MultisigTransactionResult>} The execution result
      */
-    execute(proposalId: string): Promise<MultisigExecuteResult>;
+    execute(proposalId: string): Promise<MultisigTransactionResult>;
     /**
      * Proposes adding a new owner to the multisig.
      *
@@ -142,13 +139,17 @@ export type TransferOptions = import("./wallet-account-read-only.js").TransferOp
 export type MultisigResult = import("./wallet-account-read-only-multisig.js").MultisigProposal;
 export type MultisigTransactionResult = {
     /**
-     * - The transaction hash (proposal hash if not executed, on-chain hash if executed)
+     * - The proposal identifier
      */
-    hash: string;
+    proposalId: string;
     /**
-     * - The estimated transaction fee
+     * - The on-chain transaction hash
      */
-    fee: bigint;
+    hash?: string;
+    /**
+     * - The transaction fee
+     */
+    fee?: bigint;
     /**
      * - Current number of confirmations
      */
@@ -161,12 +162,6 @@ export type MultisigTransactionResult = {
      * - Whether the transaction was executed on-chain
      */
     executed: boolean;
-};
-export type MultisigExecuteResult = {
-    /**
-     * - The on-chain transaction hash
-     */
-    hash: string;
 };
 export type MultisigSendOptions = {
     /**
