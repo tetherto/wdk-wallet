@@ -4,10 +4,14 @@
 /**
  * @typedef {Object} MultisigTransactionResult
  * @property {string} hash - The transaction hash (proposal hash if not executed, on-chain hash if executed)
- * @property {bigint} fee - The transaction fee
+ * @property {bigint} fee - The estimated transaction fee
  * @property {number} confirmations - Current number of confirmations
  * @property {number} threshold - Required threshold for execution
  * @property {boolean} executed - Whether the transaction was executed on-chain
+ */
+/**
+ * @typedef {Object} MultisigExecuteResult
+ * @property {string} hash - The on-chain transaction hash
  */
 /**
  * @typedef {Object} MultisigSendOptions
@@ -30,7 +34,7 @@
  * @extends {IWalletAccount}
  * @extends {IWalletAccountReadOnlyMultisig}
  */
-export interface IWalletAccountMultisig extends IWalletAccount {
+export interface IWalletAccountMultisig extends IWalletAccount, IWalletAccountReadOnlyMultisig {
     /**
      * Proposes sending a transaction.
      * The transaction will be sent automatically once the approval threshold is met
@@ -94,9 +98,9 @@ export interface IWalletAccountMultisig extends IWalletAccount {
      * Submits a fully-signed proposal for on-chain execution.
      *
      * @param {string} proposalId - The proposal identifier to execute
-     * @returns {Promise<MultisigTransactionResult>} The transaction hash
+     * @returns {Promise<MultisigExecuteResult>} The execution result
      */
-    execute(proposalId: string): Promise<MultisigTransactionResult>;
+    execute(proposalId: string): Promise<MultisigExecuteResult>;
     /**
      * Proposes adding a new owner to the multisig.
      *
@@ -142,7 +146,7 @@ export type MultisigTransactionResult = {
      */
     hash: string;
     /**
-     * - The transaction fee
+     * - The estimated transaction fee
      */
     fee: bigint;
     /**
@@ -157,6 +161,12 @@ export type MultisigTransactionResult = {
      * - Whether the transaction was executed on-chain
      */
     executed: boolean;
+};
+export type MultisigExecuteResult = {
+    /**
+     * - The on-chain transaction hash
+     */
+    hash: string;
 };
 export type MultisigSendOptions = {
     /**
@@ -193,3 +203,4 @@ export type MultisigOptions = {
     threshold: number;
 };
 import { IWalletAccount } from './wallet-account.js';
+import { IWalletAccountReadOnlyMultisig } from './wallet-account-read-only-multisig.js';
