@@ -17,7 +17,7 @@
  * @property {number} threshold - The number of approvals required to execute a transaction.
  */
 /** @interface */
-export interface IWalletAccountMultisig extends IWalletAccount {
+export interface IWalletAccountMultisig extends IWalletAccount, IWalletAccountReadOnlyMultisig {
     /**
      * Proposes signing a message with the multisig.
      * The proposer's signature is included automatically.
@@ -137,3 +137,4 @@ export type MultisigOptions = {
     threshold: number;
 };
 import { IWalletAccount } from './wallet-account.js';
+import { IWalletAccountReadOnlyMultisig } from './wallet-account-read-only-multisig.js';

@@ -39,7 +39,11 @@ import { NotImplementedError } from './errors.js'
  * @property {number} threshold - The number of approvals required to execute a transaction.
  */
 
-/** @interface */
+/**
+ * @interface
+ * @extends {IWalletAccount}
+ * @extends {IWalletAccountReadOnlyMultisig}
+ */
 export class IWalletAccountMultisig extends IWalletAccount {
   /**
    * Proposes signing a message with the multisig.
