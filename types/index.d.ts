@@ -14,7 +14,8 @@ export type MultisigInfo = import("./src/wallet-account-read-only-multisig.js").
 export type MultisigProposal = import("./src/wallet-account-read-only-multisig.js").MultisigProposal;
 export type MessageInfo = import("./src/wallet-account-read-only-multisig.js").MessageInfo;
 export type MultisigResult = import("./src/wallet-account-read-only-multisig.js").MultisigProposal;
-export type MultisigExecuteResult = import("./src/wallet-account-multisig.js").MultisigExecuteResult;
+export type MultisigTransactionResult = import("./src/wallet-account-multisig.js").MultisigTransactionResult;
+export type MultisigSendOptions = import("./src/wallet-account-multisig.js").MultisigSendOptions;
 export type MessageProposal = import("./src/wallet-account-multisig.js").MessageProposal;
 export type MultisigOptions = import("./src/wallet-account-multisig.js").MultisigOptions;
 export { default as WalletAccountReadOnly, IWalletAccountReadOnly } from "./src/wallet-account-read-only.js";
