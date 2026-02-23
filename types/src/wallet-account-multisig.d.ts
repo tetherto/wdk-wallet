@@ -2,7 +2,15 @@
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigResult */
 /**
  * @typedef {Object} MultisigTransactionResult
- * @property {string} hash - The finalized on-chain transaction identifier
+ * @property {string} hash - The transaction hash (proposal hash if not executed, on-chain hash if executed)
+ * @property {bigint} fee - The transaction fee
+ * @property {number} confirmations - Current number of confirmations
+ * @property {number} threshold - Required threshold for execution
+ * @property {boolean} executed - Whether the transaction was executed on-chain
+ */
+/**
+ * @typedef {Object} MultisigSendOptions
+ * @property {boolean} [autoExecute] - If true, automatically execute the transaction when the approval threshold is met
  */
 /**
  * @typedef {Object} MessageProposal
@@ -18,6 +26,26 @@
  */
 /** @interface */
 export interface IWalletAccountMultisig extends IWalletAccount, IWalletAccountReadOnlyMultisig {
+    /**
+     * Proposes sending a transaction.
+     * The transaction will be sent automatically once the approval threshold is met
+     * if autoExecute option is enabled.
+     *
+     * @param {Transaction} tx - The transaction
+     * @param {MultisigSendOptions} [options] - The multisig send options
+     * @returns {Promise<MultisigTransactionResult>} The transaction result
+     */
+    sendTransaction(tx: Transaction, options?: MultisigSendOptions): Promise<MultisigTransactionResult>;
+    /**
+     * Proposes transferring a token to another address.
+     * The transfer will be executed automatically once the approval threshold is met
+     * if autoExecute option is enabled.
+     *
+     * @param {TransferOptions} options - The transfer options
+     * @param {MultisigSendOptions} [sendOptions] - The multisig send options
+     * @returns {Promise<MultisigTransactionResult>} The transfer result
+     */
+    transfer(options: TransferOptions, sendOptions?: MultisigSendOptions): Promise<MultisigTransactionResult>;
     /**
      * Proposes signing a message with the multisig.
      * The proposer's signature is included automatically.
@@ -101,12 +129,35 @@ export interface IWalletAccountMultisig extends IWalletAccount, IWalletAccountRe
     changeThreshold(newThreshold: number): Promise<MultisigResult>;
 }
 export type Transaction = import("./wallet-account-read-only.js").Transaction;
+export type TransferOptions = import("./wallet-account-read-only.js").TransferOptions;
 export type MultisigResult = import("./wallet-account-read-only-multisig.js").MultisigProposal;
 export type MultisigTransactionResult = {
     /**
-     * - The finalized on-chain transaction identifier
+     * - The transaction hash (proposal hash if not executed, on-chain hash if executed)
      */
     hash: string;
+    /**
+     * - The transaction fee
+     */
+    fee: bigint;
+    /**
+     * - Current number of confirmations
+     */
+    confirmations: number;
+    /**
+     * - Required threshold for execution
+     */
+    threshold: number;
+    /**
+     * - Whether the transaction was executed on-chain
+     */
+    executed: boolean;
+};
+export type MultisigSendOptions = {
+    /**
+     * - If true, automatically execute the transaction when the approval threshold is met
+     */
+    autoExecute?: boolean;
 };
 export type MessageProposal = {
     /**

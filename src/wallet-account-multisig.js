@@ -18,11 +18,21 @@ import { IWalletAccount } from './wallet-account.js'
 import { NotImplementedError } from './errors.js'
 
 /** @typedef {import('./wallet-account-read-only.js').Transaction} Transaction */
+/** @typedef {import('./wallet-account-read-only.js').TransferOptions} TransferOptions */
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigResult */
 
 /**
  * @typedef {Object} MultisigTransactionResult
- * @property {string} hash - The finalized on-chain transaction identifier
+ * @property {string} hash - The transaction hash (proposal hash if not executed, on-chain hash if executed)
+ * @property {bigint} fee - The transaction fee
+ * @property {number} confirmations - Current number of confirmations
+ * @property {number} threshold - Required threshold for execution
+ * @property {boolean} executed - Whether the transaction was executed on-chain
+ */
+
+/**
+ * @typedef {Object} MultisigSendOptions
+ * @property {boolean} [autoExecute] - If true, automatically execute the transaction when the approval threshold is met
  */
 
 /**
@@ -45,6 +55,32 @@ import { NotImplementedError } from './errors.js'
  * @extends {IWalletAccountReadOnlyMultisig}
  */
 export class IWalletAccountMultisig extends IWalletAccount {
+  /**
+   * Proposes sending a transaction.
+   * The transaction will be sent automatically once the approval threshold is met
+   * if autoExecute option is enabled.
+   *
+   * @param {Transaction} tx - The transaction
+   * @param {MultisigSendOptions} [options] - The multisig send options
+   * @returns {Promise<MultisigTransactionResult>} The transaction result
+   */
+  async sendTransaction (tx, options) {
+    throw new NotImplementedError('sendTransaction(tx)')
+  }
+
+  /**
+   * Proposes transferring a token to another address.
+   * The transfer will be executed automatically once the approval threshold is met
+   * if autoExecute option is enabled.
+   *
+   * @param {TransferOptions} options - The transfer options
+   * @param {MultisigSendOptions} [sendOptions] - The multisig send options
+   * @returns {Promise<MultisigTransactionResult>} The transfer result
+   */
+  async transfer (options, sendOptions) {
+    throw new NotImplementedError('transfer(options)')
+  }
+
   /**
    * Proposes signing a message with the multisig.
    * The proposer's signature is included automatically.
