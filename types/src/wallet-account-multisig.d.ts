@@ -1,4 +1,5 @@
 /** @typedef {import('./wallet-account-read-only.js').Transaction} Transaction */
+/** @typedef {import('./wallet-account-read-only.js').TransferOptions} TransferOptions */
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigResult */
 /**
  * @typedef {Object} MultisigTransactionResult
@@ -24,8 +25,12 @@
  * @typedef {Object} MultisigOptions
  * @property {number} threshold - The number of approvals required to execute a transaction.
  */
-/** @interface */
-export interface IWalletAccountMultisig extends IWalletAccount, IWalletAccountReadOnlyMultisig {
+/**
+ * @interface
+ * @extends {IWalletAccount}
+ * @extends {IWalletAccountReadOnlyMultisig}
+ */
+export interface IWalletAccountMultisig extends IWalletAccount {
     /**
      * Proposes sending a transaction.
      * The transaction will be sent automatically once the approval threshold is met
@@ -188,4 +193,3 @@ export type MultisigOptions = {
     threshold: number;
 };
 import { IWalletAccount } from './wallet-account.js';
-import { IWalletAccountReadOnlyMultisig } from './wallet-account-read-only-multisig.js';

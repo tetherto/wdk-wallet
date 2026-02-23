@@ -21,7 +21,7 @@
  * @property {string | null} combinedSignature - Final combined signature when threshold is met
  */
 /** @interface */
-export class IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnly {
+export interface IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnly {
     /**
      * Returns the address/identifier of the signer associated with this account wallet
      * Returns null if no signer is associated.
