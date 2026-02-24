@@ -39,7 +39,7 @@ import { NotImplementedError } from './errors.js'
 
 /**
  * @typedef {Object} MultisigSendOptions
- * @property {boolean} [autoExecute] - If true, automatically execute the transaction when the approval threshold is met
+ * @property {boolean} [autoExecute] - If true, automatically execute the transaction when the approval threshold is met. Only takes effect if this signer's approval is the final one required. Otherwise the transaction must be executed manually via `execute()`.
  */
 
 /**
