@@ -24,7 +24,7 @@ import { NotImplementedError } from './errors.js'
 /**
  * @typedef {Object} MultisigTransactionResult
  * @property {string} proposalId - The proposal identifier
- * @property {string} hash - The transaction hash or proposal identifier
+ * @property {string} hash - The transaction hash
  * @property {bigint} fee - The transaction fee or estimated fee
  * @property {number} confirmations - Current number of confirmations
  * @property {number} threshold - Required threshold for execution
