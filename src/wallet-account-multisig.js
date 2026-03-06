@@ -39,7 +39,7 @@ import { NotImplementedError } from './errors.js'
 
 /**
  * @typedef {Object} MultisigSendOptions
- * @property {boolean} [autoExecute] - If true, automatically execute the transaction when the approval threshold is met. Only takes effect if this signer's approval is the final one required. Otherwise the transaction must be executed manually via `execute()`.
+ * @property {boolean} [autoExecute] - If true, automatically execute the transaction when the approval threshold is met. Only takes effect if this signer's approval is the final one required. Otherwise the transaction must be executed manually via `executeTx()`.
  */
 
 /**
@@ -109,28 +109,14 @@ export class IWalletAccountMultisig extends IWalletAccount {
     throw new NotImplementedError('approveMessage(messageHash)')
   }
 
-  // ==========================================
-  // Proposal Lifecycle
-  // ==========================================
-  /**
-   * Creates a new proposal for a transaction.
-   * The proposer's signature is included automatically.
-   *
-   * @param {Transaction} tx - The transaction to propose
-   * @returns {Promise<MultisigResult>} The proposal result
-   */
-  async propose (tx) {
-    throw new NotImplementedError('propose(tx)')
-  }
-
   /**
    * Adds the current signer's approval to an existing proposal.
    *
    * @param {string} proposalId - The proposal identifier to approve
    * @returns {Promise<MultisigResult>} The approval result
    */
-  async approve (proposalId) {
-    throw new NotImplementedError('approve(proposalId)')
+  async approveTx (proposalId) {
+    throw new NotImplementedError('approveTx(proposalId)')
   }
 
   /**
@@ -141,8 +127,8 @@ export class IWalletAccountMultisig extends IWalletAccount {
    * @param {string} proposalId - The proposal identifier to reject
    * @returns {Promise<MultisigResult>} The rejection result
    */
-  async reject (proposalId) {
-    throw new NotImplementedError('reject(proposalId)')
+  async rejectTx (proposalId) {
+    throw new NotImplementedError('rejectTx(proposalId)')
   }
 
   /**
@@ -151,8 +137,8 @@ export class IWalletAccountMultisig extends IWalletAccount {
    * @param {string} proposalId - The proposal identifier to execute
    * @returns {Promise<MultisigExecuteResult>} The execution result
    */
-  async execute (proposalId) {
-    throw new NotImplementedError('execute(proposalId)')
+  async executeTx (proposalId) {
+    throw new NotImplementedError('executeTx(proposalId)')
   }
 
   // ==========================================

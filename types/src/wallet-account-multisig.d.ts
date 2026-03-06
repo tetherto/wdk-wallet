@@ -17,7 +17,7 @@
  */
 /**
  * @typedef {Object} MultisigSendOptions
- * @property {boolean} [autoExecute] - If true, automatically execute the transaction when the approval threshold is met
+ * @property {boolean} [autoExecute] - If true, automatically execute the transaction when the approval threshold is met. Only takes effect if this signer's approval is the final one required. Otherwise the transaction must be executed manually via `executeTx()`.
  */
 /**
  * @typedef {Object} MessageProposal
@@ -73,20 +73,12 @@ export interface IWalletAccountMultisig extends IWalletAccount, IWalletAccountRe
      */
     approveMessage(messageHash: string): Promise<MessageProposal>;
     /**
-     * Creates a new proposal for a transaction.
-     * The proposer's signature is included automatically.
-     *
-     * @param {Transaction} tx - The transaction to propose
-     * @returns {Promise<MultisigResult>} The proposal result
-     */
-    propose(tx: Transaction): Promise<MultisigResult>;
-    /**
      * Adds the current signer's approval to an existing proposal.
      *
      * @param {string} proposalId - The proposal identifier to approve
      * @returns {Promise<MultisigResult>} The approval result
      */
-    approve(proposalId: string): Promise<MultisigResult>;
+    approveTx(proposalId: string): Promise<MultisigResult>;
     /**
      * Rejects a pending proposal.
      * Behavior is chain-specific: some chains support on-chain rejection,
@@ -95,14 +87,14 @@ export interface IWalletAccountMultisig extends IWalletAccount, IWalletAccountRe
      * @param {string} proposalId - The proposal identifier to reject
      * @returns {Promise<MultisigResult>} The rejection result
      */
-    reject(proposalId: string): Promise<MultisigResult>;
+    rejectTx(proposalId: string): Promise<MultisigResult>;
     /**
      * Submits a fully-signed proposal for on-chain execution.
      *
      * @param {string} proposalId - The proposal identifier to execute
      * @returns {Promise<MultisigExecuteResult>} The execution result
      */
-    execute(proposalId: string): Promise<MultisigExecuteResult>;
+    executeTx(proposalId: string): Promise<MultisigExecuteResult>;
     /**
      * Proposes adding a new owner to the multisig.
      *
@@ -148,7 +140,7 @@ export type MultisigTransactionResult = {
      */
     proposalId: string;
     /**
-     * - The proposal identifier
+     * - The transaction hash
      */
     hash: string;
     /**
@@ -180,7 +172,7 @@ export type MultisigExecuteResult = {
 };
 export type MultisigSendOptions = {
     /**
-     * - If true, automatically execute the transaction when the approval threshold is met
+     * - If true, automatically execute the transaction when the approval threshold is met. Only takes effect if this signer's approval is the final one required. Otherwise the transaction must be executed manually via `executeTx()`.
      */
     autoExecute?: boolean;
 };
@@ -212,5 +204,5 @@ export type MultisigOptions = {
      */
     threshold: number;
 };
-import { IWalletAccount } from './wallet-account.js';
 import { IWalletAccountReadOnlyMultisig } from './wallet-account-read-only-multisig.js';
+import { IWalletAccount } from './wallet-account.js';
