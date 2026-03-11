@@ -1,3 +1,8 @@
+export { default } from "./src/wallet-manager.js";
+export { IWalletAccount } from "./src/wallet-account.js";
+export { IWalletAccountReadOnlyMultisig } from "./src/wallet-account-read-only-multisig.js";
+export { IWalletAccountMultisig } from "./src/wallet-account-multisig.js";
+export { NotImplementedError } from "./src/errors.js";
 export type FeeRates = import("./src/wallet-manager.js").FeeRates;
 export type WalletConfig = import("./src/wallet-manager.js").WalletConfig;
 export type Transaction = import("./src/wallet-account-read-only.js").Transaction;
@@ -5,7 +10,13 @@ export type TransactionResult = import("./src/wallet-account-read-only.js").Tran
 export type TransferOptions = import("./src/wallet-account-read-only.js").TransferOptions;
 export type TransferResult = import("./src/wallet-account-read-only.js").TransferResult;
 export type KeyPair = import("./src/wallet-account.js").KeyPair;
-export { default } from "./src/wallet-manager.js";
+export type MultisigInfo = import("./src/wallet-account-read-only-multisig.js").MultisigInfo;
+export type MultisigProposal = import("./src/wallet-account-read-only-multisig.js").MultisigProposal;
+export type MessageInfo = import("./src/wallet-account-read-only-multisig.js").MessageInfo;
+export type MultisigResult = import("./src/wallet-account-read-only-multisig.js").MultisigProposal;
+export type MultisigTransactionResult = import("./src/wallet-account-multisig.js").MultisigTransactionResult;
+export type MultisigExecuteResult = import("./src/wallet-account-multisig.js").MultisigExecuteResult;
+export type MultisigSendOptions = import("./src/wallet-account-multisig.js").MultisigSendOptions;
+export type MessageProposal = import("./src/wallet-account-multisig.js").MessageProposal;
+export type MultisigOptions = import("./src/wallet-account-multisig.js").MultisigOptions;
 export { default as WalletAccountReadOnly, IWalletAccountReadOnly } from "./src/wallet-account-read-only.js";
-export { IWalletAccount } from "./src/wallet-account.js";
-export { NotImplementedError } from "./src/errors.js";

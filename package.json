@@ -39,6 +39,10 @@
       "types": "./types/src/protocols/index.d.ts",
       "default": "./src/protocols/index.js"
     },
+    "./multisig": {
+      "types": "./types/src/multisig/index.d.ts",
+      "default": "./src/multisig/index.js"
+    },
     "./package": {
       "default": "./package.json"
     }
