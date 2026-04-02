@@ -1,9 +1,7 @@
-export type SwapProtocolConfig =
-  import("./swap-protocol.js").SwapProtocolConfig;
+export type SwapProtocolConfig = import("./swap-protocol.js").SwapProtocolConfig;
 export type SwapOptions = import("./swap-protocol.js").SwapOptions;
 export type SwapResult = import("./swap-protocol.js").SwapResult;
-export type BridgeProtocolConfig =
-  import("./bridge-protocol.js").BridgeProtocolConfig;
+export type BridgeProtocolConfig = import("./bridge-protocol.js").BridgeProtocolConfig;
 export type BridgeOptions = import("./bridge-protocol.js").BridgeOptions;
 export type BridgeResult = import("./bridge-protocol.js").BridgeResult;
 export type SupplyOptions = import("./lending-protocol.js").SupplyOptions;
@@ -16,35 +14,21 @@ export type RepayOptions = import("./lending-protocol.js").RepayOptions;
 export type RepayResult = import("./lending-protocol.js").RepayResult;
 export type BuyOptions = import("./fiat-protocol.js").BuyOptions;
 export type BuyCommonOptions = import("./fiat-protocol.js").BuyCommonOptions;
-export type BuyExactCryptoAmountOptions =
-  import("./fiat-protocol.js").BuyExactCryptoAmountOptions;
-export type BuyWithFiatAmountOptions =
-  import("./fiat-protocol.js").BuyWithFiatAmountOptions;
+export type BuyExactCryptoAmountOptions = import("./fiat-protocol.js").BuyExactCryptoAmountOptions;
+export type BuyWithFiatAmountOptions = import("./fiat-protocol.js").BuyWithFiatAmountOptions;
 export type BuyResult = import("./fiat-protocol.js").BuyResult;
 export type SellOptions = import("./fiat-protocol.js").SellOptions;
 export type SellCommonOptions = import("./fiat-protocol.js").SellCommonOptions;
-export type SellExactCryptoAmountOptions =
-  import("./fiat-protocol.js").SellExactCryptoAmountOptions;
-export type SellForFiatAmountOptions =
-  import("./fiat-protocol.js").SellForFiatAmountOptions;
+export type SellExactCryptoAmountOptions = import("./fiat-protocol.js").SellExactCryptoAmountOptions;
+export type SellForFiatAmountOptions = import("./fiat-protocol.js").SellForFiatAmountOptions;
 export type SellResult = import("./fiat-protocol.js").SellResult;
 export type FiatQuote = import("./fiat-protocol.js").FiatQuote;
-export type FiatTransactionStatus =
-  import("./fiat-protocol.js").FiatTransactionStatus;
-export type FiatTransactionDetail =
-  import("./fiat-protocol.js").FiatTransactionDetail;
-export type SupportedCryptoAsset =
-  import("./fiat-protocol.js").SupportedCryptoAsset;
-export type SupportedFiatCurrency =
-  import("./fiat-protocol.js").SupportedFiatCurrency;
+export type FiatTransactionStatus = import("./fiat-protocol.js").FiatTransactionStatus;
+export type FiatTransactionDetail = import("./fiat-protocol.js").FiatTransactionDetail;
+export type SupportedCryptoAsset = import("./fiat-protocol.js").SupportedCryptoAsset;
+export type SupportedFiatCurrency = import("./fiat-protocol.js").SupportedFiatCurrency;
 export type SupportedCountry = import("./fiat-protocol.js").SupportedCountry;
 export { default as SwapProtocol, ISwapProtocol } from "./swap-protocol.js";
-export {
-  default as BridgeProtocol,
-  IBridgeProtocol,
-} from "./bridge-protocol.js";
-export {
-  default as LendingProtocol,
-  ILendingProtocol,
-} from "./lending-protocol.js";
+export { default as BridgeProtocol, IBridgeProtocol } from "./bridge-protocol.js";
+export { default as LendingProtocol, ILendingProtocol } from "./lending-protocol.js";
 export { default as FiatProtocol, IFiatProtocol } from "./fiat-protocol.js";

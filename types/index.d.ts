@@ -1,19 +1,12 @@
 export type FeeRates = import("./src/wallet-manager.js").FeeRates;
 export type WalletConfig = import("./src/wallet-manager.js").WalletConfig;
-export type Transaction =
-  import("./src/wallet-account-read-only.js").Transaction;
-export type TransactionResult =
-  import("./src/wallet-account-read-only.js").TransactionResult;
-export type TransferOptions =
-  import("./src/wallet-account-read-only.js").TransferOptions;
-export type TransferResult =
-  import("./src/wallet-account-read-only.js").TransferResult;
+export type Transaction = import("./src/wallet-account-read-only.js").Transaction;
+export type TransactionResult = import("./src/wallet-account-read-only.js").TransactionResult;
+export type TransferOptions = import("./src/wallet-account-read-only.js").TransferOptions;
+export type TransferResult = import("./src/wallet-account-read-only.js").TransferResult;
 export type KeyPair = import("./src/wallet-account.js").KeyPair;
 export { default } from "./src/wallet-manager.js";
-export {
-  default as WalletAccountReadOnly,
-  IWalletAccountReadOnly,
-} from "./src/wallet-account-read-only.js";
+export { default as WalletAccountReadOnly, IWalletAccountReadOnly } from "./src/wallet-account-read-only.js";
 export { IWalletAccount } from "./src/wallet-account.js";
 export { NotImplementedError } from "./src/errors.js";
 export { ISigner } from "./src/isigner.js";
