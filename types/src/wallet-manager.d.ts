@@ -17,10 +17,16 @@ export default abstract class WalletManager {
     /**
      * Creates a new wallet manager.
      *
-     * @param {ISigner} signer - The default signer for the wallet.
+     * Accepts either a BIP-39 seed (string mnemonic or raw Uint8Array) for
+     * backwards compatibility, or an {@link ISigner} instance for the new
+     * signer-based workflow.
+     *
+     * @param {string | Uint8Array | ISigner} seedOrSigner - A BIP-39 seed phrase, raw seed bytes, or a default signer.
      * @param {WalletConfig} [config] - The wallet configuration.
      */
-    constructor(signer: ISigner, config?: WalletConfig);
+    constructor(seedOrSigner: string | Uint8Array | ISigner, config?: WalletConfig);
+    /** @private */
+    private _seed: Uint8Array | null;
     /**
      * A map between signer names and signers.
      *
@@ -44,6 +50,12 @@ export default abstract class WalletManager {
      * @type {WalletConfig}
      */
     protected _config: WalletConfig;
+    /**
+     * The seed of the wallet.
+     *
+     * @type {Uint8Array | null}
+     */
+    get seed(): Uint8Array | null;
     /**
      * Creates a new signer.
      *

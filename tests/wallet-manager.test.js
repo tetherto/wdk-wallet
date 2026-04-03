@@ -29,8 +29,28 @@ const SEED_PHRASE = 'cook voyage document eight skate token alien guide drink un
 
 const INVALID_SEED_PHRASE = 'invalid seed phrase'
 
+const SEED = bip39.mnemonicToSeedSync(SEED_PHRASE)
+
 describe('WalletManager', () => {
   describe('constructor', () => {
+    test('should successfully initialize a wallet manager for the given seed phrase', () => {
+      const wallet = new DummyWalletManager(SEED_PHRASE)
+
+      expect(wallet.seed).toEqual(SEED)
+    })
+
+    test('should successfully initialize a wallet manager for the given seed', () => {
+      const wallet = new DummyWalletManager(SEED)
+
+      expect(wallet.seed).toEqual(SEED)
+    })
+
+    test('should throw if the seed phrase is invalid', () => {
+      // eslint-disable-next-line no-new
+      expect(() => { new DummyWalletManager(INVALID_SEED_PHRASE) })
+        .toThrow('The seed phrase is invalid.')
+    })
+
     test('should set the provided signer as the default signer', () => {
       const signer = { name: 'dummy-signer' }
       const wallet = new DummyWalletManager(signer)

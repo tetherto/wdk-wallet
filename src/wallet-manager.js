@@ -36,17 +36,45 @@ export default class WalletManager {
   /**
    * Creates a new wallet manager.
    *
-   * @param {ISigner} signer - The default signer for the wallet.
+   * Accepts either a BIP-39 seed (string mnemonic or raw Uint8Array) for
+   * backwards compatibility, or an {@link ISigner} instance for the new
+   * signer-based workflow.
+   *
+   * @param {string | Uint8Array | ISigner} seedOrSigner - A BIP-39 seed phrase, raw seed bytes, or a default signer.
    * @param {WalletConfig} [config] - The wallet configuration.
    */
-  constructor (signer, config = { }) {
-    /**
-     * A map between signer names and signers.
-     *
-     * @protected
-     * @type {{ [name: string]: ISigner }}
-     */
-    this._signers = { default: signer }
+  constructor (seedOrSigner, config = { }) {
+    if (typeof seedOrSigner === 'string' || seedOrSigner instanceof Uint8Array) {
+      if (typeof seedOrSigner === 'string') {
+        if (!WalletManager.isValidSeedPhrase(seedOrSigner)) {
+          throw new Error('The seed phrase is invalid.')
+        }
+
+        seedOrSigner = bip39.mnemonicToSeedSync(seedOrSigner)
+      }
+
+      /** @private */
+      this._seed = seedOrSigner
+
+      /**
+       * A map between signer names and signers.
+       *
+       * @protected
+       * @type {{ [name: string]: ISigner }}
+       */
+      this._signers = {}
+    } else {
+      /** @private */
+      this._seed = null
+
+      /**
+       * A map between signer names and signers.
+       *
+       * @protected
+       * @type {{ [name: string]: ISigner }}
+       */
+      this._signers = { default: seedOrSigner }
+    }
 
     /**
      * A map between derivation paths and wallet accounts. The {@link dispose} method will automatically dispose
@@ -86,6 +114,15 @@ export default class WalletManager {
    */
   static isValidSeedPhrase (seedPhrase) {
     return bip39.validateMnemonic(seedPhrase)
+  }
+
+  /**
+   * The seed of the wallet.
+   *
+   * @type {Uint8Array | null}
+   */
+  get seed () {
+    return this._seed
   }
 
   /**
