@@ -30,3 +30,5 @@ export { default as WalletAccountReadOnly, IWalletAccountReadOnly } from './src/
 export { IWalletAccount } from './src/wallet-account.js'
 
 export { NotImplementedError } from './src/errors.js'
+
+export { ISigner } from './src/isigner.js'

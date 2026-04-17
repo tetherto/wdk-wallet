@@ -18,6 +18,7 @@ import * as bip39 from 'bip39'
 import { NotImplementedError } from './errors.js'
 
 /** @typedef {import('./wallet-account.js').IWalletAccount} IWalletAccount */
+/** @typedef {import('./isigner.js').ISigner} ISigner */
 
 /**
  * @typedef {Object} WalletConfig
@@ -35,28 +36,45 @@ export default class WalletManager {
   /**
    * Creates a new wallet manager.
    *
-   * @param {string | Uint8Array} seed - The wallet's [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) seed phrase.
+   * Accepts either a BIP-39 seed (string mnemonic or raw Uint8Array) for
+   * backwards compatibility, or an {@link ISigner} instance for the new
+   * signer-based workflow.
+   *
+   * @param {string | Uint8Array | ISigner} seedOrSigner - A BIP-39 seed phrase, raw seed bytes, or a default signer.
    * @param {WalletConfig} [config] - The wallet configuration.
    */
-  constructor (seed, config = { }) {
-    if (typeof seed === 'string') {
-      if (!WalletManager.isValidSeedPhrase(seed)) {
-        throw new Error('The seed phrase is invalid.')
+  constructor (seedOrSigner, config = { }) {
+    if (typeof seedOrSigner === 'string' || seedOrSigner instanceof Uint8Array) {
+      if (typeof seedOrSigner === 'string') {
+        if (!WalletManager.isValidSeedPhrase(seedOrSigner)) {
+          throw new Error('The seed phrase is invalid.')
+        }
+
+        seedOrSigner = bip39.mnemonicToSeedSync(seedOrSigner)
       }
 
-      seed = bip39.mnemonicToSeedSync(seed)
+      /** @private */
+      this._seed = seedOrSigner
+
+      /**
+       * A map between signer names and signers.
+       *
+       * @protected
+       * @type {{ [name: string]: ISigner }}
+       */
+      this._signers = {}
+    } else {
+      /** @private */
+      this._seed = null
+
+      /**
+       * A map between signer names and signers.
+       *
+       * @protected
+       * @type {{ [name: string]: ISigner }}
+       */
+      this._signers = { default: seedOrSigner }
     }
-
-    /** @private */
-    this._seed = seed
-
-    /**
-     * The wallet configuration.
-     *
-     * @protected
-     * @type {WalletConfig}
-     */
-    this._config = config
 
     /**
      * A map between derivation paths and wallet accounts. The {@link dispose} method will automatically dispose
@@ -67,6 +85,14 @@ export default class WalletManager {
      * @type {{ [path: string]: IWalletAccount }}
      */
     this._accounts = {}
+
+    /**
+     * The wallet configuration.
+     *
+     * @protected
+     * @type {WalletConfig}
+     */
+    this._config = config
   }
 
   /**
@@ -91,12 +117,33 @@ export default class WalletManager {
   }
 
   /**
-   * The seed phrase of the wallet.
+   * The seed of the wallet.
    *
-   * @type {Uint8Array}
+   * @type {Uint8Array | null}
    */
   get seed () {
     return this._seed
+  }
+
+  /**
+   * Creates a new signer.
+   *
+   * @abstract
+   * @param {string} signerName - The signer name.
+   * @param {ISigner} signer - The signer.
+   */
+  createSigner (signerName, signer) {
+    throw new NotImplementedError('createSigner(signerName, signer)')
+  }
+
+  /**
+   * Returns a signer.
+   *
+   * @param {string} signerName - The signer name.
+   * @returns {ISigner} The signer.
+   */
+  getSigner (signerName) {
+    return this._signers[signerName]
   }
 
   /**
@@ -104,9 +151,10 @@ export default class WalletManager {
    *
    * @abstract
    * @param {number} [index] - The index of the account to get (default: 0).
+   * @param {string} [signerName='default'] - The name of the signer to use.
    * @returns {Promise<IWalletAccount>} The account.
    */
-  async getAccount (index = 0) {
+  async getAccount (index = 0, signerName = 'default') {
     throw new NotImplementedError('getAccount(index)')
   }
 
@@ -115,9 +163,10 @@ export default class WalletManager {
    *
    * @abstract
    * @param {string} path - The derivation path (e.g. "0'/0/0").
+   * @param {string} [signerName='default'] - The name of the signer to use.
    * @returns {Promise<IWalletAccount>} The account.
    */
-  async getAccountByPath (path) {
+  async getAccountByPath (path, signerName = 'default') {
     throw new NotImplementedError('getAccountByPath(path)')
   }
 
@@ -136,11 +185,14 @@ export default class WalletManager {
    */
   dispose () {
     for (const account of Object.values(this._accounts)) {
-      if (account.keyPair.privateKey) {
-        account.dispose()
-      }
+      account.dispose()
+    }
+
+    for (const signer of Object.values(this._signers)) {
+      signer.dispose()
     }
 
     this._accounts = {}
+    this._signers = {}
   }
 }

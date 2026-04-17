@@ -50,6 +50,13 @@ describe('WalletManager', () => {
       expect(() => { new DummyWalletManager(INVALID_SEED_PHRASE) })
         .toThrow('The seed phrase is invalid.')
     })
+
+    test('should set the provided signer as the default signer', () => {
+      const signer = { name: 'dummy-signer' }
+      const wallet = new DummyWalletManager(signer)
+
+      expect(wallet.getSigner('default')).toBe(signer)
+    })
   })
 
   describe('static getRandomSeedPhrase', () => {
@@ -98,6 +105,15 @@ describe('WalletManager', () => {
     test('should return false for an empty string', () => {
       expect(WalletManager.isValidSeedPhrase(''))
         .toBe(false)
+    })
+  })
+
+  describe('getSigner', () => {
+    test('should return the default signer when only default signer exists', () => {
+      const signer = { name: 'default-signer' }
+      const wallet = new DummyWalletManager(signer)
+
+      expect(wallet.getSigner('default')).toBe(signer)
     })
   })
 })

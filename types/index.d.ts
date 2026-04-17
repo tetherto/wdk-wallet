@@ -9,3 +9,4 @@ export { default } from "./src/wallet-manager.js";
 export { default as WalletAccountReadOnly, IWalletAccountReadOnly } from "./src/wallet-account-read-only.js";
 export { IWalletAccount } from "./src/wallet-account.js";
 export { NotImplementedError } from "./src/errors.js";
+export { ISigner } from "./src/isigner.js";
