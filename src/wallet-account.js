@@ -69,6 +69,16 @@ export class IWalletAccount extends IWalletAccountReadOnly {
   }
 
   /**
+   * Signs a transaction
+   *
+   * @param {Transaction} tx - The transaction to sign.
+   * @returns {Promise<string>} The signed transaction as a hex string.
+   */
+  async signTransaction (tx) {
+    throw new NotImplementedError('signTransaction(tx)')
+  }
+
+  /**
    * Verifies a message's signature.
    *
    * @param {string} message - The original message.
