@@ -29,9 +29,9 @@ export interface IWalletAccount extends IWalletAccountReadOnly {
      * Signs a transaction.
      *
      * @param {Transaction} tx - The transaction to sign.
-     * @returns {Promise<string>} The signed transaction as a hex string.
+     * @returns {Promise<unknown>} The signed transaction.
      */
-    signTransaction(tx: Transaction): Promise<string>;
+    signTransaction(tx: Transaction): Promise<unknown>;
     /**
      * Verifies a message's signature.
      *
