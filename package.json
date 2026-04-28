@@ -47,6 +47,11 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
+  "overrides": {
+    "brace-expansion": ">=1.1.13",
+    "flatted": ">=3.4.2",
+    "picomatch": ">=2.3.2"
+  },
   "standard": {
     "ignore": [
       "bare.js",
