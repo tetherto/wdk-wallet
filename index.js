@@ -23,10 +23,26 @@
 
 /** @typedef {import('./src/wallet-account.js').KeyPair} KeyPair */
 
+/** @typedef {import('./src/indexer-client.js').PortfolioSummary} PortfolioSummary */
+/** @typedef {import('./src/indexer-client.js').PortfolioByChain} PortfolioByChain */
+/** @typedef {import('./src/indexer-client.js').TokenPosition} TokenPosition */
+/** @typedef {import('./src/indexer-client.js').PositionsResult} PositionsResult */
+/** @typedef {import('./src/indexer-client.js').PositionsOptions} PositionsOptions */
+/** @typedef {import('./src/indexer-client.js').InterpretedTransfer} InterpretedTransfer */
+/** @typedef {import('./src/indexer-client.js').InterpretedTransaction} InterpretedTransaction */
+/** @typedef {import('./src/indexer-client.js').TransactionsResult} TransactionsResult */
+/** @typedef {import('./src/indexer-client.js').TransactionsOptions} TransactionsOptions */
+/** @typedef {import('./src/indexer-client.js').NftPosition} NftPosition */
+/** @typedef {import('./src/indexer-client.js').NftsResult} NftsResult */
+/** @typedef {import('./src/indexer-client.js').NftsOptions} NftsOptions */
+/** @typedef {import('./src/indexer-client.js').PnlSummary} PnlSummary */
+
 export { default } from './src/wallet-manager.js'
 
 export { default as WalletAccountReadOnly, IWalletAccountReadOnly } from './src/wallet-account-read-only.js'
 
 export { IWalletAccount } from './src/wallet-account.js'
+
+export { default as WalletIndexerClient, IWalletIndexerClient } from './src/indexer-client.js'
 
 export { NotImplementedError } from './src/errors.js'
