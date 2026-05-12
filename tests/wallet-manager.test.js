@@ -26,8 +26,8 @@ class DummyWalletManager extends WalletManager {
 
   async getFeeRates () {
     return {
-      normal: 0,
-      fast: 0
+      normal: 0n,
+      fast: 0n
     }
   }
 
@@ -87,8 +87,7 @@ describe('WalletManager', () => {
       expect(words).toHaveLength(12)
 
       words.forEach(word => {
-        expect(bip39.wordlists.EN.includes(word))
-          .not.toBe(-1)
+        expect(bip39.wordlists.EN.includes(word)).toBe(true)
       })
     })
 
