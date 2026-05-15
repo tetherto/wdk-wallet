@@ -51,6 +51,20 @@
 /** @typedef {import('./fiat-protocol.js').SupportedFiatCurrency} SupportedFiatCurrency */
 /** @typedef {import('./fiat-protocol.js').SupportedCountry} SupportedCountry */
 
+/** @typedef {import('./swidge-protocol.js').SwidgeStatus} SwidgeStatus */
+/** @typedef {import('./swidge-protocol.js').SwidgeFeeType} SwidgeFeeType */
+/** @typedef {import('./swidge-protocol.js').SwidgeProtocolConfig} SwidgeProtocolConfig */
+/** @typedef {import('./swidge-protocol.js').SwidgeOptions} SwidgeOptions */
+/** @typedef {import('./swidge-protocol.js').SwidgeCommonOptions} SwidgeCommonOptions */
+/** @typedef {import('./swidge-protocol.js').SwidgeExactInOptions} SwidgeExactInOptions */
+/** @typedef {import('./swidge-protocol.js').SwidgeExactOutOptions} SwidgeExactOutOptions */
+/** @typedef {import('./swidge-protocol.js').SwidgeFee} SwidgeFee */
+/** @typedef {import('./swidge-protocol.js').SwidgeTransaction} SwidgeTransaction */
+/** @typedef {import('./swidge-protocol.js').SwidgeQuote} SwidgeQuote */
+/** @typedef {import('./swidge-protocol.js').SwidgeResult} SwidgeResult */
+/** @typedef {import('./swidge-protocol.js').SwidgeStatusOptions} SwidgeStatusOptions */
+/** @typedef {import('./swidge-protocol.js').SwidgeStatusResult} SwidgeStatusResult */
+
 export { default as SwapProtocol, ISwapProtocol } from './swap-protocol.js'
 
 export { default as BridgeProtocol, IBridgeProtocol } from './bridge-protocol.js'
@@ -58,3 +72,5 @@ export { default as BridgeProtocol, IBridgeProtocol } from './bridge-protocol.js
 export { default as LendingProtocol, ILendingProtocol } from './lending-protocol.js'
 
 export { default as FiatProtocol, IFiatProtocol } from './fiat-protocol.js'
+
+export { default as SwidgeProtocol, ISwidgeProtocol } from './swidge-protocol.js'
