@@ -129,7 +129,7 @@ export default class WalletManager {
    * @param {ISigner} signer - The signer.
    * @throws {Error} If `signerName` is empty.
    */
-  createSigner (signerName, signer) {
+  addSigner (signerName, signer) {
     if (!signerName) {
       throw new Error('Signer name is required.')
     }
