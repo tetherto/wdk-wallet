@@ -36,9 +36,8 @@ export default class WalletManager {
   /**
    * Creates a new wallet manager.
    *
-   * Accepts either a BIP-39 seed (string mnemonic or raw Uint8Array) for
-   * backwards compatibility, or an {@link ISigner} instance for the new
-   * signer-based workflow.
+   * Accepts either a BIP-39 seed (string mnemonic or raw Uint8Array), or 
+   * an {@link ISigner} instance.
    *
    * @param {string | Uint8Array | ISigner} seedOrSigner - A BIP-39 seed phrase, raw seed bytes, or a default signer.
    * @param {WalletConfig} [config] - The wallet configuration.
