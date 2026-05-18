@@ -15,7 +15,6 @@
 
 import { NotImplementedError } from './errors.js'
 
-/** @typedef {import('./wallet-manager.js').WalletConfig} WalletConfig */
 /**
  * A minimal, cross-chain signer interface. Chain-specific signers can extend
  * this contract with additional capabilities (e.g., signTransaction, signPsbt),

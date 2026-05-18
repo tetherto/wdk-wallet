@@ -44,40 +44,35 @@ export default class WalletManager {
    * @param {WalletConfig} [config] - The wallet configuration.
    */
   constructor (seedOrSigner, config = {}) {
-    if (
-      typeof seedOrSigner === 'string' ||
-      seedOrSigner instanceof Uint8Array
-    ) {
-      if (typeof seedOrSigner === 'string') {
-        if (!WalletManager.isValidSeedPhrase(seedOrSigner)) {
-          throw new Error('The seed phrase is invalid.')
-        }
-
-        seedOrSigner = bip39.mnemonicToSeedSync(seedOrSigner)
+    if (typeof seedOrSigner === 'string') {
+      if (!WalletManager.isValidSeedPhrase(seedOrSigner)) {
+        throw new Error('The seed phrase is invalid.')
       }
 
-      /** @private */
-      this._seed = seedOrSigner
-
-      /**
-       * A map between signer names and signers.
-       *
-       * @protected
-       * @type {{ [name: string]: ISigner }}
-       */
-      this._signers = {}
-    } else {
-      /** @private */
-      this._seed = null
-
-      /**
-       * A map between signer names and signers.
-       *
-       * @protected
-       * @type {{ [name: string]: ISigner }}
-       */
-      this._signers = { default: seedOrSigner }
+      seedOrSigner = bip39.mnemonicToSeedSync(seedOrSigner)
     }
+
+    const isSeed = seedOrSigner instanceof Uint8Array
+
+    /** @private */
+    this._seed = isSeed ? seedOrSigner : undefined
+
+    /**
+     * The default signer provided at construction. Accessed via {@link getSigner}
+     * with no arguments.
+     *
+     * @protected
+     * @type {ISigner | undefined}
+     */
+    this._defaultSigner = isSeed ? undefined : seedOrSigner
+
+    /**
+     * A map between signer names and signers added via {@link createSigner}.
+     *
+     * @protected
+     * @type {Record<string, ISigner>}
+     */
+    this._signers = {}
 
     /**
      * A map between derivation paths and wallet accounts. The {@link dispose} method will automatically dispose
@@ -85,7 +80,7 @@ export default class WalletManager {
      * {@link getAccount} and {@link getAccountByPath} methods.
      *
      * @protected
-     * @type {{ [path: string]: IWalletAccount }}
+     * @type {Record<string, IWalletAccount>}
      */
     this._accounts = {}
 
@@ -122,31 +117,44 @@ export default class WalletManager {
   /**
    * The seed of the wallet.
    *
-   * @type {Uint8Array | null}
+   * @type {Uint8Array | undefined}
    */
   get seed () {
     return this._seed
   }
 
   /**
-   * Creates a new signer.
+   * Registers a signer under the given name.
    *
-   * @abstract
    * @param {string} signerName - The signer name.
    * @param {ISigner} signer - The signer.
+   * @throws {Error} If `signerName` is empty.
    */
   createSigner (signerName, signer) {
-    throw new NotImplementedError('createSigner(signerName, signer)')
+    if (!signerName) {
+      throw new Error('Signer name is required.')
+    }
+
+    this._signers[signerName] = signer
   }
 
   /**
-   * Returns a signer registered under the given name.
+   * Returns a signer. With no arguments, returns the default signer provided
+   * at construction. With a name, returns the signer registered under that
+   * name via {@link createSigner}.
    *
-   * @param {string} signerName - The signer name.
+   * @param {string} [signerName] - The signer name. Omit to get the default.
    * @returns {ISigner} The signer.
-   * @throws {Error} If no signer is registered under `signerName`.
+   * @throws {Error} If called with no arguments and no default signer was
+   * provided at construction, or if called with a name that is not registered.
    */
   getSigner (signerName) {
+    if (signerName === undefined) {
+      if (this._defaultSigner === undefined) {
+        throw new Error('No default signer registered.')
+      }
+      return this._defaultSigner
+    }
     const signer = this._signers[signerName]
     if (signer === undefined) {
       throw new Error(`No signer registered with name "${signerName}".`)
@@ -159,11 +167,13 @@ export default class WalletManager {
    *
    * @abstract
    * @param {number} [index] - The index of the account to get (default: 0).
-   * @param {string} [signerName='default'] - The name of the signer to use.
+   * @param {Object} [options] - Account options.
+   * @param {string} [options.signerName] - The signer name. Omit to use the default signer.
    * @returns {Promise<IWalletAccount>} The account.
+   * @throws {Error} If a signer name is given but no signer exists with that name.
    */
-  async getAccount (index = 0, signerName = 'default') {
-    throw new NotImplementedError('getAccount(index, signerName?)')
+  async getAccount (index = 0, options = {}) {
+    throw new NotImplementedError('getAccount(index, options?)')
   }
 
   /**
@@ -171,11 +181,13 @@ export default class WalletManager {
    *
    * @abstract
    * @param {string} path - The derivation path (e.g. "0'/0/0").
-   * @param {string} [signerName='default'] - The name of the signer to use.
+   * @param {Object} [options] - Account options.
+   * @param {string} [options.signerName] - The signer name. Omit to use the default signer.
    * @returns {Promise<IWalletAccount>} The account.
+   * @throws {Error} If a signer name is given but no signer exists with that name.
    */
-  async getAccountByPath (path, signerName = 'default') {
-    throw new NotImplementedError('getAccountByPath(path, signerName?)')
+  async getAccountByPath (path, options = {}) {
+    throw new NotImplementedError('getAccountByPath(path, options?)')
   }
 
   /**
@@ -196,11 +208,16 @@ export default class WalletManager {
       account.dispose()
     }
 
+    if (this._defaultSigner !== undefined) {
+      this._defaultSigner.dispose()
+    }
+
     for (const signer of Object.values(this._signers)) {
       signer.dispose()
     }
 
     this._accounts = {}
+    this._defaultSigner = undefined
     this._signers = {}
   }
 }

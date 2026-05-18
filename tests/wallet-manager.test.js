@@ -66,14 +66,14 @@ describe('WalletManager', () => {
       const signer = createDummySigner('dummy-signer')
       const wallet = new DummyWalletManager(signer)
 
-      expect(wallet.getSigner('default')).toBe(signer)
+      expect(wallet.getSigner()).toBe(signer)
     })
 
-    test('should throw when requesting a signer that does not exist (seed-based manager)', () => {
+    test('should throw when requesting the default signer on a seed-based manager', () => {
       const wallet = new DummyWalletManager(SEED_PHRASE)
 
-      expect(() => wallet.getSigner('default'))
-        .toThrow('No signer registered with name "default".')
+      expect(() => wallet.getSigner())
+        .toThrow('No default signer registered.')
     })
   })
 
@@ -140,13 +140,13 @@ describe('WalletManager', () => {
       const signer = createDummySigner('default-signer')
       const wallet = new DummyWalletManager(signer)
 
-      expect(wallet.getSigner('default')).toBe(signer)
+      expect(wallet.getSigner()).toBe(signer)
 
       wallet.dispose()
 
       expect(signer.dispose).toHaveBeenCalledTimes(1)
-      expect(() => wallet.getSigner('default'))
-        .toThrow('No signer registered with name "default".')
+      expect(() => wallet.getSigner())
+        .toThrow('No default signer registered.')
     })
   })
 })
