@@ -17,22 +17,9 @@ import { NotImplementedError } from './errors.js'
 
 /** @typedef {import('./wallet-manager.js').WalletConfig} WalletConfig */
 /**
- * A minimal, cross-chain signer interface.
- *
- * Only the universally-required surface is enforced here:
- *  - derive: create a child signer from a relative derivation path
- *  - getAddress: return the public address for this signer
- *  - dispose: clear any secret material from memory
- *
- * Chain-specific signers (EVM, BTC, Tron, Solana, etc.) can extend this
- * contract with additional capabilities (e.g., signTransaction, signTypedData,
- * signPsbt), but those are intentionally not included here to keep the base
- * interface chain-agnostic.
- *
- * Common optional fields/methods implementers may provide:
- *  - index: number | undefined
- *  - path: string | undefined
- *  - address: string | undefined
+ * A minimal, cross-chain signer interface. Chain-specific signers can extend
+ * this contract with additional capabilities (e.g., signTransaction, signPsbt),
+ * which are intentionally kept out of the base to remain chain-agnostic.
  *
  * @interface
  */
@@ -42,10 +29,10 @@ export class ISigner {
    *
    * @param {string} relPath - The relative derivation path.
    * @param {unknown} [config] - Optional chain-specific configuration.
-   * @returns {ISigner} The derived signer.
+   * @returns {Promise<ISigner>} The derived signer.
    */
-  derive (relPath, cfg) {
-    throw new NotImplementedError('derive(relPath, cfg?)')
+  async derive (relPath, config) {
+    throw new NotImplementedError('derive(relPath, config?)')
   }
 
   /**
