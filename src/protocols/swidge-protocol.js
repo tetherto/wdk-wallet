@@ -45,6 +45,7 @@ import { NotImplementedError } from '../errors.js'
  * @property {string} toToken - The provider-specific identifier or address of the destination token.
  * @property {string | number} toChain - The identifier of the destination chain.
  * @property {string} [recipient] - The address that will receive the output tokens.
+ * @property {string} [refundAddress] - The address that will receive refunds if the tx cannot complete.
  * @property {number} [slippage] - The maximum acceptable slippage as a decimal (e.g., 0.01 for 1%).
  */
 
