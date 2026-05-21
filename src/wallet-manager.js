@@ -63,8 +63,7 @@ export default class WalletManager {
     this._seed = isSeed ? seedOrSigner : undefined
 
     /**
-     * The default signer provided at construction. Accessed via {@link getSigner}
-     * with no arguments.
+     * The default signer.
      *
      * @protected
      * @type {ISigner | undefined}
