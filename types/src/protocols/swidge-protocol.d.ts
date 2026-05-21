@@ -1,5 +1,11 @@
 /** @typedef {import('../wallet-account-read-only.js').IWalletAccountReadOnly} IWalletAccountReadOnly */
 /** @typedef {import('../wallet-account.js').IWalletAccount} IWalletAccount */
+/** @typedef {import('./swap-protocol.js').ISwapProtocol} ISwapProtocol */
+/** @typedef {import('./swap-protocol.js').SwapOptions} SwapOptions */
+/** @typedef {import('./swap-protocol.js').SwapResult} SwapResult */
+/** @typedef {import('./bridge-protocol.js').IBridgeProtocol} IBridgeProtocol */
+/** @typedef {import('./bridge-protocol.js').BridgeOptions} BridgeOptions */
+/** @typedef {import('./bridge-protocol.js').BridgeResult} BridgeResult */
 /**
  * @typedef {'pending' | 'action-required' | 'completed' | 'failed'
  *          | 'refund-pending' | 'refunded' | 'cancelled' | 'expired' | 'partial'} SwidgeStatus
@@ -104,8 +110,40 @@
  * @property {string} [fromToken] - The optional source token for route-scoped discovery.
  * @property {string | number} [toChain] - The optional destination chain for route-scoped discovery.
  */
-/** @interface */
-export class ISwidgeProtocol {
+/**
+ * @interface
+ * @implements {ISwapProtocol}
+ * @implements {IBridgeProtocol}
+ */
+export class ISwidgeProtocol implements ISwapProtocol, IBridgeProtocol {
+    /**
+     * Swaps a pair of tokens.
+     *
+     * @param {SwapOptions} options - The swap's options.
+     * @returns {Promise<SwapResult>} The swap's result.
+     */
+    swap(options: SwapOptions): Promise<SwapResult>;
+    /**
+     * Quotes the costs of a swap operation.
+     *
+     * @param {SwapOptions} options - The swap's options.
+     * @returns {Promise<Omit<SwapResult, 'hash'>>} The swap's quotes.
+     */
+    quoteSwap(options: SwapOptions): Promise<Omit<SwapResult, "hash">>;
+    /**
+     * Bridges a token to a different blockchain.
+     *
+     * @param {BridgeOptions} options - The bridge's options.
+     * @returns {Promise<BridgeResult>} The bridge's result.
+     */
+    bridge(options: BridgeOptions): Promise<BridgeResult>;
+    /**
+     * Quotes the costs of a bridge operation.
+     *
+     * @param {BridgeOptions} options - The bridge's options.
+     * @returns {Promise<Omit<BridgeResult, 'hash'>>} The bridge's quotes.
+     */
+    quoteBridge(options: BridgeOptions): Promise<Omit<BridgeResult, "hash">>;
     /**
      * Quotes the estimated costs and output of a cross-chain swap/bridge operation.
      * Returns a non-binding quote; the actual execution is performed
@@ -149,8 +187,10 @@ export class ISwidgeProtocol {
 /**
  * @abstract
  * @implements {ISwidgeProtocol}
+ * @implements {ISwapProtocol}
+ * @implements {IBridgeProtocol}
  */
-export default class SwidgeProtocol implements ISwidgeProtocol {
+export default class SwidgeProtocol implements ISwidgeProtocol, ISwapProtocol, IBridgeProtocol {
     /**
      * Creates a new swidge protocol without binding it to a wallet account.
      *
@@ -189,6 +229,38 @@ export default class SwidgeProtocol implements ISwidgeProtocol {
      * @type {SwidgeProtocolConfig}
      */
     protected _config: SwidgeProtocolConfig;
+    /**
+     * Swaps a pair of tokens.
+     *
+     * @abstract
+     * @param {SwapOptions} options - The swap's options.
+     * @returns {Promise<SwapResult>} The swap's result.
+     */
+    swap(options: SwapOptions): Promise<SwapResult>;
+    /**
+     * Quotes the costs of a swap operation.
+     *
+     * @abstract
+     * @param {SwapOptions} options - The swap's options.
+     * @returns {Promise<Omit<SwapResult, 'hash'>>} The swap's quotes.
+     */
+    quoteSwap(options: SwapOptions): Promise<Omit<SwapResult, "hash">>;
+    /**
+     * Bridges a token to a different blockchain.
+     *
+     * @abstract
+     * @param {BridgeOptions} options - The bridge's options.
+     * @returns {Promise<BridgeResult>} The bridge's result.
+     */
+    bridge(options: BridgeOptions): Promise<BridgeResult>;
+    /**
+     * Quotes the costs of a bridge operation.
+     *
+     * @abstract
+     * @param {BridgeOptions} options - The bridge's options.
+     * @returns {Promise<Omit<BridgeResult, 'hash'>>} The bridge's quotes.
+     */
+    quoteBridge(options: BridgeOptions): Promise<Omit<BridgeResult, "hash">>;
     /**
      * Quotes the estimated costs and output of a swidge operation.
      * Returns a non-binding quote; the actual execution is performed
@@ -236,6 +308,12 @@ export default class SwidgeProtocol implements ISwidgeProtocol {
 }
 export type IWalletAccountReadOnly = import("../wallet-account-read-only.js").IWalletAccountReadOnly;
 export type IWalletAccount = import("../wallet-account.js").IWalletAccount;
+export type ISwapProtocol = import("./swap-protocol.js").ISwapProtocol;
+export type SwapOptions = import("./swap-protocol.js").SwapOptions;
+export type SwapResult = import("./swap-protocol.js").SwapResult;
+export type IBridgeProtocol = import("./bridge-protocol.js").IBridgeProtocol;
+export type BridgeOptions = import("./bridge-protocol.js").BridgeOptions;
+export type BridgeResult = import("./bridge-protocol.js").BridgeResult;
 export type SwidgeStatus = "pending" | "action-required" | "completed" | "failed" | "refund-pending" | "refunded" | "cancelled" | "expired" | "partial";
 export type SwidgeFeeType = "gas" | "protocol" | "bridge" | "relayer" | "application" | "affiliate" | "liquidity" | "other";
 export type SwidgeProtocolConfig = {};

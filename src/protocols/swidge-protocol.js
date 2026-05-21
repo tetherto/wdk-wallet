@@ -19,6 +19,14 @@ import { NotImplementedError } from '../errors.js'
 
 /** @typedef {import('../wallet-account.js').IWalletAccount} IWalletAccount */
 
+/** @typedef {import('./swap-protocol.js').ISwapProtocol} ISwapProtocol */
+/** @typedef {import('./swap-protocol.js').SwapOptions} SwapOptions */
+/** @typedef {import('./swap-protocol.js').SwapResult} SwapResult */
+
+/** @typedef {import('./bridge-protocol.js').IBridgeProtocol} IBridgeProtocol */
+/** @typedef {import('./bridge-protocol.js').BridgeOptions} BridgeOptions */
+/** @typedef {import('./bridge-protocol.js').BridgeResult} BridgeResult */
+
 /**
  * @typedef {'pending' | 'action-required' | 'completed' | 'failed'
  *          | 'refund-pending' | 'refunded' | 'cancelled' | 'expired' | 'partial'} SwidgeStatus
@@ -139,8 +147,52 @@ import { NotImplementedError } from '../errors.js'
  * @property {string | number} [toChain] - The optional destination chain for route-scoped discovery.
  */
 
-/** @interface */
+/**
+ * @interface
+ * @implements {ISwapProtocol}
+ * @implements {IBridgeProtocol}
+ */
 export class ISwidgeProtocol {
+  /**
+   * Swaps a pair of tokens.
+   *
+   * @param {SwapOptions} options - The swap's options.
+   * @returns {Promise<SwapResult>} The swap's result.
+   */
+  async swap (options) {
+    throw new NotImplementedError('swap(options)')
+  }
+
+  /**
+   * Quotes the costs of a swap operation.
+   *
+   * @param {SwapOptions} options - The swap's options.
+   * @returns {Promise<Omit<SwapResult, 'hash'>>} The swap's quotes.
+   */
+  async quoteSwap (options) {
+    throw new NotImplementedError('quoteSwap(options)')
+  }
+
+  /**
+   * Bridges a token to a different blockchain.
+   *
+   * @param {BridgeOptions} options - The bridge's options.
+   * @returns {Promise<BridgeResult>} The bridge's result.
+   */
+  async bridge (options) {
+    throw new NotImplementedError('bridge(options)')
+  }
+
+  /**
+   * Quotes the costs of a bridge operation.
+   *
+   * @param {BridgeOptions} options - The bridge's options.
+   * @returns {Promise<Omit<BridgeResult, 'hash'>>} The bridge's quotes.
+   */
+  async quoteBridge (options) {
+    throw new NotImplementedError('quoteBridge(options)')
+  }
+
   /**
    * Quotes the estimated costs and output of a cross-chain swap/bridge operation.
    * Returns a non-binding quote; the actual execution is performed
@@ -199,6 +251,8 @@ export class ISwidgeProtocol {
 /**
  * @abstract
  * @implements {ISwidgeProtocol}
+ * @implements {ISwapProtocol}
+ * @implements {IBridgeProtocol}
  */
 export default class SwidgeProtocol {
   /**
@@ -240,6 +294,50 @@ export default class SwidgeProtocol {
      * @type {SwidgeProtocolConfig}
      */
     this._config = config
+  }
+
+  /**
+   * Swaps a pair of tokens.
+   *
+   * @abstract
+   * @param {SwapOptions} options - The swap's options.
+   * @returns {Promise<SwapResult>} The swap's result.
+   */
+  async swap (options) {
+    throw new NotImplementedError('swap(options)')
+  }
+
+  /**
+   * Quotes the costs of a swap operation.
+   *
+   * @abstract
+   * @param {SwapOptions} options - The swap's options.
+   * @returns {Promise<Omit<SwapResult, 'hash'>>} The swap's quotes.
+   */
+  async quoteSwap (options) {
+    throw new NotImplementedError('quoteSwap(options)')
+  }
+
+  /**
+   * Bridges a token to a different blockchain.
+   *
+   * @abstract
+   * @param {BridgeOptions} options - The bridge's options.
+   * @returns {Promise<BridgeResult>} The bridge's result.
+   */
+  async bridge (options) {
+    throw new NotImplementedError('bridge(options)')
+  }
+
+  /**
+   * Quotes the costs of a bridge operation.
+   *
+   * @abstract
+   * @param {BridgeOptions} options - The bridge's options.
+   * @returns {Promise<Omit<BridgeResult, 'hash'>>} The bridge's quotes.
+   */
+  async quoteBridge (options) {
+    throw new NotImplementedError('quoteBridge(options)')
   }
 
   /**
