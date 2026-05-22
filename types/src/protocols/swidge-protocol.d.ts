@@ -159,7 +159,7 @@ export interface ISwidgeProtocol extends ISwapProtocol, IBridgeProtocol {
  * @implements {ISwapProtocol}
  * @implements {IBridgeProtocol}
  */
-export default class SwidgeProtocol implements ISwidgeProtocol, ISwapProtocol, IBridgeProtocol {
+export default abstract class SwidgeProtocol implements ISwidgeProtocol, ISwapProtocol, IBridgeProtocol {
     /**
      * Creates a new swidge protocol without binding it to a wallet account.
      *
