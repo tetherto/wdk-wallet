@@ -21,8 +21,6 @@ export default abstract class WalletManager {
      * @param {WalletConfig} [config] - The wallet configuration.
      */
     constructor(seed: string | Uint8Array, config?: WalletConfig);
-    /** @private */
-    private _seed;
     /**
      * The wallet configuration.
      *
