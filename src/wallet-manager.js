@@ -22,6 +22,7 @@ import { NotImplementedError } from './errors.js'
 /**
  * @typedef {Object} WalletConfig
  * @property {number | bigint} [transferMaxFee] - The maximum fee amount for transfer operations.
+ * @property {number | bigint} [transactionMaxFee] - The maximum fee amount for sendTransaction and signTransaction operations.
  */
 
 /**
