@@ -33,9 +33,9 @@ export class ISigner {
   }
 
   /**
-   * Signs a transaction
+   * Signs a transaction.
    *
-   * @param {Transaction} tx - The transaction to sign.
+   * @param {unknown} tx - The transaction to sign.
    * @returns {Promise<unknown>} The signed transaction.
    */
   async signTransaction (tx) {

@@ -9,6 +9,10 @@ class DummySigner {
     return this
   }
 
+  async signTransaction (tx) {
+    return null
+  }
+
   async getAddress () {
     return 'dummy-address'
   }

@@ -133,6 +133,7 @@ export default class WalletManager {
    *
    * @param {string} signerName - The signer name.
    * @param {ISigner} signer - The signer.
+   * @returns {WalletManager} The wallet manager.
    * @throws {Error} If `signerName` is not a non-empty, non-blank string.
    */
   addSigner (signerName, signer) {
@@ -141,6 +142,7 @@ export default class WalletManager {
     }
 
     this._signers[signerName] = signer
+    return this
   }
 
   /**
@@ -211,7 +213,7 @@ export default class WalletManager {
    * @param {Object} [options] - Account options.
    * @param {string} [options.signerName] - The signer name. Omit to use the default signer.
    * @returns {Promise<IWalletAccount>} The account.
-   * @throws {Error} If a signer name is given, but no signer exists with the given name or for signers that do not support derivation.
+   * @throws {Error} If a signer name is given but no signer exists with that name, or if the signer does not support derivation.
    */
   async getAccountByPath (path, options = {}) {
     throw new NotImplementedError('getAccountByPath(path, options?)')
