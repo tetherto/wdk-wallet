@@ -89,12 +89,11 @@ export default abstract class WalletManager {
   /**
    * Returns the wallet account at a specific index (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)).
    *
-   * @abstract
    * @param {number} [index] - The index of the account to get (default: 0).
    * @param {Object} [options] - Account options.
    * @param {string} [options.signerName] - The signer name. Omit to use the default signer.
    * @returns {Promise<IWalletAccount>} The account.
-   * @throws {Error} If a signer name is given, but no signer exists with the given name.
+   * @throws {Error} If a signer name is given but no signer exists with that name or signer don't support derivation and index is number
    */
   abstract getAccount(
     index?: number,
@@ -103,6 +102,14 @@ export default abstract class WalletManager {
     },
   ): Promise<IWalletAccount>;
   /**
+   * Returns the wallet account for a non-derivable signer (e.g., a private-key signer).
+   *
+   * @param {string} signerName - The signer name registered via {@link addSigner}.
+   * @returns {Promise<IWalletAccount>} The account.
+   * @throws {Error} If no signer exists with the given name.
+   */
+  abstract getAccount(signerName: string): Promise<IWalletAccount>;
+  /**
    * Returns the wallet account at a specific [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) derivation path.
    *
    * @abstract
@@ -110,7 +117,7 @@ export default abstract class WalletManager {
    * @param {Object} [options] - Account options.
    * @param {string} [options.signerName] - The signer name. Omit to use the default signer.
    * @returns {Promise<IWalletAccount>} The account.
-   * @throws {Error} If a signer name is given, but no signer exists with the given name.
+   * @throws {Error} If a signer name is given, but no signer exists with the given name or for signers that do not support derivation.
    */
   abstract getAccountByPath(
     path: string,

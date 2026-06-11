@@ -170,15 +170,26 @@ export default class WalletManager {
   /**
    * Returns the wallet account at a specific index (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)).
    *
-   * @abstract
+   * @overload
    * @param {number} [index] - The index of the account to get (default: 0).
    * @param {Object} [options] - Account options.
    * @param {string} [options.signerName] - The signer name. Omit to use the default signer.
    * @returns {Promise<IWalletAccount>} The account.
-   * @throws {Error} If a signer name is given, but no signer exists with the given name.
+   * @throws {Error} If a signer name is given but no signer exists with that name or signer don't support derivation and index is number
    */
-  async getAccount (index = 0, options = {}) {
-    throw new NotImplementedError('getAccount(index, options?)')
+
+  /**
+   * Returns the wallet account for a non-derivable signer (e.g., a private-key signer)
+   *
+   * @overload
+   * @param {string} signerName - The signer name registered via {@link addSigner}.
+   * @returns {Promise<IWalletAccount>} The account.
+   * @throws {Error} If no signer exists with the given name.
+   */
+
+  /** @abstract */
+  async getAccount (indexOrSignerName = 0, options = {}) {
+    throw new NotImplementedError('getAccount(indexOrSignerName, options?)')
   }
 
   /**
@@ -187,9 +198,9 @@ export default class WalletManager {
    * @abstract
    * @param {string} path - The derivation path (e.g. "0'/0/0").
    * @param {Object} [options] - Account options.
-   * @param {string} [options.signerName] - The signer name.
+   * @param {string} [options.signerName] - The signer name. Omit to use the default signer.
    * @returns {Promise<IWalletAccount>} The account.
-   * @throws {Error} If a signer name is given, but no signer exists with the given name.
+   * @throws {Error} If a signer name is given, but no signer exists with the given name or for signers that do not support derivation.
    */
   async getAccountByPath (path, options = {}) {
     throw new NotImplementedError('getAccountByPath(path, options?)')

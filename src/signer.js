@@ -26,6 +26,7 @@ export class ISigner {
    *
    * @param {string} relPath - The relative derivation path.
    * @returns {Promise<ISigner>} The derived signer.
+   * @throws {Error} If the signer does not support derivation.
    */
   async derive (relPath) {
     throw new NotImplementedError('derive(relPath)')
