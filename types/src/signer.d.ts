@@ -15,10 +15,10 @@ export class ISigner {
     /**
      * Signs a transaction.
      *
-     * @param {unknown} tx - The transaction to sign.
+     * @param {Transaction} tx - The transaction to sign.
      * @returns {Promise<unknown>} The signed transaction.
      */
-    signTransaction(tx: unknown): Promise<unknown>;
+    signTransaction(tx: Transaction): Promise<unknown>;
     /**
      * Returns the signer's address.
      *
@@ -30,3 +30,4 @@ export class ISigner {
      */
     dispose(): void;
 }
+export type Transaction = import("./wallet-account-read-only.js").Transaction;
