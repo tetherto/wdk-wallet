@@ -29,6 +29,7 @@ This module is for internal use only. If you want to build a wallet, use one of 
 - **WalletAccount** - Base class for wallet accounts
 - **WalletAccountReadOnly** - Base class for read-only accounts
 - **IWalletAccount** - Interface that all accounts must follow
+- **WalletIndexerClient** - Base class for indexer clients (interpreted multi-chain portfolio, positions, transactions, NFTs, PnL)
 
 ## Learn More
 
