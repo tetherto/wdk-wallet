@@ -1,5 +1,23 @@
 /** @interface */
-export interface IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnly {
+export interface IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlyBase {
+    /**
+     * The derivation path's index of the signer associated with this account.
+     *
+     * @type {number}
+     */
+    get index(): number;
+    /**
+     * The derivation path of the signer associated with this account (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)).
+     *
+     * @type {string}
+     */
+    get path(): string;
+    /**
+     * The key pair of the signer associated with this account.
+     *
+     * @type {KeyPair}
+     */
+    get signerKeyPair(): KeyPair;
     /**
      * Returns the address of the signer associated with this wallet account.
      *
@@ -28,7 +46,15 @@ export interface IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnly {
      *   null if the message has not been found.
      */
     getMessages(messageHashes: string[]): Promise<(MultisigMessage | null)[]>;
+    /**
+     * Quotes the on-chain cost of executing a pending proposal.
+     *
+     * @param {string} proposalId - The proposal's id.
+     * @returns {Promise<MultisigExecuteQuote>} The execution cost estimate.
+     */
+    quoteExecuteProposal(proposalId: string): Promise<MultisigExecuteQuote>;
 }
+export type KeyPair = import("../wallet-account.js").KeyPair;
 export type MultisigInfo = {
     /**
      * - The multisig wallet account address.
@@ -83,4 +109,10 @@ export type MultisigMessage = {
      */
     combinedSignature: string | null;
 };
-import { IWalletAccountReadOnly } from '../wallet-account-read-only.js';
+export type MultisigExecuteQuote = {
+    /**
+     * - The estimated gas cost of executing the proposal on-chain.
+     */
+    fee: bigint;
+};
+import { IWalletAccountReadOnlyBase } from '../wallet-account-read-only-base.js';

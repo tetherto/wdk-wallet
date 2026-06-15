@@ -1,25 +1,27 @@
 /**
  * @interface
- * @extends {IWalletAccount}
  * @extends {IWalletAccountReadOnlyMultisig}
  */
-export interface IWalletAccountMultisig extends IWalletAccount, IWalletAccountReadOnlyMultisig {
+export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
     /**
-     * Proposes sending a transaction.
+     * Proposes sending a transaction for the other owners to approve. Does not execute on-chain:
+     * the returned proposal must be approved up to the threshold and then executed via
+     * {@link executeProposal}.
      *
      * @param {Transaction} tx - The transaction.
      * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
-     * @returns {Promise<MultisigTransactionResult>} The transaction's result.
+     * @returns {Promise<MultisigProposalResult>} The proposal's result.
      */
-    sendTransaction(tx: Transaction, transactionOptions?: MultisigTransactionOptions): Promise<MultisigTransactionResult>;
+    propose(tx: Transaction, transactionOptions?: MultisigTransactionOptions): Promise<MultisigProposalResult>;
     /**
-     * Proposes transferring a token to another address.
+     * Proposes transferring a token to another address for the other owners to approve. Does not
+     * execute on-chain; see {@link propose}.
      *
      * @param {TransferOptions} options - The transfer's options.
      * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
-     * @returns {Promise<MultisigTransactionResult>} The transfer's result.
+     * @returns {Promise<MultisigProposalResult>} The proposal's result.
      */
-    transfer(options: TransferOptions, transactionOptions?: MultisigTransactionOptions): Promise<MultisigTransactionResult>;
+    proposeTransfer(options: TransferOptions, transactionOptions?: MultisigTransactionOptions): Promise<MultisigProposalResult>;
     /**
      * Proposes signing a message.
      *
@@ -40,76 +42,32 @@ export interface IWalletAccountMultisig extends IWalletAccount, IWalletAccountRe
      * @param {string} proposalId - The proposal's id.
      * @returns {Promise<MultisigProposal>} The multisig proposal.
      */
-    approveTx(proposalId: string): Promise<MultisigProposal>;
+    approveProposal(proposalId: string): Promise<MultisigProposal>;
     /**
      * Rejects a pending proposal.
      *
      * @param {string} proposalId - The proposal's id.
      * @returns {Promise<MultisigProposal>} The multisig proposal.
      */
-    rejectTx(proposalId: string): Promise<MultisigProposal>;
+    rejectProposal(proposalId: string): Promise<MultisigProposal>;
     /**
-     * Submits a proposal for on-chain execution.
+     * Submits an approved proposal for on-chain execution.
      *
      * @param {string} proposalId - The proposal's id.
-     * @returns {Promise<TransactionResult>} The transaction's result.
+     * @returns {Promise<TransactionResult>} The on-chain transaction's result.
      */
-    executeTx(proposalId: string): Promise<TransactionResult>;
-    /**
-     * Proposes adding a new owner to the multisig wallet account.
-     *
-     * @param {string} owner - The owner's address.
-     * @param {MultisigOptions} [options] - The multisig options.
-     * @returns {Promise<MultisigProposal>} The multisig proposal.
-     * @throws {Error} If the operation is not supported.
-     */
-    addOwner(owner: string, options?: MultisigOptions): Promise<MultisigProposal>;
-    /**
-     * Proposes removing an owner from the multisig wallet account.
-     *
-     * @param {string} owner - The owner's address.
-     * @param {MultisigOptions} [options] - The multisig options.
-     * @returns {Promise<MultisigProposal>} The multisig proposal.
-     * @throws {Error} If the operation is not supported.
-     */
-    removeOwner(owner: string, options?: MultisigOptions): Promise<MultisigProposal>;
-    /**
-     * Proposes replacing an owner with a different one.
-     *
-     * @param {string} oldOwner - The old owner.
-     * @param {string} newOwner - The new owner.
-     * @returns {Promise<MultisigProposal>} The multisig proposal.
-     * @throws {Error} If the operation is not supported.
-     */
-    swapOwner(oldOwner: string, newOwner: string): Promise<MultisigProposal>;
-    /**
-     * Proposes changing the signature threshold.
-     *
-     * @param {number} newThreshold - The new threshold.
-     * @returns {Promise<MultisigProposal>} The multisig proposal.
-     * @throws {Error} If the operation is not supported.
-     */
-    changeThreshold(newThreshold: number): Promise<MultisigProposal>;
+    executeProposal(proposalId: string): Promise<TransactionResult>;
 }
-export type IWalletAccount = import("../wallet-account.js").IWalletAccount;
 export type Transaction = import("../wallet-account-read-only.js").Transaction;
 export type TransferOptions = import("../wallet-account-read-only.js").TransferOptions;
 export type TransactionResult = import("../wallet-account-read-only.js").TransactionResult;
 export type IWalletAccountReadOnlyMultisig = import("./wallet-account-read-only-multisig.js").IWalletAccountReadOnlyMultisig;
 export type MultisigProposal = import("./wallet-account-read-only-multisig.js").MultisigProposal;
-export type MultisigTransactionResult = {
+export type MultisigProposalResult = {
     /**
-     * - The proposal's id.
+     * - The proposal's id, used to approve, reject, query, quote or execute it.
      */
     proposalId: string;
-    /**
-     * - The transaction's hash.
-     */
-    hash: string;
-    /**
-     * - The gas cost.
-     */
-    fee: bigint;
     /**
      * - The current number of confirmations.
      */
@@ -119,7 +77,7 @@ export type MultisigTransactionResult = {
      */
     threshold: number;
     /**
-     * - True if the transaction has already been executed.
+     * - True if the transaction has already been executed (e.g. via `autoExecute`).
      */
     executed: boolean;
 };
@@ -150,10 +108,4 @@ export type MultisigMessageProposal = {
      * - The final combined signature when the threshold is met.
      */
     combinedSignature: string | null;
-};
-export type MultisigOptions = {
-    /**
-     * - The new amount of approvals required to execute a transaction.
-     */
-    threshold: number;
 };

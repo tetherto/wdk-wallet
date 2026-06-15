@@ -13,9 +13,11 @@
 // limitations under the License.
 'use strict'
 
-import { IWalletAccountReadOnly } from '../wallet-account-read-only.js'
+import { IWalletAccountReadOnlyBase } from '../wallet-account-read-only-base.js'
 
 import { NotImplementedError } from '../errors.js'
+
+/** @typedef {import('../wallet-account.js').KeyPair} KeyPair */
 
 /**
  * @typedef {Object} MultisigInfo
@@ -42,8 +44,40 @@ import { NotImplementedError } from '../errors.js'
  * @property {string | null} combinedSignature - The final combined signature when the threshold is met.
  */
 
+/**
+ * @typedef {Object} MultisigExecuteQuote
+ * @property {bigint} fee - The estimated gas cost of executing the proposal on-chain.
+ */
+
 /** @interface */
-export class IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnly {
+export class IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlyBase {
+  /**
+   * The derivation path's index of the signer associated with this account.
+   *
+   * @type {number}
+   */
+  get index () {
+    throw new NotImplementedError('index')
+  }
+
+  /**
+   * The derivation path of the signer associated with this account (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)).
+   *
+   * @type {string}
+   */
+  get path () {
+    throw new NotImplementedError('path')
+  }
+
+  /**
+   * The key pair of the signer associated with this account.
+   *
+   * @type {KeyPair}
+   */
+  get signerKeyPair () {
+    throw new NotImplementedError('signerKeyPair')
+  }
+
   /**
    * Returns the address of the signer associated with this wallet account.
    *
@@ -82,5 +116,15 @@ export class IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnly {
    */
   async getMessages (messageHashes) {
     throw new NotImplementedError('getMessages(messageHashes)')
+  }
+
+  /**
+   * Quotes the on-chain cost of executing a pending proposal.
+   *
+   * @param {string} proposalId - The proposal's id.
+   * @returns {Promise<MultisigExecuteQuote>} The execution cost estimate.
+   */
+  async quoteExecuteProposal (proposalId) {
+    throw new NotImplementedError('quoteExecuteProposal(proposalId)')
   }
 }

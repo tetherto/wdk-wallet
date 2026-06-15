@@ -15,8 +15,6 @@
 
 import { NotImplementedError } from '../errors.js'
 
-/** @typedef {import('../wallet-account.js').IWalletAccount} IWalletAccount */
-
 /** @typedef {import('../wallet-account-read-only.js').Transaction} Transaction */
 /** @typedef {import('../wallet-account-read-only.js').TransferOptions} TransferOptions */
 /** @typedef {import('../wallet-account-read-only.js').TransactionResult} TransactionResult */
@@ -25,13 +23,11 @@ import { NotImplementedError } from '../errors.js'
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigProposal */
 
 /**
- * @typedef {Object} MultisigTransactionResult
- * @property {string} proposalId - The proposal's id.
- * @property {string} hash - The transaction's hash.
- * @property {bigint} fee - The gas cost.
+ * @typedef {Object} MultisigProposalResult
+ * @property {string} proposalId - The proposal's id, used to approve, reject, query, quote or execute it.
  * @property {number} confirmations - The current number of confirmations.
  * @property {number} threshold - The minimum amount of confirmations to execute the transaction.
- * @property {boolean} executed - True if the transaction has already been executed.
+ * @property {boolean} executed - True if the transaction has already been executed (e.g. via `autoExecute`).
  */
 
 /**
@@ -49,36 +45,33 @@ import { NotImplementedError } from '../errors.js'
  */
 
 /**
- * @typedef {Object} MultisigOptions
- * @property {number} threshold - The new amount of approvals required to execute a transaction.
- */
-
-/**
  * @interface
- * @extends {IWalletAccount}
  * @extends {IWalletAccountReadOnlyMultisig}
  */
 export class IWalletAccountMultisig {
   /**
-   * Proposes sending a transaction.
+   * Proposes sending a transaction for the other owners to approve. Does not execute on-chain:
+   * the returned proposal must be approved up to the threshold and then executed via
+   * {@link executeProposal}.
    *
    * @param {Transaction} tx - The transaction.
    * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
-   * @returns {Promise<MultisigTransactionResult>} The transaction's result.
+   * @returns {Promise<MultisigProposalResult>} The proposal's result.
    */
-  async sendTransaction (tx, transactionOptions) {
-    throw new NotImplementedError('sendTransaction(tx, transactionOptions)')
+  async propose (tx, transactionOptions) {
+    throw new NotImplementedError('propose(tx, transactionOptions)')
   }
 
   /**
-   * Proposes transferring a token to another address.
+   * Proposes transferring a token to another address for the other owners to approve. Does not
+   * execute on-chain; see {@link propose}.
    *
    * @param {TransferOptions} options - The transfer's options.
    * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
-   * @returns {Promise<MultisigTransactionResult>} The transfer's result.
+   * @returns {Promise<MultisigProposalResult>} The proposal's result.
    */
-  async transfer (options, transactionOptions) {
-    throw new NotImplementedError('transfer(options, transactionOptions)')
+  async proposeTransfer (options, transactionOptions) {
+    throw new NotImplementedError('proposeTransfer(options, transactionOptions)')
   }
 
   /**
@@ -107,8 +100,8 @@ export class IWalletAccountMultisig {
    * @param {string} proposalId - The proposal's id.
    * @returns {Promise<MultisigProposal>} The multisig proposal.
    */
-  async approveTx (proposalId) {
-    throw new NotImplementedError('approveTx(proposalId)')
+  async approveProposal (proposalId) {
+    throw new NotImplementedError('approveProposal(proposalId)')
   }
 
   /**
@@ -117,64 +110,17 @@ export class IWalletAccountMultisig {
    * @param {string} proposalId - The proposal's id.
    * @returns {Promise<MultisigProposal>} The multisig proposal.
    */
-  async rejectTx (proposalId) {
-    throw new NotImplementedError('rejectTx(proposalId)')
+  async rejectProposal (proposalId) {
+    throw new NotImplementedError('rejectProposal(proposalId)')
   }
 
   /**
-   * Submits a proposal for on-chain execution.
+   * Submits an approved proposal for on-chain execution.
    *
    * @param {string} proposalId - The proposal's id.
-   * @returns {Promise<TransactionResult>} The transaction's result.
+   * @returns {Promise<TransactionResult>} The on-chain transaction's result.
    */
-  async executeTx (proposalId) {
-    throw new NotImplementedError('executeTx(proposalId)')
-  }
-
-  /**
-   * Proposes adding a new owner to the multisig wallet account.
-   *
-   * @param {string} owner - The owner's address.
-   * @param {MultisigOptions} [options] - The multisig options.
-   * @returns {Promise<MultisigProposal>} The multisig proposal.
-   * @throws {Error} If the operation is not supported.
-   */
-  async addOwner (owner, options) {
-    throw new NotImplementedError('addOwner(owner, newThreshold)')
-  }
-
-  /**
-   * Proposes removing an owner from the multisig wallet account.
-   *
-   * @param {string} owner - The owner's address.
-   * @param {MultisigOptions} [options] - The multisig options.
-   * @returns {Promise<MultisigProposal>} The multisig proposal.
-   * @throws {Error} If the operation is not supported.
-   */
-  async removeOwner (owner, options) {
-    throw new NotImplementedError('removeOwner(owner, newThreshold)')
-  }
-
-  /**
-   * Proposes replacing an owner with a different one.
-   *
-   * @param {string} oldOwner - The old owner.
-   * @param {string} newOwner - The new owner.
-   * @returns {Promise<MultisigProposal>} The multisig proposal.
-   * @throws {Error} If the operation is not supported.
-   */
-  async swapOwner (oldOwner, newOwner) {
-    throw new NotImplementedError('swapOwner(oldOwner, newOwner)')
-  }
-
-  /**
-   * Proposes changing the signature threshold.
-   *
-   * @param {number} newThreshold - The new threshold.
-   * @returns {Promise<MultisigProposal>} The multisig proposal.
-   * @throws {Error} If the operation is not supported.
-   */
-  async changeThreshold (newThreshold) {
-    throw new NotImplementedError('changeThreshold(newThreshold)')
+  async executeProposal (proposalId) {
+    throw new NotImplementedError('executeProposal(proposalId)')
   }
 }
