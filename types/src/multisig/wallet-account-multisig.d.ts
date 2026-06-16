@@ -4,6 +4,24 @@
  */
 export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
     /**
+     * The derivation path's index of the signer associated with this account.
+     *
+     * @type {number}
+     */
+    get index(): number;
+    /**
+     * The derivation path of the signer associated with this account (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)).
+     *
+     * @type {string}
+     */
+    get path(): string;
+    /**
+     * The key pair of the signer associated with this account.
+     *
+     * @type {KeyPair}
+     */
+    get signerKeyPair(): KeyPair;
+    /**
      * Proposes sending a transaction for the other owners to approve. Does not execute on-chain:
      * the returned proposal must be approved up to the threshold and then executed via
      * {@link executeProposal}.
@@ -63,6 +81,7 @@ export type TransferOptions = import("../wallet-account-read-only.js").TransferO
 export type TransactionResult = import("../wallet-account-read-only.js").TransactionResult;
 export type IWalletAccountReadOnlyMultisig = import("./wallet-account-read-only-multisig.js").IWalletAccountReadOnlyMultisig;
 export type MultisigProposal = import("./wallet-account-read-only-multisig.js").MultisigProposal;
+export type KeyPair = import("../wallet-account.js").KeyPair;
 export type MultisigProposalResult = {
     /**
      * - The proposal's id, used to approve, reject, query, quote or execute it.

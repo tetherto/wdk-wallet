@@ -19,6 +19,8 @@ import { NotImplementedError } from '../errors.js'
 /** @typedef {import('../wallet-account-read-only.js').TransferOptions} TransferOptions */
 /** @typedef {import('../wallet-account-read-only.js').TransactionResult} TransactionResult */
 
+/** @typedef {import('../wallet-account.js').KeyPair} KeyPair */
+
 /** @typedef {import('./wallet-account-read-only-multisig.js').IWalletAccountReadOnlyMultisig} IWalletAccountReadOnlyMultisig */
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigProposal */
 
@@ -49,6 +51,33 @@ import { NotImplementedError } from '../errors.js'
  * @extends {IWalletAccountReadOnlyMultisig}
  */
 export class IWalletAccountMultisig {
+  /**
+   * The derivation path's index of the signer associated with this account.
+   *
+   * @type {number}
+   */
+  get index () {
+    throw new NotImplementedError('index')
+  }
+
+  /**
+   * The derivation path of the signer associated with this account (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)).
+   *
+   * @type {string}
+   */
+  get path () {
+    throw new NotImplementedError('path')
+  }
+
+  /**
+   * The key pair of the signer associated with this account.
+   *
+   * @type {KeyPair}
+   */
+  get signerKeyPair () {
+    throw new NotImplementedError('signerKeyPair')
+  }
+
   /**
    * Proposes sending a transaction for the other owners to approve. Does not execute on-chain:
    * the returned proposal must be approved up to the threshold and then executed via

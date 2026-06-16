@@ -17,8 +17,6 @@ import { IWalletAccountReadOnlyBase } from '../wallet-account-read-only-base.js'
 
 import { NotImplementedError } from '../errors.js'
 
-/** @typedef {import('../wallet-account.js').KeyPair} KeyPair */
-
 /**
  * @typedef {Object} MultisigInfo
  * @property {string} address - The multisig wallet account address.
@@ -51,33 +49,6 @@ import { NotImplementedError } from '../errors.js'
 
 /** @interface */
 export class IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlyBase {
-  /**
-   * The derivation path's index of the signer associated with this account.
-   *
-   * @type {number}
-   */
-  get index () {
-    throw new NotImplementedError('index')
-  }
-
-  /**
-   * The derivation path of the signer associated with this account (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)).
-   *
-   * @type {string}
-   */
-  get path () {
-    throw new NotImplementedError('path')
-  }
-
-  /**
-   * The key pair of the signer associated with this account.
-   *
-   * @type {KeyPair}
-   */
-  get signerKeyPair () {
-    throw new NotImplementedError('signerKeyPair')
-  }
-
   /**
    * Returns the address of the signer associated with this wallet account.
    *

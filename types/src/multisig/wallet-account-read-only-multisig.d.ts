@@ -1,24 +1,6 @@
 /** @interface */
 export interface IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlyBase {
     /**
-     * The derivation path's index of the signer associated with this account.
-     *
-     * @type {number}
-     */
-    get index(): number;
-    /**
-     * The derivation path of the signer associated with this account (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)).
-     *
-     * @type {string}
-     */
-    get path(): string;
-    /**
-     * The key pair of the signer associated with this account.
-     *
-     * @type {KeyPair}
-     */
-    get signerKeyPair(): KeyPair;
-    /**
      * Returns the address of the signer associated with this wallet account.
      *
      * @returns {Promise<string | null>} The signer's address, or null if no signer is associated yet.
@@ -54,7 +36,6 @@ export interface IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlyBa
      */
     quoteExecuteProposal(proposalId: string): Promise<MultisigExecuteQuote>;
 }
-export type KeyPair = import("../wallet-account.js").KeyPair;
 export type MultisigInfo = {
     /**
      * - The multisig wallet account address.
