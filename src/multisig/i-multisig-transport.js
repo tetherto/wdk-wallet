@@ -53,12 +53,14 @@ import { NotImplementedError } from '../errors.js'
  * database, a peer-to-peer channel, etc.) by implementing this interface.
  *
  * @interface
+ * @template [TProposal=Record<string, unknown>]
+ * @template [TMessage=MultisigTransportMessageInput]
  */
 export class IMultisigTransport {
   /**
    * Submits a new transaction proposal so the other owners can confirm it.
    *
-   * @param {Record<string, unknown>} proposal - The signed transaction proposal to share. Opaque to the transport, which must persist it so {@link getProposal} can return it intact.
+   * @param {TProposal} proposal - The signed transaction proposal to share. Opaque to the transport, which must persist it so {@link getProposal} can return it intact.
    * @returns {Promise<void>}
    */
   async submitProposal (proposal) {
@@ -90,7 +92,7 @@ export class IMultisigTransport {
    * Submits a new message proposal so the other owners can confirm it.
    *
    * @param {string} accountAddress - The multisig account's address.
-   * @param {MultisigTransportMessageInput} message - The message proposal to share.
+   * @param {TMessage} message - The message proposal to share.
    * @returns {Promise<void>}
    */
   async submitMessage (accountAddress, message) {
