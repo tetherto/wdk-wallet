@@ -50,10 +50,10 @@ export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
     /**
      * Approves an existing message proposal.
      *
-     * @param {string} messageHash - The message's hash.
+     * @param {string} messageId - The message's hash.
      * @returns {Promise<MultisigMessageProposal>} The multisig message proposal.
      */
-    approveMessage(messageHash: string): Promise<MultisigMessageProposal>;
+    approveMessage(messageId: string): Promise<MultisigMessageProposal>;
     /**
      * Approves a pending proposal.
      *
@@ -110,7 +110,7 @@ export type MultisigMessageProposal = {
     /**
      * - The message's hash.
      */
-    messageHash: string;
+    messageId: string;
     /**
      * - The signature of the caller.
      */

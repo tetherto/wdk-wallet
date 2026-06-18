@@ -70,18 +70,18 @@ export interface IMultisigTransport<TProposal = Record<string, unknown>, TMessag
     /**
      * Returns a message proposal by its hash.
      *
-     * @param {string} messageHash - The message's hash.
+     * @param {string} messageId - The message's hash.
      * @returns {Promise<MultisigTransportMessage | null>} The message, or null if it has not been found.
      */
-    getMessage(messageHash: string): Promise<MultisigTransportMessage | null>;
+    getMessage(messageId: string): Promise<MultisigTransportMessage | null>;
     /**
      * Adds an owner's confirmation (signature) to an existing message proposal.
      *
-     * @param {string} messageHash - The message's hash.
+     * @param {string} messageId - The message's hash.
      * @param {string} signature - The owner's signature over the message.
      * @returns {Promise<void>}
      */
-    confirmMessage(messageHash: string, signature: string): Promise<void>;
+    confirmMessage(messageId: string, signature: string): Promise<void>;
 }
 /**
  * A message proposal to share with the other owners for them to confirm.

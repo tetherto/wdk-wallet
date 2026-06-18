@@ -39,7 +39,7 @@ import { NotImplementedError } from '../errors.js'
 
 /**
  * @typedef {Object} MultisigMessageProposal
- * @property {string} messageHash - The message's hash.
+ * @property {string} messageId - The message's hash.
  * @property {string} signature - The signature of the caller.
  * @property {number} confirmations - The current number of confirmations.
  * @property {number} threshold - The minimum amount of confirmations to sign the message.
@@ -116,11 +116,11 @@ export class IWalletAccountMultisig {
   /**
    * Approves an existing message proposal.
    *
-   * @param {string} messageHash - The message's hash.
+   * @param {string} messageId - The message's hash.
    * @returns {Promise<MultisigMessageProposal>} The multisig message proposal.
    */
-  async approveMessage (messageHash) {
-    throw new NotImplementedError('approveMessage(messageHash)')
+  async approveMessage (messageId) {
+    throw new NotImplementedError('approveMessage(messageId)')
   }
 
   /**

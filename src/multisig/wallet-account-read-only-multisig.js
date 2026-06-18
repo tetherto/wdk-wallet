@@ -35,7 +35,7 @@ import { NotImplementedError } from '../errors.js'
 
 /**
  * @typedef {Object} MultisigMessage
- * @property {string} messageHash - The message's hash.
+ * @property {string} messageId - The message's hash.
  * @property {string} message - The original message.
  * @property {number} confirmations - The current number of confirmations.
  * @property {number} threshold -  The minimum amount of confirmations to sign the message.
@@ -44,7 +44,7 @@ import { NotImplementedError } from '../errors.js'
 
 /**
  * @typedef {Object} MultisigExecuteQuote
- * @property {bigint} fee - The estimated gas cost of executing the proposal on-chain.
+ * @property {bigint} fee - The estimated cost of executing the proposal on-chain.
  */
 
 /** @interface */
@@ -81,12 +81,12 @@ export class IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlyBase {
   /**
    * Returns a list of message proposals by their hashes.
    *
-   * @param {string[]} messageHashes - The list of message hashes
+   * @param {string[]} messageIds - The list of message hashes
    * @returns {Promise<(MultisigMessage | null)[]>} For each message hash, the message details or
    *   null if the message has not been found.
    */
-  async getMessages (messageHashes) {
-    throw new NotImplementedError('getMessages(messageHashes)')
+  async getMessages (messageIds) {
+    throw new NotImplementedError('getMessages(messageIds)')
   }
 
   /**

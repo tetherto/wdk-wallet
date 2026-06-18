@@ -23,11 +23,11 @@ export interface IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlyBa
     /**
      * Returns a list of message proposals by their hashes.
      *
-     * @param {string[]} messageHashes - The list of message hashes
+     * @param {string[]} messageIds - The list of message hashes
      * @returns {Promise<(MultisigMessage | null)[]>} For each message hash, the message details or
      *   null if the message has not been found.
      */
-    getMessages(messageHashes: string[]): Promise<(MultisigMessage | null)[]>;
+    getMessages(messageIds: string[]): Promise<(MultisigMessage | null)[]>;
     /**
      * Quotes the on-chain cost of executing a pending proposal.
      *
@@ -72,7 +72,7 @@ export type MultisigMessage = {
     /**
      * - The message's hash.
      */
-    messageHash: string;
+    messageId: string;
     /**
      * - The original message.
      */
@@ -92,7 +92,7 @@ export type MultisigMessage = {
 };
 export type MultisigExecuteQuote = {
     /**
-     * - The estimated gas cost of executing the proposal on-chain.
+     * - The estimated cost of executing the proposal on-chain.
      */
     fee: bigint;
 };

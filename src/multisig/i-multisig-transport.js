@@ -102,21 +102,21 @@ export class IMultisigTransport {
   /**
    * Returns a message proposal by its hash.
    *
-   * @param {string} messageHash - The message's hash.
+   * @param {string} messageId - The message's hash.
    * @returns {Promise<MultisigTransportMessage | null>} The message, or null if it has not been found.
    */
-  async getMessage (messageHash) {
-    throw new NotImplementedError('getMessage(messageHash)')
+  async getMessage (messageId) {
+    throw new NotImplementedError('getMessage(messageId)')
   }
 
   /**
    * Adds an owner's confirmation (signature) to an existing message proposal.
    *
-   * @param {string} messageHash - The message's hash.
+   * @param {string} messageId - The message's hash.
    * @param {string} signature - The owner's signature over the message.
    * @returns {Promise<void>}
    */
-  async confirmMessage (messageHash, signature) {
-    throw new NotImplementedError('confirmMessage(messageHash, signature)')
+  async confirmMessage (messageId, signature) {
+    throw new NotImplementedError('confirmMessage(messageId, signature)')
   }
 }
