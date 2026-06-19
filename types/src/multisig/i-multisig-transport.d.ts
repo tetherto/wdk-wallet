@@ -32,6 +32,10 @@
  * (PSBT) or other multisig wallets. Plug in a custom backend (a hosted service, a
  * database, a peer-to-peer channel, etc.) by implementing this interface.
  *
+ * Implementations that serialize the payloads themselves (rather than handing them to an
+ * SDK that already does it) can pass them through {@link toTransportJson} to convert native
+ * values such as BigInt into JSON-safe forms before persisting or transmitting them.
+ *
  * @interface
  * @template [TProposal=Record<string, unknown>]
  * @template [TMessage=MultisigTransportMessageInput]

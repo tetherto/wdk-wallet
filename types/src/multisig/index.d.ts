@@ -2,6 +2,7 @@ export { IWalletAccountReadOnlyMultisig } from "./wallet-account-read-only-multi
 export { IWalletAccountMultisig } from "./wallet-account-multisig.js";
 export { IMultisigOwnerManagement } from "./i-multisig-owner-management.js";
 export { IMultisigTransport } from "./i-multisig-transport.js";
+export { toTransportJson } from "./transport-serialization.js";
 export type MultisigInfo = import("./wallet-account-read-only-multisig.js").MultisigInfo;
 export type MultisigProposal = import("./wallet-account-read-only-multisig.js").MultisigProposal;
 export type MultisigMessage = import("./wallet-account-read-only-multisig.js").MultisigMessage;

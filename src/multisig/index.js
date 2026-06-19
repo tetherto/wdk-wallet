@@ -35,3 +35,5 @@ export { IWalletAccountMultisig } from './wallet-account-multisig.js'
 export { IMultisigOwnerManagement } from './i-multisig-owner-management.js'
 
 export { IMultisigTransport } from './i-multisig-transport.js'
+
+export { toTransportJson } from './transport-serialization.js'
