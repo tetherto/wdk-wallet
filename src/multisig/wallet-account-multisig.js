@@ -25,14 +25,6 @@ import { NotImplementedError } from '../errors.js'
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigProposal */
 
 /**
- * @typedef {Object} MultisigProposalResult
- * @property {string} proposalId - The proposal's id, used to approve, reject, query, quote or execute it.
- * @property {number} confirmations - The current number of confirmations.
- * @property {number} threshold - The minimum amount of confirmations to execute the transaction.
- * @property {boolean} executed - True if the transaction has already been executed (e.g. via `autoExecute`).
- */
-
-/**
  * @typedef {Object} MultisigTransactionOptions
  * @property {boolean} [autoExecute] - If true, automatically executes the transaction when the approval threshold is met (only takes effect if this signer's approval is the last one required).
  */
@@ -85,7 +77,7 @@ export class IWalletAccountMultisig {
    *
    * @param {Transaction} tx - The transaction.
    * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
-   * @returns {Promise<MultisigProposalResult>} The proposal's result.
+   * @returns {Promise<MultisigProposal>} The created proposal; its `status` is `'executed'` when `autoExecute` ran to completion, otherwise `'pending'`.
    */
   async propose (tx, transactionOptions) {
     throw new NotImplementedError('propose(tx, transactionOptions)')
@@ -97,7 +89,7 @@ export class IWalletAccountMultisig {
    *
    * @param {TransferOptions} options - The transfer's options.
    * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
-   * @returns {Promise<MultisigProposalResult>} The proposal's result.
+   * @returns {Promise<MultisigProposal>} The created proposal; its `status` is `'executed'` when `autoExecute` ran to completion, otherwise `'pending'`.
    */
   async proposeTransfer (options, transactionOptions) {
     throw new NotImplementedError('proposeTransfer(options, transactionOptions)')

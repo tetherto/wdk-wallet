@@ -28,18 +28,18 @@ export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
      *
      * @param {Transaction} tx - The transaction.
      * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
-     * @returns {Promise<MultisigProposalResult>} The proposal's result.
+     * @returns {Promise<MultisigProposal>} The created proposal; its `status` is `'executed'` when `autoExecute` ran to completion, otherwise `'pending'`.
      */
-    propose(tx: Transaction, transactionOptions?: MultisigTransactionOptions): Promise<MultisigProposalResult>;
+    propose(tx: Transaction, transactionOptions?: MultisigTransactionOptions): Promise<MultisigProposal>;
     /**
      * Proposes transferring a token to another address for the other owners to approve. Does not
      * execute on-chain; see {@link propose}.
      *
      * @param {TransferOptions} options - The transfer's options.
      * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
-     * @returns {Promise<MultisigProposalResult>} The proposal's result.
+     * @returns {Promise<MultisigProposal>} The created proposal; its `status` is `'executed'` when `autoExecute` ran to completion, otherwise `'pending'`.
      */
-    proposeTransfer(options: TransferOptions, transactionOptions?: MultisigTransactionOptions): Promise<MultisigProposalResult>;
+    proposeTransfer(options: TransferOptions, transactionOptions?: MultisigTransactionOptions): Promise<MultisigProposal>;
     /**
      * Proposes signing a message.
      *
@@ -82,24 +82,6 @@ export type TransactionResult = import("../wallet-account-read-only.js").Transac
 export type IWalletAccountReadOnlyMultisig = import("./wallet-account-read-only-multisig.js").IWalletAccountReadOnlyMultisig;
 export type MultisigProposal = import("./wallet-account-read-only-multisig.js").MultisigProposal;
 export type KeyPair = import("../wallet-account.js").KeyPair;
-export type MultisigProposalResult = {
-    /**
-     * - The proposal's id, used to approve, reject, query, quote or execute it.
-     */
-    proposalId: string;
-    /**
-     * - The current number of confirmations.
-     */
-    confirmations: number;
-    /**
-     * - The minimum amount of confirmations to execute the transaction.
-     */
-    threshold: number;
-    /**
-     * - True if the transaction has already been executed (e.g. via `autoExecute`).
-     */
-    executed: boolean;
-};
 export type MultisigTransactionOptions = {
     /**
      * - If true, automatically executes the transaction when the approval threshold is met (only takes effect if this signer's approval is the last one required).

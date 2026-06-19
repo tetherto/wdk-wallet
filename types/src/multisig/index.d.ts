@@ -8,7 +8,6 @@ export type MultisigProposal = import("./wallet-account-read-only-multisig.js").
 export type MultisigMessage = import("./wallet-account-read-only-multisig.js").MultisigMessage;
 export type MultisigExecuteQuote = import("./wallet-account-read-only-multisig.js").MultisigExecuteQuote;
 export type KeyPair = import("../wallet-account.js").KeyPair;
-export type MultisigProposalResult = import("./wallet-account-multisig.js").MultisigProposalResult;
 export type MultisigTransactionOptions = import("./wallet-account-multisig.js").MultisigTransactionOptions;
 export type MultisigMessageProposal = import("./wallet-account-multisig.js").MultisigMessageProposal;
 export type MultisigOptions = import("./i-multisig-owner-management.js").MultisigOptions;

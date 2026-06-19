@@ -67,6 +67,10 @@ export type MultisigProposal = {
      * - The minimum amount of confirmations to execute the transaction.
      */
     threshold: number;
+    /**
+     * - The proposal's lifecycle state: `'pending'` while it still awaits confirmations or on-chain execution, `'executed'` once it has been executed on-chain.
+     */
+    status: 'pending' | 'executed';
 };
 export type MultisigMessage = {
     /**

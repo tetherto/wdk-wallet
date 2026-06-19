@@ -31,6 +31,7 @@ import { NotImplementedError } from '../errors.js'
  * @property {string} proposalId - The proposal's id.
  * @property {number} confirmations - The current number of confirmations.
  * @property {number} threshold - The minimum amount of confirmations to execute the transaction.
+ * @property {'pending' | 'executed'} status - The proposal's lifecycle state: `'pending'` while it still awaits confirmations or on-chain execution, `'executed'` once it has been executed on-chain.
  */
 
 /**
