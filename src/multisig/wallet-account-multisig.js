@@ -13,6 +13,8 @@
 // limitations under the License.
 'use strict'
 
+import { IWalletAccountReadOnlyMultisig } from './wallet-account-read-only-multisig.js'
+
 import { NotImplementedError } from '../errors.js'
 
 /** @typedef {import('../wallet-account-read-only.js').Transaction} Transaction */
@@ -21,7 +23,6 @@ import { NotImplementedError } from '../errors.js'
 
 /** @typedef {import('../wallet-account.js').KeyPair} KeyPair */
 
-/** @typedef {import('./wallet-account-read-only-multisig.js').IWalletAccountReadOnlyMultisig} IWalletAccountReadOnlyMultisig */
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigProposal */
 
 /**
@@ -38,11 +39,8 @@ import { NotImplementedError } from '../errors.js'
  * @property {string | null} combinedSignature - The final combined signature when the threshold is met.
  */
 
-/**
- * @interface
- * @extends {IWalletAccountReadOnlyMultisig}
- */
-export class IWalletAccountMultisig {
+/** @interface */
+export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
   /**
    * The derivation path's index of the signer associated with this account.
    *

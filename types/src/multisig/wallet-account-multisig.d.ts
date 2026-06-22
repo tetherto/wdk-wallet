@@ -1,7 +1,4 @@
-/**
- * @interface
- * @extends {IWalletAccountReadOnlyMultisig}
- */
+/** @interface */
 export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
     /**
      * The derivation path's index of the signer associated with this account.
