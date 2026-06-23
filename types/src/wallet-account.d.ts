@@ -47,7 +47,7 @@ export interface IWalletAccount<TSignedTransaction> extends IWalletAccountReadOn
      * @param {Transaction | TSignedTransaction} tx - The transaction.
      * @returns {Promise<TransactionResult>} The transaction's result.
      */
-    sendTransaction(tx: Transaction): Promise<TransactionResult>;
+    sendTransaction(tx: Transaction | TSignedTransaction): Promise<TransactionResult>;
     /**
      * Quotes the costs of a send transaction operation.
      *
@@ -55,7 +55,7 @@ export interface IWalletAccount<TSignedTransaction> extends IWalletAccountReadOn
      * @param {Transaction | TSignedTransaction} tx - The transaction.
      * @returns {Promise<Omit<TransactionResult, 'hash'>>} The transaction's quotes.
      */
-    quoteSendTransaction(tx: Transaction): Promise<Omit<TransactionResult, "hash">>;
+    quoteSendTransaction(tx: Transaction | TSignedTransaction): Promise<Omit<TransactionResult, "hash">>;
     /**
      * Transfers a token to another address.
      *
