@@ -1,5 +1,5 @@
 /** @interface */
-export interface IWalletAccount extends IWalletAccountReadOnly {
+export interface IWalletAccount<TSignedTransaction> extends IWalletAccountReadOnly {
     /**
      * The derivation path's index of this account.
      *
@@ -29,9 +29,9 @@ export interface IWalletAccount extends IWalletAccountReadOnly {
      * Signs a transaction.
      *
      * @param {Transaction} tx - The transaction to sign.
-     * @returns {Promise<unknown>} The signed transaction.
+     * @returns {Promise<TSignedTransaction>} The signed transaction.
      */
-    signTransaction(tx: Transaction): Promise<unknown>;
+    signTransaction(tx: Transaction): Promise<TSignedTransaction>;
     /**
      * Verifies a message's signature.
      *
@@ -43,10 +43,19 @@ export interface IWalletAccount extends IWalletAccountReadOnly {
     /**
      * Sends a transaction.
      *
-     * @param {Transaction} tx - The transaction.
+     * @overload
+     * @param {Transaction | TSignedTransaction} tx - The transaction.
      * @returns {Promise<TransactionResult>} The transaction's result.
      */
     sendTransaction(tx: Transaction): Promise<TransactionResult>;
+    /**
+     * Quotes the costs of a send transaction operation.
+     *
+     * @overload
+     * @param {Transaction | TSignedTransaction} tx - The transaction.
+     * @returns {Promise<Omit<TransactionResult, 'hash'>>} The transaction's quotes.
+     */
+    quoteSendTransaction(tx: Transaction): Promise<Omit<TransactionResult, "hash">>;
     /**
      * Transfers a token to another address.
      *
