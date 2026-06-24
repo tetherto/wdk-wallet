@@ -59,6 +59,8 @@ import { NotImplementedError } from '../errors.js'
  * @interface
  * @template [TProposal=Record<string, unknown>]
  * @template [TMessage=MultisigTransportMessageInput]
+ * @template [TProposalResponse=MultisigTransportProposal]
+ * @template [TMessageResponse=MultisigTransportMessage]
  */
 export class IMultisigTransport {
   /**
@@ -75,7 +77,7 @@ export class IMultisigTransport {
    * Returns a transaction proposal by its identifier.
    *
    * @param {string} proposalId - The proposal's identifier.
-   * @returns {Promise<MultisigTransportProposal | null>} The proposal, or null if it has not been found.
+   * @returns {Promise<TProposalResponse | null>} The proposal, or null if it has not been found.
    */
   async getProposal (proposalId) {
     throw new NotImplementedError('getProposal(proposalId)')
@@ -107,7 +109,7 @@ export class IMultisigTransport {
    * Returns a message proposal by its hash.
    *
    * @param {string} messageId - The message's hash.
-   * @returns {Promise<MultisigTransportMessage | null>} The message, or null if it has not been found.
+   * @returns {Promise<TMessageResponse | null>} The message, or null if it has not been found.
    */
   async getMessage (messageId) {
     throw new NotImplementedError('getMessage(messageId)')

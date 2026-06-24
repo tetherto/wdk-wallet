@@ -39,8 +39,10 @@
  * @interface
  * @template [TProposal=Record<string, unknown>]
  * @template [TMessage=MultisigTransportMessageInput]
+ * @template [TProposalResponse=MultisigTransportProposal]
+ * @template [TMessageResponse=MultisigTransportMessage]
  */
-export interface IMultisigTransport<TProposal = Record<string, unknown>, TMessage = MultisigTransportMessageInput> {
+export interface IMultisigTransport<TProposal = Record<string, unknown>, TMessage = MultisigTransportMessageInput, TProposalResponse = MultisigTransportProposal, TMessageResponse = MultisigTransportMessage> {
     /**
      * Submits a new transaction proposal so the other owners can confirm it.
      *
@@ -52,9 +54,9 @@ export interface IMultisigTransport<TProposal = Record<string, unknown>, TMessag
      * Returns a transaction proposal by its identifier.
      *
      * @param {string} proposalId - The proposal's identifier.
-     * @returns {Promise<MultisigTransportProposal | null>} The proposal, or null if it has not been found.
+     * @returns {Promise<TProposalResponse | null>} The proposal, or null if it has not been found.
      */
-    getProposal(proposalId: string): Promise<MultisigTransportProposal | null>;
+    getProposal(proposalId: string): Promise<TProposalResponse | null>;
     /**
      * Adds an owner's confirmation (signature) to an existing transaction proposal.
      *
@@ -75,9 +77,9 @@ export interface IMultisigTransport<TProposal = Record<string, unknown>, TMessag
      * Returns a message proposal by its hash.
      *
      * @param {string} messageId - The message's hash.
-     * @returns {Promise<MultisigTransportMessage | null>} The message, or null if it has not been found.
+     * @returns {Promise<TMessageResponse | null>} The message, or null if it has not been found.
      */
-    getMessage(messageId: string): Promise<MultisigTransportMessage | null>;
+    getMessage(messageId: string): Promise<TMessageResponse | null>;
     /**
      * Adds an owner's confirmation (signature) to an existing message proposal.
      *
