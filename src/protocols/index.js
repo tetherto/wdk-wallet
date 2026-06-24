@@ -68,6 +68,26 @@
 /** @typedef {import('./swidge-protocol.js').SwidgeSupportedToken} SwidgeSupportedToken */
 /** @typedef {import('./swidge-protocol.js').SwidgeSupportedTokensOptions} SwidgeSupportedTokensOptions */
 
+/** @typedef {import('./sda-protocol.js').SdaProtocolConfig} SdaProtocolConfig */
+/** @typedef {import('./sda-protocol.js').SdaCapabilities} SdaCapabilities */
+/** @typedef {import('./sda-protocol.js').SdaRecoveryMode} SdaRecoveryMode */
+/** @typedef {import('./sda-protocol.js').SdaRouteDiscoveryMode} SdaRouteDiscoveryMode */
+/** @typedef {import('./sda-protocol.js').SdaToken} SdaToken */
+/** @typedef {import('./sda-protocol.js').SdaLimits} SdaLimits */
+/** @typedef {import('./sda-protocol.js').SdaRoutesOptions} SdaRoutesOptions */
+/** @typedef {import('./sda-protocol.js').SdaRoute} SdaRoute */
+/** @typedef {import('./sda-protocol.js').SdaQuoteOptions} SdaQuoteOptions */
+/** @typedef {import('./sda-protocol.js').SdaFeeType} SdaFeeType */
+/** @typedef {import('./sda-protocol.js').SdaFee} SdaFee */
+/** @typedef {import('./sda-protocol.js').SdaQuote} SdaQuote */
+/** @typedef {import('./sda-protocol.js').SdaCreateOptions} SdaCreateOptions */
+/** @typedef {import('./sda-protocol.js').SdaDepositAddress} SdaDepositAddress */
+/** @typedef {import('./sda-protocol.js').SdaTransferStatus} SdaTransferStatus */
+/** @typedef {import('./sda-protocol.js').SdaTransfer} SdaTransfer */
+/** @typedef {import('./sda-protocol.js').SdaTransfersOptions} SdaTransfersOptions */
+/** @typedef {import('./sda-protocol.js').SdaRecoveryOptions} SdaRecoveryOptions */
+/** @typedef {import('./sda-protocol.js').SdaRecoveryResult} SdaRecoveryResult */
+
 export { default as SwapProtocol, ISwapProtocol } from './swap-protocol.js'
 
 export { default as BridgeProtocol, IBridgeProtocol } from './bridge-protocol.js'
@@ -77,3 +97,5 @@ export { default as LendingProtocol, ILendingProtocol } from './lending-protocol
 export { default as FiatProtocol, IFiatProtocol } from './fiat-protocol.js'
 
 export { default as SwidgeProtocol, ISwidgeProtocol } from './swidge-protocol.js'
+
+export { default as SdaProtocol, ISdaProtocol } from './sda-protocol.js'
