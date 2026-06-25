@@ -27,6 +27,22 @@ describe('toTransportJson', () => {
     expect(toTransportJson(payload)).toEqual(payload)
   })
 
+  test('converts a Uint8Array to a 0x-prefixed hex string', () => {
+    expect(toTransportJson(new Uint8Array([0, 1, 171, 255]))).toBe('0x0001abff')
+  })
+
+  test('converts a Buffer and nested byte arrays to hex', () => {
+    const payload = {
+      data: Buffer.from([222, 173]),
+      nested: { signature: new Uint8Array([1, 2, 3]) }
+    }
+
+    expect(toTransportJson(payload)).toEqual({
+      data: '0xdead',
+      nested: { signature: '0x010203' }
+    })
+  })
+
   test('produces output that survives JSON.stringify', () => {
     expect(JSON.stringify(toTransportJson({ gas: 42n }))).toBe('{"gas":"42"}')
   })
