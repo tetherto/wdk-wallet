@@ -29,7 +29,10 @@ import { NotImplementedError } from './errors.js'
  * @property {Uint8Array | null} privateKey - The private key (null if the account has been disposed).
  */
 
-/** @interface */
+/**
+ * @interface
+ * @template TSignedTransaction
+ */
 export class IWalletAccount extends IWalletAccountReadOnly {
   /**
    * The derivation path's index of this account.
@@ -72,7 +75,7 @@ export class IWalletAccount extends IWalletAccountReadOnly {
    * Signs a transaction
    *
    * @param {Transaction} tx - The transaction to sign.
-   * @returns {Promise<unknown>} The signed transaction.
+   * @returns {Promise<TSignedTransaction>} The signed transaction.
    */
   async signTransaction (tx) {
     throw new NotImplementedError('signTransaction(tx)')
@@ -92,11 +95,21 @@ export class IWalletAccount extends IWalletAccountReadOnly {
   /**
    * Sends a transaction.
    *
-   * @param {Transaction} tx - The transaction.
+   * @param {Transaction | TSignedTransaction} tx - The transaction.
    * @returns {Promise<TransactionResult>} The transaction's result.
    */
   async sendTransaction (tx) {
     throw new NotImplementedError('sendTransaction(tx)')
+  }
+
+  /**
+   * Quotes the costs of a send transaction operation.
+   *
+   * @param {Transaction | TSignedTransaction} tx - The transaction.
+   * @returns {Promise<Omit<TransactionResult, 'hash'>>} The transaction's quotes.
+   */
+  async quoteSendTransaction (tx) {
+    throw new NotImplementedError('quoteSendTransaction(tx)')
   }
 
   /**
