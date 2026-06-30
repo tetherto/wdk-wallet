@@ -30,22 +30,38 @@ import { NotImplementedError } from '../errors.js'
  * @property {boolean} quoteRequired - Whether a quote must be fetched (via {@link ISdaProtocol#quoteDeposit}) and passed to {@link ISdaProtocol#createDepositAddress} via `options.quote` before an address can be issued (e.g., Relay, whose deposit address is bound to a quote/amount).
  * @property {boolean} reusableAddresses - Whether issued addresses can receive more than one deposit.
  * @property {boolean} multiChainAddress - Whether a single address is valid across several source chains of the same VM family.
+ * @property {SdaCustodyModel} custodyModel - Who controls deposited funds while in flight: `'trusted-operator'` (the provider holds the address and funds) or `'self-custodial'` (the address is an on-chain contract with withdrawal rights fixed in code, so funds are recoverable on-chain without the provider).
+ * @property {boolean} clientDerivableAddress - Whether the deposit address is deterministically derivable and verifiable client-side, before any provider call.
  * @property {SdaRouteDiscoveryMode} routeDiscovery - How routes can be listed: `'full'` (all routes returnable with no filters) or `'by-chain-pair'` (a source and destination chain must be supplied to {@link ISdaProtocol#getSupportedRoutes}).
  * @property {boolean} getAddress - Whether {@link ISdaProtocol#getDepositAddress} (look up an existing SDA) is supported.
  * @property {boolean} transferStatus - Whether {@link ISdaProtocol#getTransferStatus} (status by transfer id) is supported.
- * @property {boolean} historyByAddress - Whether {@link ISdaProtocol#getDepositAddressTransfers} (pull-based deposit history) is supported. Push-only providers (webhook-based) report `false`.
- * @property {SdaRecoveryMode} recovery - The recovery mechanism the provider exposes via {@link ISdaProtocol#recoverDepositAddress}, or `'none'`.
+ * @property {boolean} historyByAddress - Whether {@link ISdaProtocol#getDepositAddressTransfers} (pull-based deposit history, keyed by deposit address) is supported. Push-only providers (webhook-based) report `false`.
+ * @property {boolean} historyByRecipient - Whether {@link ISdaProtocol#getTransfersByRecipient} (history aggregated by recipient across all of that user's deposit addresses and source chains) is supported.
+ * @property {SdaRecoveryMode} recovery - How the provider re-processes a missed/undetected deposit (see {@link ISdaProtocol#recoverDepositAddress}): `'reindex'`, `'reactivate'`, or `'none'`. This describes provider-side reprocessing only — it does NOT say whether deposited funds can be recovered; that is governed by {@link SdaCapabilities#custodyModel} (a `'self-custodial'` provider's funds are recoverable on-chain even when `recovery` is `'none'`).
  * @property {boolean} disableAddress - Whether {@link ISdaProtocol#disableDepositAddress} is supported.
  * @property {boolean} refund - Whether the provider honours a `refundAddress`.
  */
 
 /**
- * The recovery mechanism a provider exposes for deposits/addresses that were
- * not picked up automatically. `reindex` re-scans a known source transaction
- * (Orchestra, Relay); `reactivate` re-enables an idle address (Rhino);
- * `none` means recovery is not supported.
+ * How a provider re-processes a deposit that was not picked up automatically.
+ * `reindex` re-scans a known source transaction (Orchestra, Relay); `reactivate`
+ * re-enables an idle/expired address (Rhino); `none` means no such call is
+ * exposed. This is about provider-side reprocessing of a missed deposit, not
+ * about fund custody — whether deposited funds are recoverable is governed by
+ * {@link SdaCapabilities#custodyModel}.
  *
  * @typedef {'reindex' | 'reactivate' | 'none'} SdaRecoveryMode
+ */
+
+/**
+ * Who controls deposited funds while a deposit is in flight. `'trusted-operator'`
+ * — the provider holds the deposit address and the funds (recovery means asking
+ * the provider to reprocess). `'self-custodial'` — the address is an on-chain
+ * contract whose withdrawal rights are fixed in code (e.g. the recipient can
+ * withdraw immediately, an optional custodial withdrawer only after a timelock),
+ * so funds are recoverable on-chain without the provider.
+ *
+ * @typedef {'self-custodial' | 'trusted-operator'} SdaCustodyModel
  */
 
 /**
@@ -170,7 +186,9 @@ import { NotImplementedError } from '../errors.js'
  * @property {string} destinationAsset - The provider identifier of the asset to deliver (e.g., USDT).
  * @property {string} [destinationAddress] - The address that receives the delivered asset. Defaults to the bound account's address.
  * @property {string} [inputToken] - The expected input token, when the provider needs it declared up front.
- * @property {string} [refundAddress] - The address that receives refunds if a deposit cannot be processed.
+ * @property {string} [refundAddress] - The address that receives refunds if a deposit cannot be processed (push-refund style).
+ * @property {string} [withdrawer] - For self-custodial / client-derivable providers, the party granted on-chain withdrawal rights (e.g. a custodial recovery wallet, withdrawable after a timelock). Unlike `refundAddress`, this is an input to the address derivation and changes the resulting address.
+ * @property {string} [salt] - A caller-supplied salt to deterministically derive a specific address (e.g. one address per user vs one per transaction). Only meaningful when {@link SdaCapabilities#clientDerivableAddress} is `true`.
  * @property {boolean} [reusable] - Request a reusable address (when the provider supports both modes).
  * @property {SdaQuote | string} [quote] - A pre-fetched quote (or quote id) to bind the address to, for providers that require it.
  */
@@ -343,6 +361,22 @@ export class ISdaProtocol {
   }
 
   /**
+   * Lists transfers aggregated by recipient — every deposit routed to the given
+   * recipient across all of that recipient's deposit addresses and source
+   * chains. Optional: only supported when {@link SdaCapabilities#historyByRecipient}
+   * is `true`.
+   *
+   * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
+   * @param {string | number} destinationChain - The destination chain the transfers are delivered to.
+   * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
+   * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
+   * @throws {NotImplementedError} If this provider does not support recipient-keyed history (check `getCapabilities().historyByRecipient`).
+   */
+  async getTransfersByRecipient (recipient, destinationChain, options) {
+    throw new NotImplementedError('getTransfersByRecipient(recipient, destinationChain, options)')
+  }
+
+  /**
    * Retrieves the status of a single transfer by its identifier. Optional:
    * only supported when {@link SdaCapabilities#transferStatus} is `true`.
    *
@@ -512,6 +546,23 @@ export default class SdaProtocol {
    */
   async getDepositAddressTransfers (address, options) {
     throw new NotImplementedError('getDepositAddressTransfers(address, options)')
+  }
+
+  /**
+   * Lists transfers aggregated by recipient — every deposit routed to the given
+   * recipient across all of that recipient's deposit addresses and source
+   * chains. Optional: only supported when {@link SdaCapabilities#historyByRecipient}
+   * is `true`.
+   *
+   * @abstract
+   * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
+   * @param {string | number} destinationChain - The destination chain the transfers are delivered to.
+   * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
+   * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
+   * @throws {NotImplementedError} If this provider does not support recipient-keyed history (check `getCapabilities().historyByRecipient`).
+   */
+  async getTransfersByRecipient (recipient, destinationChain, options) {
+    throw new NotImplementedError('getTransfersByRecipient(recipient, destinationChain, options)')
   }
 
   /**
