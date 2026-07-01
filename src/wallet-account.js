@@ -31,7 +31,7 @@ import { NotImplementedError } from './errors.js'
 
 /**
  * @interface
- * @template TSignedTransaction
+ * @template [TSignedTransaction=unknown]
  */
 export class IWalletAccount extends IWalletAccountReadOnly {
   /**

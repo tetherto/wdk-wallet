@@ -1,5 +1,5 @@
 /** @interface */
-export interface IWalletAccount<TSignedTransaction> extends IWalletAccountReadOnly {
+export interface IWalletAccount<TSignedTransaction = unknown> extends IWalletAccountReadOnly {
     /**
      * The derivation path's index of this account.
      *
