@@ -73,6 +73,7 @@
 /** @typedef {import('./sda-protocol.js').SdaRecoveryMode} SdaRecoveryMode */
 /** @typedef {import('./sda-protocol.js').SdaRouteDiscoveryMode} SdaRouteDiscoveryMode */
 /** @typedef {import('./sda-protocol.js').SdaCustodyModel} SdaCustodyModel */
+/** @typedef {import('./sda-protocol.js').SdaActivationModel} SdaActivationModel */
 /** @typedef {import('./sda-protocol.js').SdaToken} SdaToken */
 /** @typedef {import('./sda-protocol.js').SdaLimits} SdaLimits */
 /** @typedef {import('./sda-protocol.js').SdaRoutesOptions} SdaRoutesOptions */

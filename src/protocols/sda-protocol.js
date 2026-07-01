@@ -31,26 +31,37 @@ import { NotImplementedError } from '../errors.js'
  * @property {boolean} reusableAddresses - Whether issued addresses can receive more than one deposit.
  * @property {boolean} multiChainAddress - Whether a single address is valid across several source chains of the same VM family.
  * @property {SdaCustodyModel} custodyModel - Who controls deposited funds while in flight: `'trusted-operator'` (the provider holds the address and funds) or `'self-custodial'` (the address is an on-chain contract with withdrawal rights fixed in code, so funds are recoverable on-chain without the provider).
- * @property {boolean} clientDerivableAddress - Whether the deposit address is deterministically derivable and verifiable client-side, before any provider call.
+ * @property {boolean} clientDerivableAddress - Whether the deposit address is deterministically derivable and verifiable client-side, before any provider call (via {@link ISdaProtocol#deriveDepositAddress}).
+ * @property {SdaActivationModel} activation - The address activation lifecycle: `'none'` (live as soon as it is created), `'required'` (must be activated before the provider monitors it), or `'ttl'` (activation expires and must be refreshed via {@link ISdaProtocol#renewDepositAddress}).
  * @property {SdaRouteDiscoveryMode} routeDiscovery - How routes can be listed: `'full'` (all routes returnable with no filters) or `'by-chain-pair'` (a source and destination chain must be supplied to {@link ISdaProtocol#getSupportedRoutes}).
  * @property {boolean} getAddress - Whether {@link ISdaProtocol#getDepositAddress} (look up an existing SDA) is supported.
  * @property {boolean} transferStatus - Whether {@link ISdaProtocol#getTransferStatus} (status by transfer id) is supported.
  * @property {boolean} historyByAddress - Whether {@link ISdaProtocol#getDepositAddressTransfers} (pull-based deposit history, keyed by deposit address) is supported. Push-only providers (webhook-based) report `false`.
  * @property {boolean} historyByRecipient - Whether {@link ISdaProtocol#getTransfersByRecipient} (history aggregated by recipient across all of that user's deposit addresses and source chains) is supported.
- * @property {SdaRecoveryMode} recovery - How the provider re-processes a missed/undetected deposit (see {@link ISdaProtocol#recoverDepositAddress}): `'reindex'`, `'reactivate'`, or `'none'`. This describes provider-side reprocessing only — it does NOT say whether deposited funds can be recovered; that is governed by {@link SdaCapabilities#custodyModel} (a `'self-custodial'` provider's funds are recoverable on-chain even when `recovery` is `'none'`).
+ * @property {SdaRecoveryMode} recovery - How the provider re-processes a missed/undetected deposit (see {@link ISdaProtocol#recoverDepositAddress}): `'reindex'` or `'none'`. This describes provider-side reprocessing only — it does NOT say whether deposited funds can be recovered; that is governed by {@link SdaCapabilities#custodyModel} (a `'self-custodial'` provider's funds are recoverable on-chain even when `recovery` is `'none'`). Keep-alive of an expired address is the activation lifecycle (`activation: 'ttl'`), not recovery.
  * @property {boolean} disableAddress - Whether {@link ISdaProtocol#disableDepositAddress} is supported.
  * @property {boolean} refund - Whether the provider honours a `refundAddress`.
  */
 
 /**
  * How a provider re-processes a deposit that was not picked up automatically.
- * `reindex` re-scans a known source transaction (Orchestra, Relay); `reactivate`
- * re-enables an idle/expired address (Rhino); `none` means no such call is
- * exposed. This is about provider-side reprocessing of a missed deposit, not
- * about fund custody — whether deposited funds are recoverable is governed by
- * {@link SdaCapabilities#custodyModel}.
+ * `reindex` re-scans a known source transaction (Orchestra, Relay); `none` means
+ * no such call is exposed. This is about provider-side reprocessing of a missed
+ * deposit, not about fund custody — whether deposited funds are recoverable is
+ * governed by {@link SdaCapabilities#custodyModel}. Re-enabling an idle/expired
+ * address is the activation lifecycle ({@link SdaActivationModel} `'ttl'` +
+ * {@link ISdaProtocol#renewDepositAddress}), not recovery.
  *
- * @typedef {'reindex' | 'reactivate' | 'none'} SdaRecoveryMode
+ * @typedef {'reindex' | 'none'} SdaRecoveryMode
+ */
+
+/**
+ * The activation lifecycle of a deposit address. `'none'` — the address is live
+ * as soon as it is created. `'required'` — the address must be activated (so the
+ * provider starts monitoring it) before it can receive deposits. `'ttl'` —
+ * activation expires and must be refreshed via {@link ISdaProtocol#renewDepositAddress}.
+ *
+ * @typedef {'none' | 'required' | 'ttl'} SdaActivationModel
  */
 
 /**
@@ -187,8 +198,7 @@ import { NotImplementedError } from '../errors.js'
  * @property {string} [destinationAddress] - The address that receives the delivered asset. Defaults to the bound account's address.
  * @property {string} [inputToken] - The expected input token, when the provider needs it declared up front.
  * @property {string} [refundAddress] - The address that receives refunds if a deposit cannot be processed (push-refund style).
- * @property {string} [withdrawer] - For self-custodial / client-derivable providers, the party granted on-chain withdrawal rights (e.g. a custodial recovery wallet, withdrawable after a timelock). Unlike `refundAddress`, this is an input to the address derivation and changes the resulting address.
- * @property {string} [salt] - A caller-supplied salt to deterministically derive a specific address (e.g. one address per user vs one per transaction). Only meaningful when {@link SdaCapabilities#clientDerivableAddress} is `true`.
+ * @property {Record<string, unknown>} [derivation] - Provider-specific inputs a self-custodial / client-derivable provider folds into the deposit-address derivation (e.g. a custodial withdrawer, salt, or execution parameters). The interface passes this through untyped; each provider documents its own shape. Distinct from `refundAddress` (push-refund) — these inputs change the resulting address.
  * @property {boolean} [reusable] - Request a reusable address (when the provider supports both modes).
  * @property {SdaQuote | string} [quote] - A pre-fetched quote (or quote id) to bind the address to, for providers that require it.
  */
@@ -209,7 +219,8 @@ import { NotImplementedError } from '../errors.js'
  * @property {SdaLimits} [limits] - Deposit limits for this address.
  * @property {boolean} reusable - Whether the address can receive more than one deposit.
  * @property {string} [refundAddress] - The refund address bound to this address.
- * @property {number} [expiry] - Unix timestamp (seconds) at which the address expires/goes idle, if applicable.
+ * @property {number} [expiry] - Unix timestamp (seconds) at which the address's activation expires, when {@link SdaCapabilities#activation} is `'ttl'`.
+ * @property {Record<string, unknown>} [derivation] - The provider-specific derivation inputs this address was created from (echoed back), so a `clientDerivableAddress` provider can re-derive, verify or recover the address later.
  */
 
 /**
@@ -248,12 +259,12 @@ import { NotImplementedError } from '../errors.js'
  */
 
 /**
- * Options for recovering a deposit/address that was not picked up automatically.
- * Callers supply whatever the provider's recovery mode needs: `reindex` modes
- * use the source transaction; `reactivate` modes use the address or id.
+ * Options for re-processing a deposit that was not picked up automatically
+ * (`reindex`). Callers supply whatever the provider needs — typically the source
+ * transaction, or the deposit address / SDA id.
  *
  * @typedef {Object} SdaRecoveryOptions
- * @property {string} [address] - The deposit address to recover/reactivate.
+ * @property {string} [address] - The deposit address to reindex.
  * @property {string} [id] - The provider SDA identifier.
  * @property {string} [sourceTxHash] - The deposit transaction to re-index.
  * @property {string | number} [sourceChain] - The chain of the deposit transaction.
@@ -263,8 +274,8 @@ import { NotImplementedError } from '../errors.js'
  * The outcome of a recovery attempt.
  *
  * @typedef {Object} SdaRecoveryResult
- * @property {'reactivated' | 'reindexed' | 'pending' | 'failed'} status - The result of the recovery attempt.
- * @property {string} [address] - The address that was recovered/reactivated.
+ * @property {'reindexed' | 'pending' | 'failed'} status - The result of the reindex attempt.
+ * @property {string} [address] - The address that was reindexed.
  * @property {string} [id] - The provider SDA identifier.
  * @property {SdaTransfer} [transfer] - The transfer that was recovered, if one resulted.
  * @property {string} [message] - A human-readable description of the outcome.
@@ -320,16 +331,33 @@ export class ISdaProtocol {
   }
 
   /**
-   * Creates deposit addresses for the given route and destination. Returns one
-   * entry per distinct address: a provider that issues a single address across a
-   * chain family returns one entry covering all of `sourceChains`, while a
-   * provider that issues one address per source chain returns one entry each.
+   * Creates deposit addresses for the given route and destination, ready to
+   * receive per the provider's {@link SdaCapabilities#activation} model (for a
+   * `'required'` / `'ttl'` provider this also activates the address so it is
+   * monitored). Returns one entry per distinct address: a provider that issues a
+   * single address across a chain family returns one entry covering all of
+   * `sourceChains`, while a provider that issues one address per source chain
+   * returns one entry each.
    *
    * @param {SdaCreateOptions} options - The address creation options.
    * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
    */
   async createDepositAddress (options) {
     throw new NotImplementedError('createDepositAddress(options)')
+  }
+
+  /**
+   * Derives a deposit address client-side, without any provider call and
+   * without activating or monitoring it — used to verify (derive + compare) or
+   * recover an address for a self-custodial provider. Optional: only supported
+   * when {@link SdaCapabilities#clientDerivableAddress} is `true`.
+   *
+   * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; the provider-specific `derivation` inputs are folded into the result.
+   * @returns {Promise<string>} The derived deposit address.
+   * @throws {NotImplementedError} If this provider does not support client-side derivation (check `getCapabilities().clientDerivableAddress`).
+   */
+  async deriveDepositAddress (options) {
+    throw new NotImplementedError('deriveDepositAddress(options)')
   }
 
   /**
@@ -345,6 +373,19 @@ export class ISdaProtocol {
    */
   async getDepositAddress (id) {
     throw new NotImplementedError('getDepositAddress(id)')
+  }
+
+  /**
+   * Refreshes the activation of a deposit address so the provider keeps
+   * monitoring it. Optional: only relevant when {@link SdaCapabilities#activation}
+   * is `'ttl'`.
+   *
+   * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id`.
+   * @returns {Promise<SdaDepositAddress>} The refreshed deposit address descriptor (with the new `expiry`).
+   * @throws {NotImplementedError} If this provider does not use activation TTLs (check `getCapabilities().activation`).
+   */
+  async renewDepositAddress (id) {
+    throw new NotImplementedError('renewDepositAddress(id)')
   }
 
   /**
@@ -505,10 +546,13 @@ export default class SdaProtocol {
   }
 
   /**
-   * Creates deposit addresses for the given route and destination. Returns one
-   * entry per distinct address: a provider that issues a single address across a
-   * chain family returns one entry covering all of `sourceChains`, while a
-   * provider that issues one address per source chain returns one entry each.
+   * Creates deposit addresses for the given route and destination, ready to
+   * receive per the provider's {@link SdaCapabilities#activation} model (for a
+   * `'required'` / `'ttl'` provider this also activates the address so it is
+   * monitored). Returns one entry per distinct address: a provider that issues a
+   * single address across a chain family returns one entry covering all of
+   * `sourceChains`, while a provider that issues one address per source chain
+   * returns one entry each.
    *
    * @abstract
    * @param {SdaCreateOptions} options - The address creation options.
@@ -516,6 +560,21 @@ export default class SdaProtocol {
    */
   async createDepositAddress (options) {
     throw new NotImplementedError('createDepositAddress(options)')
+  }
+
+  /**
+   * Derives a deposit address client-side, without any provider call and
+   * without activating or monitoring it — used to verify (derive + compare) or
+   * recover an address for a self-custodial provider. Optional: only supported
+   * when {@link SdaCapabilities#clientDerivableAddress} is `true`.
+   *
+   * @abstract
+   * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; the provider-specific `derivation` inputs are folded into the result.
+   * @returns {Promise<string>} The derived deposit address.
+   * @throws {NotImplementedError} If this provider does not support client-side derivation (check `getCapabilities().clientDerivableAddress`).
+   */
+  async deriveDepositAddress (options) {
+    throw new NotImplementedError('deriveDepositAddress(options)')
   }
 
   /**
@@ -532,6 +591,20 @@ export default class SdaProtocol {
    */
   async getDepositAddress (id) {
     throw new NotImplementedError('getDepositAddress(id)')
+  }
+
+  /**
+   * Refreshes the activation of a deposit address so the provider keeps
+   * monitoring it. Optional: only relevant when {@link SdaCapabilities#activation}
+   * is `'ttl'`.
+   *
+   * @abstract
+   * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id`.
+   * @returns {Promise<SdaDepositAddress>} The refreshed deposit address descriptor (with the new `expiry`).
+   * @throws {NotImplementedError} If this provider does not use activation TTLs (check `getCapabilities().activation`).
+   */
+  async renewDepositAddress (id) {
+    throw new NotImplementedError('renewDepositAddress(id)')
   }
 
   /**
