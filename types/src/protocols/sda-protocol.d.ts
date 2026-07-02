@@ -181,7 +181,7 @@
  *
  * @typedef {Object} SdaDepositAddress
  * @property {string} address - The deposit address the user sends funds to.
- * @property {string} [id] - The provider identifier for this SDA, used for status, recovery and disabling.
+ * @property {string} id - The provider identifier for this SDA, used for status, recovery and disabling.
  * @property {Blockchain[]} sourceChains - The chains this address accepts deposits from.
  * @property {SdaToken[]} supportedInputTokens - The tokens this address accepts.
  * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
@@ -955,7 +955,7 @@ export type SdaDepositAddress = {
     /**
      * - The provider identifier for this SDA, used for status, recovery and disabling.
      */
-    id?: string;
+    id: string;
     /**
      * - The chains this address accepts deposits from.
      */
