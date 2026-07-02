@@ -349,13 +349,13 @@ export class ISdaProtocol {
      * chains. Optional: only supported when {@link SdaCapabilities#historyByRecipient}
      * is `true`.
      *
-     * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
      * @param {Blockchain} destinationChain - The destination chain the transfers are delivered to.
+     * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
      * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
      * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
      * @throws {NotImplementedError} If this provider does not support recipient-keyed history (check `getCapabilities().historyByRecipient`).
      */
-    getTransfersByRecipient(recipient: string, destinationChain: Blockchain, options?: SdaTransfersOptions): Promise<SdaTransfer[]>;
+    getTransfersByRecipient(destinationChain: Blockchain, recipient: string, options?: SdaTransfersOptions): Promise<SdaTransfer[]>;
     /**
      * Retrieves the status of a single transfer by its identifier. Optional:
      * only supported when {@link SdaCapabilities#transferStatus} is `true`.
@@ -531,13 +531,13 @@ export default class SdaProtocol implements ISdaProtocol {
      * is `true`.
      *
      * @abstract
-     * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
      * @param {Blockchain} destinationChain - The destination chain the transfers are delivered to.
+     * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
      * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
      * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
      * @throws {NotImplementedError} If this provider does not support recipient-keyed history (check `getCapabilities().historyByRecipient`).
      */
-    getTransfersByRecipient(recipient: string, destinationChain: Blockchain, options?: SdaTransfersOptions): Promise<SdaTransfer[]>;
+    getTransfersByRecipient(destinationChain: Blockchain, recipient: string, options?: SdaTransfersOptions): Promise<SdaTransfer[]>;
     /**
      * Retrieves the status of a single transfer by its identifier. Optional:
      * only supported when {@link SdaCapabilities#transferStatus} is `true`.

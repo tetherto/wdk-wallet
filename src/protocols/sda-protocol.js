@@ -414,14 +414,14 @@ export class ISdaProtocol {
    * chains. Optional: only supported when {@link SdaCapabilities#historyByRecipient}
    * is `true`.
    *
-   * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
    * @param {Blockchain} destinationChain - The destination chain the transfers are delivered to.
+   * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
    * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
    * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
    * @throws {NotImplementedError} If this provider does not support recipient-keyed history (check `getCapabilities().historyByRecipient`).
    */
-  async getTransfersByRecipient (recipient, destinationChain, options) {
-    throw new NotImplementedError('getTransfersByRecipient(recipient, destinationChain, options)')
+  async getTransfersByRecipient (destinationChain, recipient, options) {
+    throw new NotImplementedError('getTransfersByRecipient(destinationChain, recipient, options)')
   }
 
   /**
@@ -635,14 +635,14 @@ export default class SdaProtocol {
    * is `true`.
    *
    * @abstract
-   * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
    * @param {Blockchain} destinationChain - The destination chain the transfers are delivered to.
+   * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
    * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
    * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
    * @throws {NotImplementedError} If this provider does not support recipient-keyed history (check `getCapabilities().historyByRecipient`).
    */
-  async getTransfersByRecipient (recipient, destinationChain, options) {
-    throw new NotImplementedError('getTransfersByRecipient(recipient, destinationChain, options)')
+  async getTransfersByRecipient (destinationChain, recipient, options) {
+    throw new NotImplementedError('getTransfersByRecipient(destinationChain, recipient, options)')
   }
 
   /**
