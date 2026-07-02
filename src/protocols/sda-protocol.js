@@ -20,6 +20,13 @@ import { NotImplementedError } from '../errors.js'
 /** @typedef {import('../wallet-account.js').IWalletAccount} IWalletAccount */
 
 /**
+ * A blockchain identifier: a numeric chain id (e.g. `1`) or a provider-specific
+ * chain name (e.g. `'ethereum'`).
+ *
+ * @typedef {string | number} Blockchain
+ */
+
+/**
  * Describes which optional parts of the SDA interface a provider implements, so
  * consumers can adapt their UI/flow without trial-and-error. The required core
  * (`getSupportedRoutes`, `createDepositAddress`) is always available and
@@ -100,7 +107,7 @@ import { NotImplementedError } from '../errors.js'
  *
  * @typedef {Object} SdaToken
  * @property {string} token - The provider-specific token identifier to use in SDA calls.
- * @property {string | number} chain - The chain on which the token lives.
+ * @property {Blockchain} chain - The chain on which the token lives.
  * @property {string} symbol - The token symbol (e.g., 'USDC', 'USDT').
  * @property {number} decimals - The number of decimal places for the token's base unit.
  * @property {string} [address] - The token contract address, if applicable.
@@ -120,9 +127,9 @@ import { NotImplementedError } from '../errors.js'
  * Optional filters for narrowing route discovery.
  *
  * @typedef {Object} SdaRoutesOptions
- * @property {string | number} [sourceChain] - Restrict to routes that accept deposits from this chain.
+ * @property {Blockchain} [sourceChain] - Restrict to routes that accept deposits from this chain.
  * @property {string} [sourceToken] - Restrict to routes that accept this input token.
- * @property {string | number} [destinationChain] - Restrict to routes that deliver to this chain.
+ * @property {Blockchain} [destinationChain] - Restrict to routes that deliver to this chain.
  * @property {string} [destinationAsset] - Restrict to routes that deliver this asset.
  */
 
@@ -131,9 +138,9 @@ import { NotImplementedError } from '../errors.js'
  * input tokens, the destination chain, and the asset delivered there.
  *
  * @typedef {Object} SdaRoute
- * @property {(string | number)[]} sourceChains - The source chains this route accepts deposits from. A list because some providers issue one address valid across a VM family.
+ * @property {Blockchain[]} sourceChains - The source chains this route accepts deposits from. A list because some providers issue one address valid across a VM family.
  * @property {SdaToken[]} inputTokens - The deposit tokens accepted on the source side.
- * @property {string | number} destinationChain - The chain the converted asset is delivered to.
+ * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
  * @property {SdaToken} destinationAsset - The asset delivered to the destination (e.g., USDT).
  * @property {SdaLimits} [limits] - Deposit limits for this route.
  * @property {boolean} [reusable] - Whether addresses issued for this route can receive more than one deposit.
@@ -145,9 +152,9 @@ import { NotImplementedError } from '../errors.js'
  * addresses are bound to a quote (e.g., Rhino); optional otherwise.
  *
  * @typedef {Object} SdaQuoteOptions
- * @property {string | number} sourceChain - The chain the deposit originates from.
+ * @property {Blockchain} sourceChain - The chain the deposit originates from.
  * @property {string} inputToken - The provider identifier of the token being deposited.
- * @property {string | number} destinationChain - The chain the converted asset is delivered to.
+ * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
  * @property {string} destinationAsset - The provider identifier of the asset to deliver.
  * @property {number | bigint} inputAmount - The amount to deposit, in the input token's base unit.
  */
@@ -165,7 +172,7 @@ import { NotImplementedError } from '../errors.js'
  * @property {SdaFeeType} type - The category of the fee.
  * @property {bigint} amount - The fee amount, in the fee token's base unit.
  * @property {string} token - The token in which the fee is denominated.
- * @property {string | number} [chain] - The chain on which the fee is charged.
+ * @property {Blockchain} [chain] - The chain on which the fee is charged.
  * @property {boolean} [included] - Whether the fee is already reflected in the quoted output amount.
  * @property {string} [description] - A human-readable description of the fee.
  */
@@ -176,10 +183,10 @@ import { NotImplementedError } from '../errors.js'
  * to bind the address to this quote.
  *
  * @typedef {Object} SdaQuote
- * @property {string | number} inputChain - The chain the deposit originates from.
+ * @property {Blockchain} inputChain - The chain the deposit originates from.
  * @property {string} inputToken - The provider identifier of the deposited token.
  * @property {bigint} inputAmount - The amount deposited, in the input token's base unit.
- * @property {string | number} destinationChain - The chain the converted asset is delivered to.
+ * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
  * @property {string} destinationAsset - The provider identifier of the delivered asset.
  * @property {bigint} outputAmount - The estimated amount delivered, in the destination asset's base unit.
  * @property {SdaFee[]} fees - Itemised fee breakdown.
@@ -192,8 +199,8 @@ import { NotImplementedError } from '../errors.js'
  * Options for creating a deposit address.
  *
  * @typedef {Object} SdaCreateOptions
- * @property {(string | number)[]} sourceChains - One or more source chains the address should accept deposits from. Providers that issue one address per VM family use the full list; single-chain providers use a one-element list.
- * @property {string | number} destinationChain - The chain the converted asset is delivered to.
+ * @property {Blockchain[]} sourceChains - One or more source chains the address should accept deposits from. Providers that issue one address per VM family use the full list; single-chain providers use a one-element list.
+ * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
  * @property {string} destinationAsset - The provider identifier of the asset to deliver (e.g., USDT).
  * @property {string} [destinationAddress] - The address that receives the delivered asset. Defaults to the bound account's address.
  * @property {string} [inputToken] - The expected input token, when the provider needs it declared up front.
@@ -210,9 +217,9 @@ import { NotImplementedError } from '../errors.js'
  * @typedef {Object} SdaDepositAddress
  * @property {string} address - The deposit address the user sends funds to.
  * @property {string} [id] - The provider identifier for this SDA, used for status, recovery and disabling.
- * @property {(string | number)[]} sourceChains - The chains this address accepts deposits from.
+ * @property {Blockchain[]} sourceChains - The chains this address accepts deposits from.
  * @property {SdaToken[]} supportedInputTokens - The tokens this address accepts.
- * @property {string | number} destinationChain - The chain the converted asset is delivered to.
+ * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
  * @property {SdaToken} destinationAsset - The asset delivered to the destination.
  * @property {string} destinationAddress - The resolved address that receives the delivered asset.
  * @property {SdaQuote} [quote] - The quote bound to this address, if any.
@@ -252,7 +259,7 @@ import { NotImplementedError } from '../errors.js'
  * Optional pagination/filtering for transfer history.
  *
  * @typedef {Object} SdaTransfersOptions
- * @property {string | number} [sourceChain] - The source chain of the deposit address, required by providers that key addresses by (address, chain).
+ * @property {Blockchain} [sourceChain] - The source chain of the deposit address, required by providers that key addresses by (address, chain).
  * @property {number} [limit] - The maximum number of transfers to return.
  * @property {string} [cursor] - An opaque pagination cursor returned by a previous call.
  * @property {SdaTransferStatus} [status] - Restrict to transfers in this status.
@@ -267,7 +274,7 @@ import { NotImplementedError } from '../errors.js'
  * @property {string} [address] - The deposit address to reindex.
  * @property {string} [id] - The provider SDA identifier.
  * @property {string} [sourceTxHash] - The deposit transaction to re-index.
- * @property {string | number} [sourceChain] - The chain of the deposit transaction.
+ * @property {Blockchain} [sourceChain] - The chain of the deposit transaction.
  */
 
 /**
@@ -408,7 +415,7 @@ export class ISdaProtocol {
    * is `true`.
    *
    * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
-   * @param {string | number} destinationChain - The destination chain the transfers are delivered to.
+   * @param {Blockchain} destinationChain - The destination chain the transfers are delivered to.
    * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
    * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
    * @throws {NotImplementedError} If this provider does not support recipient-keyed history (check `getCapabilities().historyByRecipient`).
@@ -629,7 +636,7 @@ export default class SdaProtocol {
    *
    * @abstract
    * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
-   * @param {string | number} destinationChain - The destination chain the transfers are delivered to.
+   * @param {Blockchain} destinationChain - The destination chain the transfers are delivered to.
    * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
    * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
    * @throws {NotImplementedError} If this provider does not support recipient-keyed history (check `getCapabilities().historyByRecipient`).
