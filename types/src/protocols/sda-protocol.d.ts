@@ -92,8 +92,8 @@
  * token. Either bound may be absent when the provider does not enforce it.
  *
  * @typedef {Object} SdaLimits
- * @property {bigint} [min] - Minimum deposit amount, in the input token's base unit.
- * @property {bigint} [max] - Maximum deposit amount, in the input token's base unit.
+ * @property {number | bigint} [min] - Minimum deposit amount, in the input token's base unit.
+ * @property {number | bigint} [max] - Maximum deposit amount, in the input token's base unit.
  */
 /**
  * Optional filters for narrowing route discovery.
@@ -735,11 +735,11 @@ export type SdaLimits = {
     /**
      * - Minimum deposit amount, in the input token's base unit.
      */
-    min?: bigint;
+    min?: number | bigint;
     /**
      * - Maximum deposit amount, in the input token's base unit.
      */
-    max?: bigint;
+    max?: number | bigint;
 };
 /**
  * Optional filters for narrowing route discovery.
