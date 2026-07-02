@@ -23,7 +23,7 @@
  * @property {SdaRouteDiscoveryMode} routeDiscovery - How routes can be listed: `'full'` (all routes returnable with no filters) or `'by-chain-pair'` (a source and destination chain must be supplied to {@link ISdaProtocol#getSupportedRoutes}).
  * @property {boolean} getAddress - Whether {@link ISdaProtocol#getDepositAddress} (look up an existing SDA) is supported.
  * @property {boolean} transferStatus - Whether {@link ISdaProtocol#getTransferStatus} (status by transfer id) is supported.
- * @property {boolean} historyByAddress - Whether {@link ISdaProtocol#getDepositAddressTransfers} (pull-based deposit history, keyed by deposit address) is supported. Push-only providers (webhook-based) report `false`.
+ * @property {boolean} historyByAddress - Whether {@link ISdaProtocol#getTransfers} (pull-based deposit history, keyed by deposit address) is supported. Push-only providers (webhook-based) report `false`.
  * @property {boolean} historyByRecipient - Whether {@link ISdaProtocol#getTransfersByRecipient} (history aggregated by recipient across all of that user's deposit addresses and source chains) is supported.
  * @property {SdaRecoveryMode} recovery - How the provider re-processes a missed/undetected deposit (see {@link ISdaProtocol#recoverDepositAddress}): `'reindex'` or `'none'`. This describes provider-side reprocessing only — it does NOT say whether deposited funds can be recovered; that is governed by {@link SdaCapabilities#custodyModel} (a `'self-custodial'` provider's funds are recoverable on-chain even when `recovery` is `'none'`). Keep-alive of an expired address is the activation lifecycle (`activation: 'ttl'`), not recovery.
  * @property {boolean} disableAddress - Whether {@link ISdaProtocol#disableDepositAddress} is supported.
@@ -342,7 +342,7 @@ export class ISdaProtocol {
      * @returns {Promise<SdaTransfer[]>} The transfers for the address.
      * @throws {NotImplementedError} If this provider does not support pull-based history (check `getCapabilities().historyByAddress`).
      */
-    getDepositAddressTransfers(address: string, options?: SdaTransfersOptions): Promise<SdaTransfer[]>;
+    getTransfers(address: string, options?: SdaTransfersOptions): Promise<SdaTransfer[]>;
     /**
      * Lists transfers aggregated by recipient — every deposit routed to the given
      * recipient across all of that recipient's deposit addresses and source
@@ -523,7 +523,7 @@ export default class SdaProtocol implements ISdaProtocol {
      * @returns {Promise<SdaTransfer[]>} The transfers for the address.
      * @throws {NotImplementedError} If this provider does not support pull-based history (check `getCapabilities().historyByAddress`).
      */
-    getDepositAddressTransfers(address: string, options?: SdaTransfersOptions): Promise<SdaTransfer[]>;
+    getTransfers(address: string, options?: SdaTransfersOptions): Promise<SdaTransfer[]>;
     /**
      * Lists transfers aggregated by recipient — every deposit routed to the given
      * recipient across all of that recipient's deposit addresses and source
@@ -626,7 +626,7 @@ export type SdaCapabilities = {
      */
     transferStatus: boolean;
     /**
-     * - Whether {@link ISdaProtocol#getDepositAddressTransfers} (pull-based deposit history, keyed by deposit address) is supported. Push-only providers (webhook-based) report `false`.
+     * - Whether {@link ISdaProtocol#getTransfers} (pull-based deposit history, keyed by deposit address) is supported. Push-only providers (webhook-based) report `false`.
      */
     historyByAddress: boolean;
     /**
