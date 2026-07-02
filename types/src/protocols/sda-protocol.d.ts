@@ -223,7 +223,7 @@
  * @typedef {Object} SdaTransfersOptions
  * @property {Blockchain} [sourceChain] - The source chain of the deposit address, required by providers that key addresses by (address, chain).
  * @property {number} [limit] - The maximum number of transfers to return.
- * @property {string} [cursor] - An opaque pagination cursor returned by a previous call.
+ * @property {number} [skip] - The number of transfers to skip, for offset-based pagination.
  * @property {SdaTransferStatus} [status] - Restrict to transfers in this status.
  */
 /**
@@ -1071,9 +1071,9 @@ export type SdaTransfersOptions = {
      */
     limit?: number;
     /**
-     * - An opaque pagination cursor returned by a previous call.
+     * - The number of transfers to skip, for offset-based pagination.
      */
-    cursor?: string;
+    skip?: number;
     /**
      * - Restrict to transfers in this status.
      */
