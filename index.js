@@ -32,6 +32,11 @@ export {
 
 export { IWalletAccount } from './src/wallet-account.js'
 
-export { NotImplementedError, SignerError } from './src/errors.js'
+export {
+  NotImplementedError,
+  SignerError,
+  UnsupportedOperationError,
+  AccountRequiredError
+} from './src/errors.js'
 
 export { ISigner } from './src/signer.js'

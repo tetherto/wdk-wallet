@@ -38,3 +38,32 @@ export class SignerError extends Error {
     this.name = 'SignerError'
   }
 }
+
+export class UnsupportedOperationError extends Error {
+  /**
+   * Create a new unsupported operation error. Thrown by an optional operation
+   * that the concrete implementation deliberately does not support, so consumers
+   * can distinguish "not supported here" from an abstract method left unimplemented.
+   *
+   * @param {string} operation - The name of the operation that is not supported.
+   */
+  constructor (operation) {
+    super(`Operation '${operation}' is not supported by this protocol.`)
+
+    this.name = 'UnsupportedOperationError'
+  }
+}
+
+export class AccountRequiredError extends Error {
+  /**
+   * Create a new account required error. Thrown when an operation needs a wallet
+   * account to run but none was bound at construction.
+   *
+   * @param {string} operation - The name of the operation that requires a wallet account.
+   */
+  constructor (operation) {
+    super(`Operation '${operation}' requires a wallet account.`)
+
+    this.name = 'AccountRequiredError'
+  }
+}
