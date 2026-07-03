@@ -13,7 +13,7 @@
 // limitations under the License.
 'use strict'
 
-import { NotImplementedError } from '../errors.js'
+import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
 
 /** @typedef {import('../wallet-account-read-only.js').IWalletAccountReadOnly} IWalletAccountReadOnly */
 
@@ -27,36 +27,12 @@ import { NotImplementedError } from '../errors.js'
  */
 
 /**
- * Describes which optional parts of the SDA interface a provider implements, so
- * consumers can adapt their UI/flow without trial-and-error. The required core
- * (`getSupportedRoutes`, `createDepositAddress`) is always available and
- * therefore not listed here.
- *
- * @typedef {Object} SdaCapabilities
- * @property {boolean} quoting - Whether {@link ISdaProtocol#quoteDeposit} is supported.
- * @property {boolean} quoteRequired - Whether a quote must be fetched (via {@link ISdaProtocol#quoteDeposit}) and passed to {@link ISdaProtocol#createDepositAddress} via `options.quote` before an address can be issued (e.g., Relay, whose deposit address is bound to a quote/amount).
- * @property {boolean} reusableAddresses - Whether issued addresses can receive more than one deposit.
- * @property {boolean} multiChainAddress - Whether a single address is valid across several source chains of the same VM family.
- * @property {SdaCustodyModel} custodyModel - Who controls deposited funds while in flight: `'trusted-operator'` (the provider holds the address and funds) or `'self-custodial'` (the address is an on-chain contract with withdrawal rights fixed in code, so funds are recoverable on-chain without the provider).
- * @property {boolean} clientDerivableAddress - Whether the deposit address is deterministically derivable and verifiable client-side, before any provider call (via {@link ISdaProtocol#deriveDepositAddress}).
- * @property {SdaActivationModel} activation - The address activation lifecycle: `'none'` (live as soon as it is created), `'required'` (must be activated before the provider monitors it), or `'ttl'` (activation expires and must be refreshed via {@link ISdaProtocol#renewDepositAddress}).
- * @property {SdaRouteDiscoveryMode} routeDiscovery - How routes can be listed: `'full'` (all routes returnable with no filters) or `'by-chain-pair'` (a source and destination chain must be supplied to {@link ISdaProtocol#getSupportedRoutes}).
- * @property {boolean} getAddress - Whether {@link ISdaProtocol#getDepositAddress} (look up an existing SDA) is supported.
- * @property {boolean} transferStatus - Whether {@link ISdaProtocol#getTransferStatus} (status by transfer id) is supported.
- * @property {boolean} historyByAddress - Whether {@link ISdaProtocol#getTransfers} (pull-based deposit history, keyed by deposit address) is supported. Push-only providers (webhook-based) report `false`.
- * @property {boolean} historyByRecipient - Whether {@link ISdaProtocol#getTransfersByRecipient} (history aggregated by recipient across all of that user's deposit addresses and source chains) is supported.
- * @property {SdaRecoveryMode} recovery - How the provider re-processes a missed/undetected deposit (see {@link ISdaProtocol#recoverDepositAddress}): `'reindex'` or `'none'`. This describes provider-side reprocessing only — it does NOT say whether deposited funds can be recovered; that is governed by {@link SdaCapabilities#custodyModel} (a `'self-custodial'` provider's funds are recoverable on-chain even when `recovery` is `'none'`). Keep-alive of an expired address is the activation lifecycle (`activation: 'ttl'`), not recovery.
- * @property {boolean} disableAddress - Whether {@link ISdaProtocol#disableDepositAddress} is supported.
- * @property {boolean} refund - Whether the provider honours a `refundAddress`.
- */
-
-/**
  * How a provider re-processes a deposit that was not picked up automatically.
  * `reindex` re-scans a known source transaction (Orchestra, Relay); `none` means
  * no such call is exposed. This is about provider-side reprocessing of a missed
  * deposit, not about fund custody — whether deposited funds are recoverable is
- * governed by {@link SdaCapabilities#custodyModel}. Re-enabling an idle/expired
- * address is the activation lifecycle ({@link SdaActivationModel} `'ttl'` +
+ * governed by {@link SdaCustodyModel}. Re-enabling an idle/expired address is the
+ * activation lifecycle ({@link SdaActivationModel} `'ttl'` +
  * {@link ISdaProtocol#renewDepositAddress}), not recovery.
  *
  * @typedef {'reindex' | 'none'} SdaRecoveryMode
@@ -194,7 +170,8 @@ import { NotImplementedError } from '../errors.js'
  * @property {string} destinationAsset - The provider identifier of the asset to deliver (e.g., USDT).
  * @property {string} [destinationAddress] - The address that receives the delivered asset. Defaults to the bound account's address.
  * @property {string} [inputToken] - The expected input token, when the provider needs it declared up front.
- * @property {string} [refundAddress] - The address that receives refunds if a deposit cannot be processed (push-refund style). * @property {boolean} [reusable] - Request a reusable address (when the provider supports both modes).
+ * @property {string} [refundAddress] - The address that receives refunds if a deposit cannot be processed (push-refund style).
+ * @property {boolean} [reusable] - Request a reusable address, for providers that let the caller pick reusable vs single-use per request.
  * @property {SdaQuote | string} [quote] - A pre-fetched quote (or quote id) to bind the address to, for providers that require it.
  */
 
@@ -214,7 +191,8 @@ import { NotImplementedError } from '../errors.js'
  * @property {SdaLimits} [limits] - Deposit limits for this address.
  * @property {boolean} reusable - Whether the address can receive more than one deposit.
  * @property {string} [refundAddress] - The refund address bound to this address.
- * @property {number} [expiry] - Unix timestamp (seconds) at which the address's activation expires, when {@link SdaCapabilities#activation} is `'ttl'`. */
+ * @property {number} [expiry] - Unix timestamp (seconds) at which the address's activation expires, for a provider whose activation model ({@link SdaActivationModel}) is `'ttl'`.
+ */
 
 /**
  * The lifecycle status of a deposit/transfer through an SDA.
@@ -281,54 +259,49 @@ import { NotImplementedError } from '../errors.js'
  * destination chain and address.
  *
  * The required core every provider implements is route discovery and address
- * creation. Everything else is optional and advertised through
- * {@link ISdaProtocol#getCapabilities}.
+ * creation. Every other operation is optional: a provider that does not support
+ * one leaves the base implementation in place, which throws
+ * {@link UnsupportedOperationError}. Descriptive traits that are not tied to a
+ * single method (custody, activation and route-discovery models) are documented
+ * on each provider — see {@link SdaCustodyModel}, {@link SdaActivationModel} and
+ * {@link SdaRouteDiscoveryMode}.
  *
  * @interface
  */
 export class ISdaProtocol {
   /**
-   * Returns which optional parts of the interface this provider implements.
-   *
-   * @returns {SdaCapabilities} The provider's capabilities.
-   */
-  getCapabilities () {
-    throw new NotImplementedError('getCapabilities()')
-  }
-
-  /**
    * Lists the conversion routes the provider supports: source chains, accepted
-   * input tokens, destination assets and per-route deposit limits. When
-   * {@link SdaCapabilities#routeDiscovery} is `'by-chain-pair'`, `sourceChain`
-   * and `destinationChain` must be supplied.
+   * input tokens, destination assets and per-route deposit limits. A provider
+   * whose route discovery is `'by-chain-pair'` ({@link SdaRouteDiscoveryMode})
+   * requires `sourceChain` and `destinationChain` to be supplied.
    *
    * @param {SdaRoutesOptions} [options] - Optional filters for route discovery.
    * @returns {Promise<SdaRoute[]>} The supported routes.
-   * @throws {Error} If {@link SdaCapabilities#routeDiscovery} is `'by-chain-pair'` and `sourceChain` or `destinationChain` is missing.
+   * @throws {Error} If the provider's route discovery is `'by-chain-pair'` and `sourceChain` or `destinationChain` is missing.
    */
   async getSupportedRoutes (options) {
     throw new NotImplementedError('getSupportedRoutes(options)')
   }
 
   /**
-   * Fetches a non-binding quote for a deposit. Optional: only supported when
-   * {@link SdaCapabilities#quoting} is `true`, and required up front when
-   * {@link SdaCapabilities#quoteRequired} is `true`.
+   * Fetches a non-binding quote for a deposit. Optional: only supported by
+   * providers that offer quoting. Some providers bind the deposit address to a
+   * quote and require it up front — see that provider's documentation.
    *
    * @param {SdaQuoteOptions} options - The quote options.
    * @returns {Promise<SdaQuote>} The quoted deposit details.
-   * @throws {NotImplementedError} If this provider does not support quoting (check `getCapabilities().quoting`).
+   * @throws {UnsupportedOperationError} If this provider does not support quoting.
    */
   async quoteDeposit (options) {
-    throw new NotImplementedError('quoteDeposit(options)')
+    throw new UnsupportedOperationError('quoteDeposit(options)')
   }
 
   /**
    * Creates deposit addresses for the given route and destination, ready to
-   * receive per the provider's {@link SdaCapabilities#activation} model (for a
-   * `'required'` / `'ttl'` provider this also activates the address so it is
-   * monitored). Returns one entry per distinct address: a provider that issues a
-   * single address across a chain family returns one entry covering all of
+   * receive per the provider's activation model ({@link SdaActivationModel}) —
+   * for a `'required'` / `'ttl'` provider this also activates the address so it
+   * is monitored. Returns one entry per distinct address: a provider that issues
+   * a single address across a chain family returns one entry covering all of
    * `sourceChains`, while a provider that issues one address per source chain
    * returns one entry each.
    *
@@ -343,109 +316,109 @@ export class ISdaProtocol {
    * Derives a deposit address client-side, without any provider call and
    * without activating or monitoring it — used to verify (derive + compare) or
    * recover an address for a self-custodial provider. Optional: only supported
-   * when {@link SdaCapabilities#clientDerivableAddress} is `true`.
+   * by providers whose deposit address is client-derivable.
    *
    * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a provider needing extra derivation inputs declares them on its own options type (which extends `SdaCreateOptions`).
    * @returns {Promise<string>} The derived deposit address.
-   * @throws {NotImplementedError} If this provider does not support client-side derivation (check `getCapabilities().clientDerivableAddress`).
+   * @throws {UnsupportedOperationError} If this provider does not support client-side derivation.
    */
   async deriveDepositAddress (options) {
-    throw new NotImplementedError('deriveDepositAddress(options)')
+    throw new UnsupportedOperationError('deriveDepositAddress(options)')
   }
 
   /**
    * Looks up an existing deposit address by its identifier — the
    * `SdaDepositAddress.id` returned by {@link ISdaProtocol#createDepositAddress},
-   * which round-trips any chain context the provider needs. Optional:
-   * only supported when {@link SdaCapabilities#getAddress} is `true`.
+   * which round-trips any chain context the provider needs. Optional: only
+   * supported by providers that expose address lookup.
    *
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the provider needs).
    * @returns {Promise<SdaDepositAddress>} The deposit address descriptor.
-   * @throws {NotImplementedError} If this provider does not support address lookup (check `getCapabilities().getAddress`).
+   * @throws {UnsupportedOperationError} If this provider does not support address lookup.
    * @throws {Error} If no such address exists.
    */
   async getDepositAddress (id) {
-    throw new NotImplementedError('getDepositAddress(id)')
+    throw new UnsupportedOperationError('getDepositAddress(id)')
   }
 
   /**
    * Refreshes the activation of a deposit address so the provider keeps
-   * monitoring it. Optional: only relevant when {@link SdaCapabilities#activation}
-   * is `'ttl'`.
+   * monitoring it. Optional: only relevant for providers whose activation model
+   * ({@link SdaActivationModel}) is `'ttl'`.
    *
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id`.
    * @returns {Promise<SdaDepositAddress>} The refreshed deposit address descriptor (with the new `expiry`).
-   * @throws {NotImplementedError} If this provider does not use activation TTLs (check `getCapabilities().activation`).
+   * @throws {UnsupportedOperationError} If this provider does not use activation TTLs.
    */
   async renewDepositAddress (id) {
-    throw new NotImplementedError('renewDepositAddress(id)')
+    throw new UnsupportedOperationError('renewDepositAddress(id)')
   }
 
   /**
    * Lists the deposits observed at a deposit address. Optional: only supported
-   * when {@link SdaCapabilities#historyByAddress} is `true`.
+   * by providers that expose pull-based history keyed by deposit address.
    *
    * @param {string} address - The deposit address to list transfers for.
    * @param {SdaTransfersOptions} [options] - Optional pagination/filtering, plus `sourceChain` for providers that key addresses by (address, chain).
    * @returns {Promise<SdaTransfer[]>} The transfers for the address.
-   * @throws {NotImplementedError} If this provider does not support pull-based history (check `getCapabilities().historyByAddress`).
+   * @throws {UnsupportedOperationError} If this provider does not support pull-based history.
    */
   async getTransfers (address, options) {
-    throw new NotImplementedError('getTransfers(address, options)')
+    throw new UnsupportedOperationError('getTransfers(address, options)')
   }
 
   /**
    * Lists transfers aggregated by recipient — every deposit routed to the given
    * recipient across all of that recipient's deposit addresses and source
-   * chains. Optional: only supported when {@link SdaCapabilities#historyByRecipient}
-   * is `true`.
+   * chains. Optional: only supported by providers that expose recipient-keyed
+   * history.
    *
    * @param {Blockchain} destinationChain - The destination chain the transfers are delivered to.
    * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
    * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
    * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
-   * @throws {NotImplementedError} If this provider does not support recipient-keyed history (check `getCapabilities().historyByRecipient`).
+   * @throws {UnsupportedOperationError} If this provider does not support recipient-keyed history.
    */
   async getTransfersByRecipient (destinationChain, recipient, options) {
-    throw new NotImplementedError('getTransfersByRecipient(destinationChain, recipient, options)')
+    throw new UnsupportedOperationError('getTransfersByRecipient(destinationChain, recipient, options)')
   }
 
   /**
-   * Retrieves the status of a single transfer by its identifier. Optional:
-   * only supported when {@link SdaCapabilities#transferStatus} is `true`.
+   * Retrieves the status of a single transfer by its identifier. Optional: only
+   * supported by providers that expose status-by-transfer-id.
    *
    * @param {string} id - The transfer identifier.
    * @returns {Promise<SdaTransfer>} The transfer's current status.
-   * @throws {NotImplementedError} If this provider does not support transfer-status lookup (check `getCapabilities().transferStatus`).
+   * @throws {UnsupportedOperationError} If this provider does not support transfer-status lookup.
    * @throws {Error} If no such transfer exists.
    */
   async getTransferStatus (id) {
-    throw new NotImplementedError('getTransferStatus(id)')
+    throw new UnsupportedOperationError('getTransferStatus(id)')
   }
 
   /**
    * Recovers a deposit or address that was not picked up automatically, using
-   * the provider's recovery mode (see {@link SdaCapabilities#recovery}).
-   * Optional: only supported when `recovery` is not `'none'`.
+   * the provider's recovery mode ({@link SdaRecoveryMode}). Optional: only
+   * supported by providers whose recovery mode is not `'none'`.
    *
    * @param {SdaRecoveryOptions} options - The recovery options.
    * @returns {Promise<SdaRecoveryResult>} The recovery outcome.
-   * @throws {NotImplementedError} If this provider does not support recovery (check `getCapabilities().recovery`).
+   * @throws {UnsupportedOperationError} If this provider does not support recovery.
    */
   async recoverDepositAddress (options) {
-    throw new NotImplementedError('recoverDepositAddress(options)')
+    throw new UnsupportedOperationError('recoverDepositAddress(options)')
   }
 
   /**
-   * Disables a deposit address so it no longer accepts deposits. Optional:
-   * only supported when {@link SdaCapabilities#disableAddress} is `true`.
+   * Disables a deposit address so it no longer accepts deposits. Optional: only
+   * supported by providers that allow disabling an address.
    *
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the provider needs).
    * @returns {Promise<void>} Resolves once the address has been disabled.
-   * @throws {NotImplementedError} If this provider does not support disabling addresses (check `getCapabilities().disableAddress`).
+   * @throws {UnsupportedOperationError} If this provider does not support disabling addresses.
    */
   async disableDepositAddress (id) {
-    throw new NotImplementedError('disableDepositAddress(id)')
+    throw new UnsupportedOperationError('disableDepositAddress(id)')
   }
 }
 
@@ -489,50 +462,40 @@ export default class SdaProtocol {
   }
 
   /**
-   * Returns which optional parts of the interface this provider implements.
-   *
-   * @abstract
-   * @returns {SdaCapabilities} The provider's capabilities.
-   */
-  getCapabilities () {
-    throw new NotImplementedError('getCapabilities()')
-  }
-
-  /**
    * Lists the conversion routes the provider supports: source chains, accepted
-   * input tokens, destination assets and per-route deposit limits. When
-   * {@link SdaCapabilities#routeDiscovery} is `'by-chain-pair'`, `sourceChain`
-   * and `destinationChain` must be supplied.
+   * input tokens, destination assets and per-route deposit limits. A provider
+   * whose route discovery is `'by-chain-pair'` ({@link SdaRouteDiscoveryMode})
+   * requires `sourceChain` and `destinationChain` to be supplied.
    *
    * @abstract
    * @param {SdaRoutesOptions} [options] - Optional filters for route discovery.
    * @returns {Promise<SdaRoute[]>} The supported routes.
-   * @throws {Error} If {@link SdaCapabilities#routeDiscovery} is `'by-chain-pair'` and `sourceChain` or `destinationChain` is missing.
+   * @throws {Error} If the provider's route discovery is `'by-chain-pair'` and `sourceChain` or `destinationChain` is missing.
    */
   async getSupportedRoutes (options) {
     throw new NotImplementedError('getSupportedRoutes(options)')
   }
 
   /**
-   * Fetches a non-binding quote for a deposit. Optional: only supported when
-   * {@link SdaCapabilities#quoting} is `true`, and required up front when
-   * {@link SdaCapabilities#quoteRequired} is `true`.
+   * Fetches a non-binding quote for a deposit. Optional: only supported by
+   * providers that offer quoting. Some providers bind the deposit address to a
+   * quote and require it up front — see that provider's documentation.
    *
    * @abstract
    * @param {SdaQuoteOptions} options - The quote options.
    * @returns {Promise<SdaQuote>} The quoted deposit details.
-   * @throws {NotImplementedError} If this provider does not support quoting (check `getCapabilities().quoting`).
+   * @throws {UnsupportedOperationError} If this provider does not support quoting.
    */
   async quoteDeposit (options) {
-    throw new NotImplementedError('quoteDeposit(options)')
+    throw new UnsupportedOperationError('quoteDeposit(options)')
   }
 
   /**
    * Creates deposit addresses for the given route and destination, ready to
-   * receive per the provider's {@link SdaCapabilities#activation} model (for a
-   * `'required'` / `'ttl'` provider this also activates the address so it is
-   * monitored). Returns one entry per distinct address: a provider that issues a
-   * single address across a chain family returns one entry covering all of
+   * receive per the provider's activation model ({@link SdaActivationModel}) —
+   * for a `'required'` / `'ttl'` provider this also activates the address so it
+   * is monitored. Returns one entry per distinct address: a provider that issues
+   * a single address across a chain family returns one entry covering all of
    * `sourceChains`, while a provider that issues one address per source chain
    * returns one entry each.
    *
@@ -548,116 +511,116 @@ export default class SdaProtocol {
    * Derives a deposit address client-side, without any provider call and
    * without activating or monitoring it — used to verify (derive + compare) or
    * recover an address for a self-custodial provider. Optional: only supported
-   * when {@link SdaCapabilities#clientDerivableAddress} is `true`.
+   * by providers whose deposit address is client-derivable.
    *
    * @abstract
    * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a provider needing extra derivation inputs declares them on its own options type (which extends `SdaCreateOptions`).
    * @returns {Promise<string>} The derived deposit address.
-   * @throws {NotImplementedError} If this provider does not support client-side derivation (check `getCapabilities().clientDerivableAddress`).
+   * @throws {UnsupportedOperationError} If this provider does not support client-side derivation.
    */
   async deriveDepositAddress (options) {
-    throw new NotImplementedError('deriveDepositAddress(options)')
+    throw new UnsupportedOperationError('deriveDepositAddress(options)')
   }
 
   /**
    * Looks up an existing deposit address by its identifier — the
    * `SdaDepositAddress.id` returned by {@link ISdaProtocol#createDepositAddress},
-   * which round-trips any chain context the provider needs. Optional:
-   * only supported when {@link SdaCapabilities#getAddress} is `true`.
+   * which round-trips any chain context the provider needs. Optional: only
+   * supported by providers that expose address lookup.
    *
    * @abstract
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the provider needs).
    * @returns {Promise<SdaDepositAddress>} The deposit address descriptor.
-   * @throws {NotImplementedError} If this provider does not support address lookup (check `getCapabilities().getAddress`).
+   * @throws {UnsupportedOperationError} If this provider does not support address lookup.
    * @throws {Error} If no such address exists.
    */
   async getDepositAddress (id) {
-    throw new NotImplementedError('getDepositAddress(id)')
+    throw new UnsupportedOperationError('getDepositAddress(id)')
   }
 
   /**
    * Refreshes the activation of a deposit address so the provider keeps
-   * monitoring it. Optional: only relevant when {@link SdaCapabilities#activation}
-   * is `'ttl'`.
+   * monitoring it. Optional: only relevant for providers whose activation model
+   * ({@link SdaActivationModel}) is `'ttl'`.
    *
    * @abstract
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id`.
    * @returns {Promise<SdaDepositAddress>} The refreshed deposit address descriptor (with the new `expiry`).
-   * @throws {NotImplementedError} If this provider does not use activation TTLs (check `getCapabilities().activation`).
+   * @throws {UnsupportedOperationError} If this provider does not use activation TTLs.
    */
   async renewDepositAddress (id) {
-    throw new NotImplementedError('renewDepositAddress(id)')
+    throw new UnsupportedOperationError('renewDepositAddress(id)')
   }
 
   /**
    * Lists the deposits observed at a deposit address. Optional: only supported
-   * when {@link SdaCapabilities#historyByAddress} is `true`.
+   * by providers that expose pull-based history keyed by deposit address.
    *
    * @abstract
    * @param {string} address - The deposit address to list transfers for.
    * @param {SdaTransfersOptions} [options] - Optional pagination/filtering, plus `sourceChain` for providers that key addresses by (address, chain).
    * @returns {Promise<SdaTransfer[]>} The transfers for the address.
-   * @throws {NotImplementedError} If this provider does not support pull-based history (check `getCapabilities().historyByAddress`).
+   * @throws {UnsupportedOperationError} If this provider does not support pull-based history.
    */
   async getTransfers (address, options) {
-    throw new NotImplementedError('getTransfers(address, options)')
+    throw new UnsupportedOperationError('getTransfers(address, options)')
   }
 
   /**
    * Lists transfers aggregated by recipient — every deposit routed to the given
    * recipient across all of that recipient's deposit addresses and source
-   * chains. Optional: only supported when {@link SdaCapabilities#historyByRecipient}
-   * is `true`.
+   * chains. Optional: only supported by providers that expose recipient-keyed
+   * history.
    *
    * @abstract
    * @param {Blockchain} destinationChain - The destination chain the transfers are delivered to.
    * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
    * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
    * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
-   * @throws {NotImplementedError} If this provider does not support recipient-keyed history (check `getCapabilities().historyByRecipient`).
+   * @throws {UnsupportedOperationError} If this provider does not support recipient-keyed history.
    */
   async getTransfersByRecipient (destinationChain, recipient, options) {
-    throw new NotImplementedError('getTransfersByRecipient(destinationChain, recipient, options)')
+    throw new UnsupportedOperationError('getTransfersByRecipient(destinationChain, recipient, options)')
   }
 
   /**
-   * Retrieves the status of a single transfer by its identifier. Optional:
-   * only supported when {@link SdaCapabilities#transferStatus} is `true`.
+   * Retrieves the status of a single transfer by its identifier. Optional: only
+   * supported by providers that expose status-by-transfer-id.
    *
    * @abstract
    * @param {string} id - The transfer identifier.
    * @returns {Promise<SdaTransfer>} The transfer's current status.
-   * @throws {NotImplementedError} If this provider does not support transfer-status lookup (check `getCapabilities().transferStatus`).
+   * @throws {UnsupportedOperationError} If this provider does not support transfer-status lookup.
    * @throws {Error} If no such transfer exists.
    */
   async getTransferStatus (id) {
-    throw new NotImplementedError('getTransferStatus(id)')
+    throw new UnsupportedOperationError('getTransferStatus(id)')
   }
 
   /**
    * Recovers a deposit or address that was not picked up automatically, using
-   * the provider's recovery mode (see {@link SdaCapabilities#recovery}).
-   * Optional: only supported when `recovery` is not `'none'`.
+   * the provider's recovery mode ({@link SdaRecoveryMode}). Optional: only
+   * supported by providers whose recovery mode is not `'none'`.
    *
    * @abstract
    * @param {SdaRecoveryOptions} options - The recovery options.
    * @returns {Promise<SdaRecoveryResult>} The recovery outcome.
-   * @throws {NotImplementedError} If this provider does not support recovery (check `getCapabilities().recovery`).
+   * @throws {UnsupportedOperationError} If this provider does not support recovery.
    */
   async recoverDepositAddress (options) {
-    throw new NotImplementedError('recoverDepositAddress(options)')
+    throw new UnsupportedOperationError('recoverDepositAddress(options)')
   }
 
   /**
-   * Disables a deposit address so it no longer accepts deposits. Optional:
-   * only supported when {@link SdaCapabilities#disableAddress} is `true`.
+   * Disables a deposit address so it no longer accepts deposits. Optional: only
+   * supported by providers that allow disabling an address.
    *
    * @abstract
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the provider needs).
    * @returns {Promise<void>} Resolves once the address has been disabled.
-   * @throws {NotImplementedError} If this provider does not support disabling addresses (check `getCapabilities().disableAddress`).
+   * @throws {UnsupportedOperationError} If this provider does not support disabling addresses.
    */
   async disableDepositAddress (id) {
-    throw new NotImplementedError('disableDepositAddress(id)')
+    throw new UnsupportedOperationError('disableDepositAddress(id)')
   }
 }

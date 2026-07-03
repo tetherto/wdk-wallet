@@ -44,7 +44,6 @@ export type SwidgeStatusResult = import("./swidge-protocol.js").SwidgeStatusResu
 export type SwidgeSupportedChain = import("./swidge-protocol.js").SwidgeSupportedChain;
 export type SwidgeSupportedToken = import("./swidge-protocol.js").SwidgeSupportedToken;
 export type SwidgeSupportedTokensOptions = import("./swidge-protocol.js").SwidgeSupportedTokensOptions;
-export type SdaCapabilities = import("./sda-protocol.js").SdaCapabilities;
 export type SdaRecoveryMode = import("./sda-protocol.js").SdaRecoveryMode;
 export type SdaRouteDiscoveryMode = import("./sda-protocol.js").SdaRouteDiscoveryMode;
 export type SdaCustodyModel = import("./sda-protocol.js").SdaCustodyModel;
