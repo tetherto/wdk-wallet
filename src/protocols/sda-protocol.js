@@ -194,9 +194,7 @@ import { NotImplementedError } from '../errors.js'
  * @property {string} destinationAsset - The provider identifier of the asset to deliver (e.g., USDT).
  * @property {string} [destinationAddress] - The address that receives the delivered asset. Defaults to the bound account's address.
  * @property {string} [inputToken] - The expected input token, when the provider needs it declared up front.
- * @property {string} [refundAddress] - The address that receives refunds if a deposit cannot be processed (push-refund style).
- * @property {Record<string, unknown>} [derivation] - Provider-specific inputs a self-custodial / client-derivable provider folds into the deposit-address derivation (e.g. a custodial withdrawer, salt, or execution parameters). The interface passes this through untyped; each provider documents its own shape. Distinct from `refundAddress` (push-refund) — these inputs change the resulting address.
- * @property {boolean} [reusable] - Request a reusable address (when the provider supports both modes).
+ * @property {string} [refundAddress] - The address that receives refunds if a deposit cannot be processed (push-refund style). * @property {boolean} [reusable] - Request a reusable address (when the provider supports both modes).
  * @property {SdaQuote | string} [quote] - A pre-fetched quote (or quote id) to bind the address to, for providers that require it.
  */
 
@@ -216,9 +214,7 @@ import { NotImplementedError } from '../errors.js'
  * @property {SdaLimits} [limits] - Deposit limits for this address.
  * @property {boolean} reusable - Whether the address can receive more than one deposit.
  * @property {string} [refundAddress] - The refund address bound to this address.
- * @property {number} [expiry] - Unix timestamp (seconds) at which the address's activation expires, when {@link SdaCapabilities#activation} is `'ttl'`.
- * @property {Record<string, unknown>} [derivation] - The provider-specific derivation inputs this address was created from (echoed back), so a `clientDerivableAddress` provider can re-derive, verify or recover the address later.
- */
+ * @property {number} [expiry] - Unix timestamp (seconds) at which the address's activation expires, when {@link SdaCapabilities#activation} is `'ttl'`. */
 
 /**
  * The lifecycle status of a deposit/transfer through an SDA.
@@ -349,7 +345,7 @@ export class ISdaProtocol {
    * recover an address for a self-custodial provider. Optional: only supported
    * when {@link SdaCapabilities#clientDerivableAddress} is `true`.
    *
-   * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; the provider-specific `derivation` inputs are folded into the result.
+   * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a provider needing extra derivation inputs declares them on its own options type (which extends `SdaCreateOptions`).
    * @returns {Promise<string>} The derived deposit address.
    * @throws {NotImplementedError} If this provider does not support client-side derivation (check `getCapabilities().clientDerivableAddress`).
    */
@@ -555,7 +551,7 @@ export default class SdaProtocol {
    * when {@link SdaCapabilities#clientDerivableAddress} is `true`.
    *
    * @abstract
-   * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; the provider-specific `derivation` inputs are folded into the result.
+   * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a provider needing extra derivation inputs declares them on its own options type (which extends `SdaCreateOptions`).
    * @returns {Promise<string>} The derived deposit address.
    * @throws {NotImplementedError} If this provider does not support client-side derivation (check `getCapabilities().clientDerivableAddress`).
    */
