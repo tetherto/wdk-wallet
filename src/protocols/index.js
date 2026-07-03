@@ -68,7 +68,6 @@
 /** @typedef {import('./swidge-protocol.js').SwidgeSupportedToken} SwidgeSupportedToken */
 /** @typedef {import('./swidge-protocol.js').SwidgeSupportedTokensOptions} SwidgeSupportedTokensOptions */
 
-/** @typedef {import('./sda-protocol.js').SdaProtocolConfig} SdaProtocolConfig */
 /** @typedef {import('./sda-protocol.js').SdaCapabilities} SdaCapabilities */
 /** @typedef {import('./sda-protocol.js').SdaRecoveryMode} SdaRecoveryMode */
 /** @typedef {import('./sda-protocol.js').SdaRouteDiscoveryMode} SdaRouteDiscoveryMode */

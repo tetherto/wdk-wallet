@@ -91,16 +91,6 @@ import { NotImplementedError } from '../errors.js'
  */
 
 /**
- * Connection and default settings shared by every SDA provider. Concrete
- * providers extend this with their own fields (endpoints, credentials, etc.).
- *
- * @typedef {Object} SdaProtocolConfig
- * @property {string} [apiUrl] - Overrides the provider's API base URL.
- * @property {string} [apiKey] - Provider API key or credentials, when required.
- * @property {string} [defaultRefundAddress] - Refund address used when a call omits one.
- */
-
-/**
  * A normalized, protocol-agnostic token reference. `token` is the identifier
  * the provider expects in SDA calls; `address` is the on-chain contract address
  * when applicable (absent for native gas tokens).
@@ -476,7 +466,6 @@ export default class SdaProtocol {
    *
    * @overload
    * @param {undefined} [account] - The wallet account to use to interact with the protocol.
-   * @param {SdaProtocolConfig} [config] - The SDA protocol configuration.
    */
 
   /**
@@ -484,7 +473,6 @@ export default class SdaProtocol {
    *
    * @overload
    * @param {IWalletAccountReadOnly} account - The wallet account to use to interact with the protocol.
-   * @param {SdaProtocolConfig} [config] - The SDA protocol configuration.
    */
 
   /**
@@ -492,9 +480,8 @@ export default class SdaProtocol {
    *
    * @overload
    * @param {IWalletAccount} account - The wallet account to use to interact with the protocol.
-   * @param {SdaProtocolConfig} [config] - The SDA protocol configuration.
    */
-  constructor (account, config = {}) {
+  constructor (account) {
     /**
      * The wallet account to use to interact with the protocol. The account's
      * address is the default delivery destination for created addresses.
@@ -503,14 +490,6 @@ export default class SdaProtocol {
      * @type {IWalletAccountReadOnly | IWalletAccount | undefined}
      */
     this._account = account
-
-    /**
-     * The SDA protocol configuration.
-     *
-     * @protected
-     * @type {SdaProtocolConfig}
-     */
-    this._config = config
   }
 
   /**

@@ -66,15 +66,6 @@
  * @typedef {'full' | 'by-chain-pair'} SdaRouteDiscoveryMode
  */
 /**
- * Connection and default settings shared by every SDA provider. Concrete
- * providers extend this with their own fields (endpoints, credentials, etc.).
- *
- * @typedef {Object} SdaProtocolConfig
- * @property {string} [apiUrl] - Overrides the provider's API base URL.
- * @property {string} [apiKey] - Provider API key or credentials, when required.
- * @property {string} [defaultRefundAddress] - Refund address used when a call omits one.
- */
-/**
  * A normalized, protocol-agnostic token reference. `token` is the identifier
  * the provider expects in SDA calls; `address` is the on-chain contract address
  * when applicable (absent for native gas tokens).
@@ -399,25 +390,22 @@ export default class SdaProtocol implements ISdaProtocol {
      *
      * @overload
      * @param {undefined} [account] - The wallet account to use to interact with the protocol.
-     * @param {SdaProtocolConfig} [config] - The SDA protocol configuration.
      */
-    constructor(account?: undefined, config?: SdaProtocolConfig);
+    constructor(account?: undefined);
     /**
      * Creates a new read-only SDA protocol.
      *
      * @overload
      * @param {IWalletAccountReadOnly} account - The wallet account to use to interact with the protocol.
-     * @param {SdaProtocolConfig} [config] - The SDA protocol configuration.
      */
-    constructor(account: IWalletAccountReadOnly, config?: SdaProtocolConfig);
+    constructor(account: IWalletAccountReadOnly);
     /**
      * Creates a new SDA protocol.
      *
      * @overload
      * @param {IWalletAccount} account - The wallet account to use to interact with the protocol.
-     * @param {SdaProtocolConfig} [config] - The SDA protocol configuration.
      */
-    constructor(account: IWalletAccount, config?: SdaProtocolConfig);
+    constructor(account: IWalletAccount);
     /**
      * The wallet account to use to interact with the protocol. The account's
      * address is the default delivery destination for created addresses.
@@ -426,13 +414,6 @@ export default class SdaProtocol implements ISdaProtocol {
      * @type {IWalletAccountReadOnly | IWalletAccount | undefined}
      */
     protected _account: IWalletAccountReadOnly | IWalletAccount | undefined;
-    /**
-     * The SDA protocol configuration.
-     *
-     * @protected
-     * @type {SdaProtocolConfig}
-     */
-    protected _config: SdaProtocolConfig;
     /**
      * Returns which optional parts of the interface this provider implements.
      *
@@ -678,24 +659,6 @@ export type SdaCustodyModel = "self-custodial" | "trusted-operator";
  * `'by-chain-pair'` means a source and destination chain must be supplied.
  */
 export type SdaRouteDiscoveryMode = "full" | "by-chain-pair";
-/**
- * Connection and default settings shared by every SDA provider. Concrete
- * providers extend this with their own fields (endpoints, credentials, etc.).
- */
-export type SdaProtocolConfig = {
-    /**
-     * - Overrides the provider's API base URL.
-     */
-    apiUrl?: string;
-    /**
-     * - Provider API key or credentials, when required.
-     */
-    apiKey?: string;
-    /**
-     * - Refund address used when a call omits one.
-     */
-    defaultRefundAddress?: string;
-};
 /**
  * A normalized, protocol-agnostic token reference. `token` is the identifier
  * the provider expects in SDA calls; `address` is the on-chain contract address
