@@ -19,6 +19,8 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
 
 /** @typedef {import('../wallet-account.js').IWalletAccount} IWalletAccount */
 
+/** @typedef {import('../errors.js').AccountRequiredError} AccountRequiredError */
+
 /**
  * A blockchain identifier: a numeric chain id (e.g. `1`) or a provider-specific
  * chain name (e.g. `'ethereum'`).
@@ -307,6 +309,7 @@ export class ISdaProtocol {
    *
    * @param {SdaCreateOptions} options - The address creation options.
    * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
+   * @throws {AccountRequiredError} If `destinationAddress` is omitted and no account was bound at construction.
    */
   async createDepositAddress (options) {
     throw new NotImplementedError('createDepositAddress(options)')
@@ -321,6 +324,7 @@ export class ISdaProtocol {
    * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a provider needing extra derivation inputs declares them on its own options type (which extends `SdaCreateOptions`).
    * @returns {Promise<string>} The derived deposit address.
    * @throws {UnsupportedOperationError} If this provider does not support client-side derivation.
+   * @throws {AccountRequiredError} If `destinationAddress` is omitted and no account was bound at construction.
    */
   async deriveDepositAddress (options) {
     throw new UnsupportedOperationError('deriveDepositAddress(options)')
@@ -502,6 +506,7 @@ export default class SdaProtocol {
    * @abstract
    * @param {SdaCreateOptions} options - The address creation options.
    * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
+   * @throws {AccountRequiredError} If `destinationAddress` is omitted and no account was bound at construction.
    */
   async createDepositAddress (options) {
     throw new NotImplementedError('createDepositAddress(options)')
@@ -517,6 +522,7 @@ export default class SdaProtocol {
    * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a provider needing extra derivation inputs declares them on its own options type (which extends `SdaCreateOptions`).
    * @returns {Promise<string>} The derived deposit address.
    * @throws {UnsupportedOperationError} If this provider does not support client-side derivation.
+   * @throws {AccountRequiredError} If `destinationAddress` is omitted and no account was bound at construction.
    */
   async deriveDepositAddress (options) {
     throw new UnsupportedOperationError('deriveDepositAddress(options)')

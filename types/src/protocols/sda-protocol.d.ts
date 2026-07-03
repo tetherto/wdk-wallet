@@ -1,5 +1,6 @@
 /** @typedef {import('../wallet-account-read-only.js').IWalletAccountReadOnly} IWalletAccountReadOnly */
 /** @typedef {import('../wallet-account.js').IWalletAccount} IWalletAccount */
+/** @typedef {import('../errors.js').AccountRequiredError} AccountRequiredError */
 /**
  * A blockchain identifier: a numeric chain id (e.g. `1`) or a provider-specific
  * chain name (e.g. `'ethereum'`).
@@ -262,6 +263,7 @@ export class ISdaProtocol {
      *
      * @param {SdaCreateOptions} options - The address creation options.
      * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
+     * @throws {AccountRequiredError} If `destinationAddress` is omitted and no account was bound at construction.
      */
     createDepositAddress(options: SdaCreateOptions): Promise<SdaDepositAddress[]>;
     /**
@@ -273,6 +275,7 @@ export class ISdaProtocol {
      * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a provider needing extra derivation inputs declares them on its own options type (which extends `SdaCreateOptions`).
      * @returns {Promise<string>} The derived deposit address.
      * @throws {UnsupportedOperationError} If this provider does not support client-side derivation.
+     * @throws {AccountRequiredError} If `destinationAddress` is omitted and no account was bound at construction.
      */
     deriveDepositAddress(options: SdaCreateOptions): Promise<string>;
     /**
@@ -422,6 +425,7 @@ export default class SdaProtocol implements ISdaProtocol {
      * @abstract
      * @param {SdaCreateOptions} options - The address creation options.
      * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
+     * @throws {AccountRequiredError} If `destinationAddress` is omitted and no account was bound at construction.
      */
     createDepositAddress(options: SdaCreateOptions): Promise<SdaDepositAddress[]>;
     /**
@@ -434,6 +438,7 @@ export default class SdaProtocol implements ISdaProtocol {
      * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a provider needing extra derivation inputs declares them on its own options type (which extends `SdaCreateOptions`).
      * @returns {Promise<string>} The derived deposit address.
      * @throws {UnsupportedOperationError} If this provider does not support client-side derivation.
+     * @throws {AccountRequiredError} If `destinationAddress` is omitted and no account was bound at construction.
      */
     deriveDepositAddress(options: SdaCreateOptions): Promise<string>;
     /**
@@ -520,6 +525,7 @@ export default class SdaProtocol implements ISdaProtocol {
 }
 export type IWalletAccountReadOnly = import("../wallet-account-read-only.js").IWalletAccountReadOnly;
 export type IWalletAccount = import("../wallet-account.js").IWalletAccount;
+export type AccountRequiredError = import("../errors.js").AccountRequiredError;
 /**
  * A blockchain identifier: a numeric chain id (e.g. `1`) or a provider-specific
  * chain name (e.g. `'ethereum'`).
