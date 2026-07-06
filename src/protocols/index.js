@@ -86,6 +86,8 @@
 /** @typedef {import('./sda-protocol.js').SdaTransferStatus} SdaTransferStatus */
 /** @typedef {import('./sda-protocol.js').SdaTransfer} SdaTransfer */
 /** @typedef {import('./sda-protocol.js').SdaTransfersOptions} SdaTransfersOptions */
+/** @typedef {import('./sda-protocol.js').SdaRecoverById} SdaRecoverById */
+/** @typedef {import('./sda-protocol.js').SdaRecoverByAddress} SdaRecoverByAddress */
 /** @typedef {import('./sda-protocol.js').SdaRecoveryOptions} SdaRecoveryOptions */
 /** @typedef {import('./sda-protocol.js').SdaRecoveryResult} SdaRecoveryResult */
 

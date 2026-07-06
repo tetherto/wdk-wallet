@@ -62,6 +62,8 @@ export type SdaDepositAddress = import("./sda-protocol.js").SdaDepositAddress;
 export type SdaTransferStatus = import("./sda-protocol.js").SdaTransferStatus;
 export type SdaTransfer = import("./sda-protocol.js").SdaTransfer;
 export type SdaTransfersOptions = import("./sda-protocol.js").SdaTransfersOptions;
+export type SdaRecoverById = import("./sda-protocol.js").SdaRecoverById;
+export type SdaRecoverByAddress = import("./sda-protocol.js").SdaRecoverByAddress;
 export type SdaRecoveryOptions = import("./sda-protocol.js").SdaRecoveryOptions;
 export type SdaRecoveryResult = import("./sda-protocol.js").SdaRecoveryResult;
 export { default as SwapProtocol, ISwapProtocol } from "./swap-protocol.js";

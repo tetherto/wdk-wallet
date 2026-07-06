@@ -194,15 +194,26 @@
  * @property {SdaTransferStatus} [status] - Restrict to transfers in this status.
  */
 /**
- * Options for re-processing a deposit that was not picked up automatically
- * (`reindex`). Callers supply whatever the provider needs — typically the source
- * transaction, or the deposit address / SDA id.
+ * Recover a deposit by the SDA identifier.
  *
- * @typedef {Object} SdaRecoveryOptions
- * @property {string} [address] - The deposit address to reindex.
- * @property {string} [id] - The provider SDA identifier.
- * @property {string} [sourceTxHash] - The deposit transaction to re-index.
- * @property {Blockchain} [sourceChain] - The chain of the deposit transaction.
+ * @typedef {Object} SdaRecoverById
+ * @property {string} id - The provider SDA identifier (the `SdaDepositAddress.id`).
+ */
+/**
+ * Recover a deposit by its deposit address.
+ *
+ * @typedef {Object} SdaRecoverByAddress
+ * @property {string} address - The deposit address to reindex.
+ * @property {Blockchain} [sourceChain] - The chain of the deposit address, required by providers that key addresses by (address, chain).
+ */
+/**
+ * Options for re-processing a deposit that was not picked up automatically
+ * (`reindex`). A caller identifies the deposit either by SDA id or by its deposit
+ * address; the union has no empty member, so `recoverDepositAddress({})` is a
+ * type error. A provider needing extra inputs extends the relevant member on its
+ * own options type.
+ *
+ * @typedef {SdaRecoverById | SdaRecoverByAddress} SdaRecoveryOptions
  */
 /**
  * The outcome of a recovery attempt.
@@ -939,28 +950,35 @@ export type SdaTransfersOptions = {
     status?: SdaTransferStatus;
 };
 /**
- * Options for re-processing a deposit that was not picked up automatically
- * (`reindex`). Callers supply whatever the provider needs — typically the source
- * transaction, or the deposit address / SDA id.
+ * Recover a deposit by the SDA identifier.
  */
-export type SdaRecoveryOptions = {
+export type SdaRecoverById = {
+    /**
+     * - The provider SDA identifier (the `SdaDepositAddress.id`).
+     */
+    id: string;
+};
+/**
+ * Recover a deposit by its deposit address.
+ */
+export type SdaRecoverByAddress = {
     /**
      * - The deposit address to reindex.
      */
-    address?: string;
+    address: string;
     /**
-     * - The provider SDA identifier.
-     */
-    id?: string;
-    /**
-     * - The deposit transaction to re-index.
-     */
-    sourceTxHash?: string;
-    /**
-     * - The chain of the deposit transaction.
+     * - The chain of the deposit address, required by providers that key addresses by (address, chain).
      */
     sourceChain?: Blockchain;
 };
+/**
+ * Options for re-processing a deposit that was not picked up automatically
+ * (`reindex`). A caller identifies the deposit either by SDA id or by its deposit
+ * address; the union has no empty member, so `recoverDepositAddress({})` is a
+ * type error. A provider needing extra inputs extends the relevant member on its
+ * own options type.
+ */
+export type SdaRecoveryOptions = SdaRecoverById | SdaRecoverByAddress;
 /**
  * The outcome of a recovery attempt.
  */
