@@ -116,8 +116,8 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  */
 
 /**
- * Options for fetching a deposit quote. Required up front by providers whose
- * addresses are bound to a quote; optional otherwise.
+ * Options for fetching a deposit quote — a non-binding estimate of what a given
+ * deposit would deliver.
  *
  * @typedef {Object} SdaQuoteOptions
  * @property {Blockchain} sourceChain - The chain the deposit originates from.
@@ -146,9 +146,7 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  */
 
 /**
- * A non-binding estimate of the asset delivered for a given deposit. Some
- * providers return an `id` that must be passed to {@link ISdaProtocol#createDepositAddress}
- * to bind the address to this quote.
+ * A non-binding estimate of the asset delivered for a given deposit.
  *
  * @typedef {Object} SdaQuote
  * @property {Blockchain} inputChain - The chain the deposit originates from.
@@ -160,7 +158,7 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  * @property {SdaFee[]} fees - Itemised fee breakdown.
  * @property {string} [rate] - The effective conversion rate as a string, to avoid precision loss.
  * @property {number} [expiry] - Unix timestamp (seconds) at which the quote expires.
- * @property {string} [id] - The provider quote identifier, when an address must be bound to this quote.
+ * @property {string} [id] - The provider quote identifier, if the provider issues one.
  */
 
 /**
@@ -174,7 +172,6 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  * @property {string} [inputToken] - The expected input token, when the provider needs it declared up front.
  * @property {string} [refundAddress] - The address that receives refunds if a deposit cannot be processed (push-refund style).
  * @property {boolean} [reusable] - Request a reusable address, for providers that let the caller pick reusable vs single-use per request.
- * @property {SdaQuote | string} [quote] - A pre-fetched quote (or quote id) to bind the address to, for providers that require it.
  */
 
 /**
@@ -299,9 +296,10 @@ export class ISdaProtocol {
   }
 
   /**
-   * Fetches a non-binding quote for a deposit. Optional: only supported by
-   * providers that offer quoting. Some providers bind the deposit address to a
-   * quote and require it up front — see that provider's documentation.
+   * Fetches a non-binding quote (estimate) for a deposit — what a given deposit
+   * would deliver. Optional: only supported by providers that offer quoting. A
+   * standalone estimate; {@link ISdaProtocol#createDepositAddress} never requires
+   * a quote (a provider that binds an address to a quote fetches one internally).
    *
    * @param {SdaQuoteOptions} options - The quote options.
    * @returns {Promise<SdaQuote>} The quoted deposit details.
@@ -494,9 +492,10 @@ export default class SdaProtocol {
   }
 
   /**
-   * Fetches a non-binding quote for a deposit. Optional: only supported by
-   * providers that offer quoting. Some providers bind the deposit address to a
-   * quote and require it up front — see that provider's documentation.
+   * Fetches a non-binding quote (estimate) for a deposit — what a given deposit
+   * would deliver. Optional: only supported by providers that offer quoting. A
+   * standalone estimate; {@link ISdaProtocol#createDepositAddress} never requires
+   * a quote (a provider that binds an address to a quote fetches one internally).
    *
    * @abstract
    * @param {SdaQuoteOptions} options - The quote options.
