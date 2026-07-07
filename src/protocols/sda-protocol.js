@@ -84,7 +84,9 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
 
 /**
  * Per-route deposit limits, denominated in the base unit of the route's input
- * token. Either bound may be absent when the provider does not enforce it.
+ * token. Either bound may be absent when the provider does not enforce it; a
+ * provider that only enforces limits in another denomination (e.g. USD) omits
+ * `limits` rather than converting.
  *
  * @typedef {Object} SdaLimits
  * @property {number | bigint} [min] - Minimum deposit amount, in the input token's base unit.
