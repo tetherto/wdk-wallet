@@ -241,7 +241,7 @@
  *
  * @interface
  */
-export class ISdaProtocol {
+export interface ISdaProtocol {
     /**
      * Lists the conversion routes the provider supports: source chains, accepted
      * input tokens, destination assets and per-route deposit limits. A provider
@@ -371,7 +371,7 @@ export class ISdaProtocol {
  * @abstract
  * @implements {ISdaProtocol}
  */
-export default class SdaProtocol implements ISdaProtocol {
+export default abstract class SdaProtocol implements ISdaProtocol {
     /**
      * Creates a new SDA protocol without binding it to a wallet account.
      *
