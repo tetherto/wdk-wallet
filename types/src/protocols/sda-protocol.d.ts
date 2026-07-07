@@ -9,7 +9,7 @@
  */
 /**
  * How a provider re-processes a deposit that was not picked up automatically.
- * `reindex` re-scans a known source transaction (Orchestra, Relay); `none` means
+ * `reindex` re-scans a known source transaction; `none` means
  * no such call is exposed. This is about provider-side reprocessing of a missed
  * deposit, not about fund custody — whether deposited funds are recoverable is
  * governed by {@link SdaCustodyModel}. Re-enabling an idle/expired address is the
@@ -88,7 +88,7 @@
  */
 /**
  * Options for fetching a deposit quote. Required up front by providers whose
- * addresses are bound to a quote (e.g., Rhino); optional otherwise.
+ * addresses are bound to a quote; optional otherwise.
  *
  * @typedef {Object} SdaQuoteOptions
  * @property {Blockchain} sourceChain - The chain the deposit originates from.
@@ -544,7 +544,7 @@ export type AccountRequiredError = import("../errors.js").AccountRequiredError;
 export type Blockchain = string | number;
 /**
  * How a provider re-processes a deposit that was not picked up automatically.
- * `reindex` re-scans a known source transaction (Orchestra, Relay); `none` means
+ * `reindex` re-scans a known source transaction; `none` means
  * no such call is exposed. This is about provider-side reprocessing of a missed
  * deposit, not about fund custody — whether deposited funds are recoverable is
  * governed by {@link SdaCustodyModel}. Re-enabling an idle/expired address is the
@@ -676,7 +676,7 @@ export type SdaRoute = {
 };
 /**
  * Options for fetching a deposit quote. Required up front by providers whose
- * addresses are bound to a quote (e.g., Rhino); optional otherwise.
+ * addresses are bound to a quote; optional otherwise.
  */
 export type SdaQuoteOptions = {
     /**
