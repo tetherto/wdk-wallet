@@ -86,6 +86,10 @@ type SwapCommonOptions = {
      * - The address that will receive the output tokens. If not set, the account itself will receive the funds.
      */
     to?: string;
+    /**
+     * - The minimum acceptable amount of destination tokens to receive (in base unit).
+     */
+    minAmountOut?: number | bigint;
 };
 type SwapBuyOptions = {
     /**

@@ -85,6 +85,7 @@ export default abstract class SwidgeProtocol implements ISwidgeProtocol, ISwapPr
      *
      * @param {SwapOptions} options - The swap's options.
      * @returns {Promise<SwapResult>} The swap's result.
+     * @throws {Error} If no account, or a read-only account was given at construction.
      */
     swap(options: SwapOptions): Promise<SwapResult>;
     /**
@@ -92,6 +93,7 @@ export default abstract class SwidgeProtocol implements ISwidgeProtocol, ISwapPr
      *
      * @param {SwapOptions} options - The swap's options.
      * @returns {Promise<Omit<SwapResult, 'hash'>>} The swap's quotes.
+     * @throws {Error} If no account was given at construction.
      */
     quoteSwap(options: SwapOptions): Promise<Omit<SwapResult, "hash">>;
     /**
@@ -99,6 +101,7 @@ export default abstract class SwidgeProtocol implements ISwidgeProtocol, ISwapPr
      *
      * @param {BridgeOptions} options - The bridge's options.
      * @returns {Promise<BridgeResult>} The bridge's result.
+     * @throws {Error} If no account, or a read-only account was given at construction.
      */
     bridge(options: BridgeOptions): Promise<BridgeResult>;
     /**
@@ -106,6 +109,7 @@ export default abstract class SwidgeProtocol implements ISwidgeProtocol, ISwapPr
      *
      * @param {BridgeOptions} options - The bridge's options.
      * @returns {Promise<Omit<BridgeResult, 'hash'>>} The bridge's quotes.
+     * @throws {Error} If no account was given at construction.
      */
     quoteBridge(options: BridgeOptions): Promise<Omit<BridgeResult, "hash">>;
     /**
@@ -116,6 +120,7 @@ export default abstract class SwidgeProtocol implements ISwidgeProtocol, ISwapPr
      * @abstract
      * @param {SwidgeOptions} options - The swidge options.
      * @returns {Promise<SwidgeQuote>} The quoted swidge details.
+     * @throws {Error} If no account was given at construction.
      */
     abstract quoteSwidge(options: SwidgeOptions): Promise<SwidgeQuote>;
     /**
@@ -125,6 +130,7 @@ export default abstract class SwidgeProtocol implements ISwidgeProtocol, ISwapPr
      * @param {SwidgeOptions} options - The swidge options.
      * @param {SwidgeProtocolConfig} [config] - Optional provider-specific execution configuration.
      * @returns {Promise<SwidgeResult>} The swidge execution result.
+     * @throws {Error} If no account, or a read-only account was given at construction.
      */
     abstract swidge(options: SwidgeOptions, config?: SwidgeProtocolConfig): Promise<SwidgeResult>;
     /**
@@ -199,6 +205,10 @@ export type SwidgeCommonOptions = {
      * - The maximum acceptable slippage as a decimal (e.g., 0.01 for 1%).
      */
     slippage?: number | undefined;
+    /**
+     * - The minimum acceptable amount of destination tokens to receive (in base unit).
+     */
+    minAmountOut?: number | bigint;
 };
 export type SwidgeExactInOptions = {
     /**
@@ -260,6 +270,11 @@ export type SwidgeTransaction = {
      */
     type?: "other" | "source" | "destination" | "approval" | "refund" | undefined;
 };
+/**
+ * Non-binding quote for a swidge operation.
+ * Providers that internally decompose the operation into multiple sequential transactions
+ * should encapsulate that decomposition behind a single quote.
+ */
 export type SwidgeQuote = {
     /**
      * - The amount of source tokens to spend.

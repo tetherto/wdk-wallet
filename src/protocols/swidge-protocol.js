@@ -54,6 +54,7 @@ import { NotImplementedError } from '../errors.js'
  * @property {string} [recipient] - The address that will receive the output tokens.
  * @property {string} [refundAddress] - The address that will receive refunds if the tx cannot complete.
  * @property {number} [slippage] - The maximum acceptable slippage as a decimal (e.g., 0.01 for 1%).
+ * @property {number | bigint} [minAmountOut] - The minimum acceptable amount of destination tokens to receive (in base unit).
  */
 
 /**
@@ -270,7 +271,8 @@ export default class SwidgeProtocol {
       toToken: options.tokenOut,
       recipient: options.to,
       fromTokenAmount: options.tokenInAmount,
-      toTokenAmount: options.tokenOutAmount
+      toTokenAmount: options.tokenOutAmount,
+      minAmountOut: options.minAmountOut
     })
     const fee = result.fees.reduce((acc, f) => acc + f.amount, 0n)
     return { hash: result.id, fee, tokenInAmount: result.fromTokenAmount, tokenOutAmount: result.toTokenAmount }
@@ -289,7 +291,8 @@ export default class SwidgeProtocol {
       toToken: options.tokenOut,
       recipient: options.to,
       fromTokenAmount: options.tokenInAmount,
-      toTokenAmount: options.tokenOutAmount
+      toTokenAmount: options.tokenOutAmount,
+      minAmountOut: options.minAmountOut
     })
     const fee = result.fees.reduce((acc, f) => acc + f.amount, 0n)
     return { fee, tokenInAmount: result.fromTokenAmount, tokenOutAmount: result.toTokenAmount }
