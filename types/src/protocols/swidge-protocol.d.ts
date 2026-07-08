@@ -199,6 +199,10 @@ export type SwidgeCommonOptions = {
      * - The maximum acceptable slippage as a decimal (e.g., 0.01 for 1%).
      */
     slippage?: number | undefined;
+    /**
+     * - The minimum acceptable amount of destination tokens to receive (in base unit).
+     */
+    minAmountOut?: number | bigint;
 };
 export type SwidgeExactInOptions = {
     /**

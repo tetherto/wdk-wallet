@@ -33,6 +33,7 @@ import { NotImplementedError } from '../errors.js'
  * @property {string} tokenIn - The address of the token to sell.
  * @property {string} tokenOut - The address of the token to buy.
  * @property {string} [to] - The address that will receive the output tokens. If not set, the account itself will receive the funds.
+ * @property {number | bigint} [minAmountOut] - The minimum acceptable amount of destination tokens to receive (in base unit).
  */
 
 /**
