@@ -24,59 +24,17 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
 /** @typedef {import('../errors.js').NoSuchElementError} NoSuchElementError */
 
 /**
- * A blockchain identifier: a numeric chain id (e.g. `1`) or a provider-specific
- * chain name (e.g. `'ethereum'`).
+ * A blockchain identifier: a numeric chain id (e.g. `1`) or a protocol-specific chain name (e.g. `'ethereum'`).
  *
  * @typedef {string | number} Blockchain
  */
 
 /**
- * How a provider re-processes a deposit that was not picked up automatically.
- * `reindex` re-scans a known source transaction; `none` means
- * no such call is exposed. This is about provider-side reprocessing of a missed
- * deposit, not about fund custody — whether deposited funds are recoverable is
- * governed by {@link SdaCustodyModel}. Re-enabling an idle/expired address is the
- * activation lifecycle ({@link SdaActivationModel} `'ttl'` +
- * {@link ISdaProtocol#renewDepositAddress}), not recovery.
- *
- * @typedef {'reindex' | 'none'} SdaRecoveryMode
- */
-
-/**
- * The activation lifecycle of a deposit address. `'none'` — the address is live
- * as soon as it is created. `'required'` — the address must be activated (so the
- * provider starts monitoring it) before it can receive deposits. `'ttl'` —
- * activation expires and must be refreshed via {@link ISdaProtocol#renewDepositAddress}.
- *
- * @typedef {'none' | 'required' | 'ttl'} SdaActivationModel
- */
-
-/**
- * Who controls deposited funds while a deposit is in flight. `'trusted-operator'`
- * — the provider holds the deposit address and the funds (recovery means asking
- * the provider to reprocess). `'self-custodial'` — the address is an on-chain
- * contract whose withdrawal rights are fixed in code (e.g. the recipient can
- * withdraw immediately, an optional custodial withdrawer only after a timelock),
- * so funds are recoverable on-chain without the provider.
- *
- * @typedef {'self-custodial' | 'trusted-operator'} SdaCustodyModel
- */
-
-/**
- * How a provider lets routes be discovered. `'full'` means
- * {@link ISdaProtocol#getSupportedRoutes} returns every route with no filters;
- * `'by-chain-pair'` means a source and destination chain must be supplied.
- *
- * @typedef {'full' | 'by-chain-pair'} SdaRouteDiscoveryMode
- */
-
-/**
- * A normalized, protocol-agnostic token reference. `token` is the identifier
- * the provider expects in SDA calls; `address` is the on-chain contract address
- * when applicable (absent for native gas tokens).
+ * A normalized token reference. `token` is the identifier the protocol expects in SDA calls; `address` is the
+ * on-chain contract address when applicable (absent for native gas tokens).
  *
  * @typedef {Object} SdaToken
- * @property {string} token - The provider-specific token identifier to use in SDA calls.
+ * @property {string} token - The protocol-specific token identifier to use in SDA calls.
  * @property {Blockchain} chain - The chain on which the token lives.
  * @property {string} symbol - The token symbol (e.g., 'USDC', 'USDT').
  * @property {number} decimals - The number of decimal places for the token's base unit.
@@ -85,12 +43,11 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  */
 
 /**
- * Per-route deposit limits, denominated in the base unit of the route's input
- * token. Either bound may be absent when the provider does not enforce it; a
- * provider that only enforces limits in another denomination (e.g. USD) omits
- * `limits` rather than converting.
+ * Per-route deposit limits, denominated in the base unit of the route's input token. Either bound may be absent
+ * when the protocol does not enforce it; a protocol that only enforces limits in another denomination (e.g. USD)
+ * omits `limits` rather than converting.
  *
- * @typedef {Object} SdaLimits
+ * @typedef {Object} SdaDepositAddressLimits
  * @property {number | bigint} [min] - Minimum deposit amount, in the input token's base unit.
  * @property {number | bigint} [max] - Maximum deposit amount, in the input token's base unit.
  */
@@ -102,37 +59,36 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  * @property {Blockchain} [sourceChain] - Restrict to routes that accept deposits from this chain.
  * @property {string} [sourceToken] - Restrict to routes that accept this input token.
  * @property {Blockchain} [destinationChain] - Restrict to routes that deliver to this chain.
- * @property {string} [destinationAsset] - Restrict to routes that deliver this asset.
+ * @property {string} [outputAsset] - Restrict to routes that deliver this asset.
  */
 
 /**
- * A supported conversion route: one or more source chains and their accepted
- * input tokens, the destination chain, and the asset delivered there.
+ * A supported conversion route: one or more source chains and their accepted input tokens, the destination chain,
+ * and the asset delivered there.
  *
  * @typedef {Object} SdaRoute
- * @property {Blockchain[]} sourceChains - The source chains this route accepts deposits from. A list because some providers issue one address valid across a VM family.
+ * @property {Blockchain[]} sourceChains - The source chains this route accepts deposits from. A list because some protocols issue one address valid across a VM family.
  * @property {SdaToken[]} inputTokens - The deposit tokens accepted on the source side.
  * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
- * @property {SdaToken} destinationAsset - The asset delivered to the destination (e.g., USDT).
- * @property {SdaLimits} [limits] - Deposit limits for this route.
+ * @property {SdaToken} outputAsset - The asset delivered to the destination (e.g., USDT).
+ * @property {SdaDepositAddressLimits} [limits] - Deposit limits for this route.
  * @property {boolean} [reusable] - Whether addresses issued for this route can receive more than one deposit.
  * @property {number} [estimatedDuration] - Typical end-to-end duration in seconds.
  */
 
 /**
- * Options for fetching a deposit quote — a non-binding estimate of what a given
- * deposit would deliver.
+ * Options for fetching a deposit quote — a non-binding estimate of what a given deposit would deliver.
  *
- * @typedef {Object} SdaQuoteOptions
+ * @typedef {Object} SdaDepositOptions
  * @property {Blockchain} sourceChain - The chain the deposit originates from.
- * @property {string} inputToken - The provider identifier of the token being deposited.
+ * @property {string} inputToken - The protocol identifier of the token being deposited.
  * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
- * @property {string} destinationAsset - The provider identifier of the asset to deliver.
+ * @property {string} outputAsset - The protocol identifier of the asset to deliver.
  * @property {number | bigint} inputAmount - The amount to deposit, in the input token's base unit.
  */
 
 /**
- * The category of a fee charged by the provider.
+ * The category of a fee charged by the protocol.
  *
  * @typedef {'network' | 'protocol' | 'affiliate' | 'other'} SdaFeeType
  */
@@ -152,49 +108,49 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
 /**
  * A non-binding estimate of the asset delivered for a given deposit.
  *
- * @typedef {Object} SdaQuote
+ * @typedef {Object} SdaDepositQuote
  * @property {Blockchain} inputChain - The chain the deposit originates from.
- * @property {string} inputToken - The provider identifier of the deposited token.
+ * @property {string} inputToken - The protocol identifier of the deposited token.
  * @property {bigint} inputAmount - The amount deposited, in the input token's base unit.
  * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
- * @property {string} destinationAsset - The provider identifier of the delivered asset.
+ * @property {string} outputAsset - The protocol identifier of the delivered asset.
  * @property {bigint} outputAmount - The estimated amount delivered, in the destination asset's base unit.
  * @property {SdaFee[]} fees - Itemised fee breakdown.
  * @property {string} [rate] - The effective conversion rate as a string, to avoid precision loss.
  * @property {number} [expiry] - Unix timestamp (seconds) at which the quote expires.
- * @property {string} [id] - The provider quote identifier, if the provider issues one.
+ * @property {string} [id] - The protocol quote identifier, if the protocol issues one.
  */
 
 /**
  * Options for creating a deposit address.
  *
- * @typedef {Object} SdaCreateOptions
- * @property {Blockchain[]} sourceChains - One or more source chains the address should accept deposits from. Providers that issue one address per VM family use the full list; single-chain providers use a one-element list.
+ * @typedef {Object} SdaCreateDepositAddressOptions
+ * @property {Blockchain[]} sourceChains - One or more source chains the address should accept deposits from. Protocols that issue one address per VM family use the full list; single-chain protocols use a one-element list.
  * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
- * @property {string} destinationAsset - The provider identifier of the asset to deliver (e.g., USDT).
+ * @property {string} outputAsset - The protocol identifier of the asset to deliver (e.g., USDT).
  * @property {string} [destinationAddress] - The address that receives the delivered asset. Defaults to the bound account's address.
- * @property {string} [inputToken] - The expected input token, when the provider needs it declared up front.
+ * @property {string} [inputToken] - The expected input token, when the protocol needs it declared up front.
  * @property {string} [refundAddress] - The address that receives refunds if a deposit cannot be processed (push-refund style).
- * @property {boolean} [reusable] - Request a reusable address, for providers that let the caller pick reusable vs single-use per request.
+ * @property {boolean} [reusable] - Request a reusable address, for protocols that let the caller pick reusable vs single-use per request.
  */
 
 /**
- * A deposit address plus its normalized descriptor: where it accepts deposits
- * from, what it accepts, where it delivers, and its lifecycle metadata.
+ * A deposit address plus its normalized descriptor: where it accepts deposits from, what it accepts, where it
+ * delivers, and its lifecycle metadata.
  *
  * @typedef {Object} SdaDepositAddress
  * @property {string} address - The deposit address the user sends funds to.
- * @property {string} id - The provider identifier for this SDA, used for status, recovery and disabling.
+ * @property {string} id - The protocol identifier for this SDA, used for status, recovery and disabling.
  * @property {Blockchain[]} sourceChains - The chains this address accepts deposits from.
  * @property {SdaToken[]} supportedInputTokens - The tokens this address accepts.
  * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
- * @property {SdaToken} destinationAsset - The asset delivered to the destination.
+ * @property {SdaToken} outputAsset - The asset delivered to the destination.
  * @property {string} destinationAddress - The resolved address that receives the delivered asset.
- * @property {SdaQuote} [quote] - The quote bound to this address, if any.
- * @property {SdaLimits} [limits] - Deposit limits for this address.
+ * @property {SdaDepositQuote} [quote] - The quote bound to this address, if any.
+ * @property {SdaDepositAddressLimits} [limits] - Deposit limits for this address.
  * @property {boolean} reusable - Whether the address can receive more than one deposit.
  * @property {string} [refundAddress] - The refund address bound to this address.
- * @property {number} [expiry] - Unix timestamp (seconds) at which the address's activation expires, for a provider whose activation model ({@link SdaActivationModel}) is `'ttl'`.
+ * @property {number} [expiry] - Unix timestamp (seconds) at which the address's activation expires, when the protocol's address activation is time-limited.
  */
 
 /**
@@ -208,12 +164,12 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  * A single deposit observed at, and processed through, an SDA.
  *
  * @typedef {Object} SdaTransfer
- * @property {string} id - The provider identifier for this transfer.
+ * @property {string} id - The protocol identifier for this transfer.
  * @property {string} [depositAddress] - The SDA the deposit was sent to, when known (a status-by-id lookup may not return it).
  * @property {SdaTransferStatus} status - The current status of the transfer.
  * @property {SdaToken} [inputToken] - The token that was deposited.
  * @property {bigint} [inputAmount] - The amount deposited, in the input token's base unit.
- * @property {SdaToken} [destinationAsset] - The asset delivered to the destination.
+ * @property {SdaToken} [outputAsset] - The asset delivered to the destination.
  * @property {bigint} [outputAmount] - The amount delivered, in the destination asset's base unit.
  * @property {string} [sourceTxHash] - The hash of the deposit transaction on the source chain.
  * @property {string} [destinationTxHash] - The hash of the delivery transaction on the destination chain.
@@ -226,7 +182,7 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  * Optional pagination/filtering for transfer history.
  *
  * @typedef {Object} SdaTransfersOptions
- * @property {Blockchain} [sourceChain] - The source chain of the deposit address, required by providers that key addresses by (address, chain).
+ * @property {Blockchain} [sourceChain] - The source chain of the deposit address, required by protocols that key addresses by (address, chain).
  * @property {number} [limit] - The maximum number of transfers to return.
  * @property {number} [skip] - The number of transfers to skip, for offset-based pagination.
  * @property {SdaTransferStatus} [status] - Restrict to transfers in this status.
@@ -236,7 +192,7 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  * Recover a deposit by the SDA identifier.
  *
  * @typedef {Object} SdaRecoverById
- * @property {string} id - The provider SDA identifier (the `SdaDepositAddress.id`).
+ * @property {string} id - The protocol SDA identifier (the `SdaDepositAddress.id`).
  */
 
 /**
@@ -244,15 +200,12 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  *
  * @typedef {Object} SdaRecoverByAddress
  * @property {string} address - The deposit address to reindex.
- * @property {Blockchain} [sourceChain] - The chain of the deposit address, required by providers that key addresses by (address, chain).
+ * @property {Blockchain} [sourceChain] - The chain of the deposit address, required by protocols that key addresses by (address, chain).
  */
 
 /**
- * Options for re-processing a deposit that was not picked up automatically
- * (`reindex`). A caller identifies the deposit either by SDA id or by its deposit
- * address; the union has no empty member, so `recoverDepositAddress({})` is a
- * type error. A provider needing extra inputs extends the relevant member on its
- * own options type.
+ * Options for re-processing a deposit that was not picked up automatically (`reindex`). A caller identifies the
+ * deposit either by SDA id or by its deposit address.
  *
  * @typedef {SdaRecoverById | SdaRecoverByAddress} SdaRecoveryOptions
  */
@@ -263,33 +216,26 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  * @typedef {Object} SdaRecoveryResult
  * @property {'reindexed' | 'pending' | 'failed'} status - The result of the reindex attempt.
  * @property {string} [address] - The address that was reindexed.
- * @property {string} [id] - The provider SDA identifier.
+ * @property {string} [id] - The protocol SDA identifier.
  * @property {SdaTransfer} [transfer] - The transfer that was recovered, if one resulted.
  * @property {string} [message] - A human-readable description of the outcome.
  */
 
 /**
- * Interface for "Smart Deposit Address" (SDA) providers: services that issue a
- * deposit address, accept a stablecoin (or native token) from a supported
- * source chain, convert it, and deliver a chosen asset (e.g., USDT) to a chosen
- * destination chain and address.
+ * Interface for "Smart Deposit Address" (SDA) protocols: services that issue a deposit address, accept a
+ * stablecoin (or native token) from a supported source chain, convert it, and deliver a chosen asset (e.g., USDT)
+ * to a chosen destination chain and address.
  *
- * The required core every provider implements is route discovery and address
- * creation. Every other operation is optional: a provider that does not support
- * one leaves the base implementation in place, which throws
- * {@link UnsupportedOperationError}. Descriptive traits that are not tied to a
- * single method (custody, activation and route-discovery models) are documented
- * on each provider — see {@link SdaCustodyModel}, {@link SdaActivationModel} and
- * {@link SdaRouteDiscoveryMode}.
+ * The required core every protocol implements is route discovery and address creation; every other operation is
+ * optional.
  *
  * @interface
  */
 export class ISdaProtocol {
   /**
-   * Lists the conversion routes the provider supports: source chains, accepted
-   * input tokens, destination assets and per-route deposit limits. A provider
-   * whose route discovery is `'by-chain-pair'` ({@link SdaRouteDiscoveryMode})
-   * requires `sourceChain` and `destinationChain` to be supplied.
+   * Lists the conversion routes the protocol supports: source chains, accepted input tokens, output assets and
+   * per-route deposit limits. A protocol that discovers routes by blockchain pairs might require the `sourceChain`
+   * and `destinationChain` options to be set.
    *
    * @param {SdaRoutesOptions} [options] - Optional filters for route discovery.
    * @returns {Promise<SdaRoute[]>} The supported routes.
@@ -300,13 +246,10 @@ export class ISdaProtocol {
   }
 
   /**
-   * Fetches a non-binding quote (estimate) for a deposit — what a given deposit
-   * would deliver. Optional: only supported by providers that offer quoting. A
-   * standalone estimate; {@link ISdaProtocol#createDepositAddress} never requires
-   * a quote (a provider that binds an address to a quote fetches one internally).
+   * Fetches a non-binding quote (estimate) for a deposit — what a given deposit would deliver.
    *
-   * @param {SdaQuoteOptions} options - The quote options.
-   * @returns {Promise<SdaQuote>} The quoted deposit details.
+   * @param {SdaDepositOptions} options - The quote options.
+   * @returns {Promise<SdaDepositQuote>} The quoted deposit details.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async quoteDeposit (options) {
@@ -314,15 +257,12 @@ export class ISdaProtocol {
   }
 
   /**
-   * Creates deposit addresses for the given route and destination, ready to
-   * receive per the provider's activation model ({@link SdaActivationModel}) —
-   * for a `'required'` / `'ttl'` provider this also activates the address so it
-   * is monitored. Returns one entry per distinct address: a provider that issues
-   * a single address across a chain family returns one entry covering all of
-   * `sourceChains`, while a provider that issues one address per source chain
-   * returns one entry each.
+   * Creates deposit addresses for the given route and destination, ready to receive per the protocol's activation
+   * lifecycle — a protocol that activates addresses also activates the created address so it is monitored. Returns
+   * one entry per distinct address: a protocol that issues a single address across a chain family returns one entry
+   * covering all of `sourceChains`, while a protocol that issues one address per source chain returns one entry each.
    *
-   * @param {SdaCreateOptions} options - The address creation options.
+   * @param {SdaCreateDepositAddressOptions} options - The address creation options.
    * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
    * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
    */
@@ -331,12 +271,10 @@ export class ISdaProtocol {
   }
 
   /**
-   * Derives a deposit address client-side, without any provider call and
-   * without activating or monitoring it — used to verify (derive + compare) or
-   * recover an address for a self-custodial provider. Optional: only supported
-   * by providers whose deposit address is client-derivable.
+   * Derives a deposit address client-side, without any protocol call and without activating or monitoring it —
+   * used to verify (derive + compare) or recover an address for a self-custodial protocol.
    *
-   * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a provider needing extra derivation inputs declares them on its own options type (which extends `SdaCreateOptions`).
+   * @param {SdaCreateDepositAddressOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a protocol needing extra derivation inputs declares them on its own options type (which extends `SdaCreateDepositAddressOptions`).
    * @returns {Promise<string>} The derived deposit address.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
@@ -346,12 +284,10 @@ export class ISdaProtocol {
   }
 
   /**
-   * Looks up an existing deposit address by its identifier — the
-   * `SdaDepositAddress.id` returned by {@link ISdaProtocol#createDepositAddress},
-   * which round-trips any chain context the provider needs. Optional: only
-   * supported by providers that expose address lookup.
+   * Looks up an existing deposit address by its identifier — the `SdaDepositAddress.id` returned by
+   * {@link ISdaProtocol#createDepositAddress}, which round-trips any chain context the protocol needs.
    *
-   * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the provider needs).
+   * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the protocol needs).
    * @returns {Promise<SdaDepositAddress>} The deposit address descriptor.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    * @throws {NoSuchElementError} If no such address exists.
@@ -361,9 +297,7 @@ export class ISdaProtocol {
   }
 
   /**
-   * Refreshes the activation of a deposit address so the provider keeps
-   * monitoring it. Optional: only relevant for providers whose activation model
-   * ({@link SdaActivationModel}) is `'ttl'`.
+   * Refreshes the activation of a deposit address so the protocol keeps monitoring it.
    *
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id`.
    * @returns {Promise<SdaDepositAddress>} The refreshed deposit address descriptor (with the new `expiry`).
@@ -374,11 +308,10 @@ export class ISdaProtocol {
   }
 
   /**
-   * Lists the deposits observed at a deposit address. Optional: only supported
-   * by providers that expose pull-based history keyed by deposit address.
+   * Lists the deposits observed at a deposit address.
    *
    * @param {string} address - The deposit address to list transfers for.
-   * @param {SdaTransfersOptions} [options] - Optional pagination/filtering, plus `sourceChain` for providers that key addresses by (address, chain).
+   * @param {SdaTransfersOptions} [options] - Optional pagination/filtering, plus `sourceChain` for protocols that key addresses by (address, chain).
    * @returns {Promise<SdaTransfer[]>} The transfers for the address.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
@@ -387,10 +320,8 @@ export class ISdaProtocol {
   }
 
   /**
-   * Lists transfers aggregated by recipient — every deposit routed to the given
-   * recipient across all of that recipient's deposit addresses and source
-   * chains. Optional: only supported by providers that expose recipient-keyed
-   * history.
+   * Lists transfers aggregated by recipient — every deposit routed to the given recipient across all of that
+   * recipient's deposit addresses and source chains.
    *
    * @param {Blockchain} destinationChain - The destination chain the transfers are delivered to.
    * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
@@ -403,22 +334,19 @@ export class ISdaProtocol {
   }
 
   /**
-   * Retrieves the status of a single transfer by its identifier. Optional: only
-   * supported by providers that expose status-by-transfer-id.
+   * Retrieves a single transfer by its identifier.
    *
    * @param {string} id - The transfer identifier.
    * @returns {Promise<SdaTransfer>} The transfer's current status.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    * @throws {NoSuchElementError} If no such transfer exists.
    */
-  async getTransferStatus (id) {
-    throw new NotImplementedError('getTransferStatus(id)')
+  async getTransfer (id) {
+    throw new NotImplementedError('getTransfer(id)')
   }
 
   /**
-   * Recovers a deposit or address that was not picked up automatically, using
-   * the provider's recovery mode ({@link SdaRecoveryMode}). Optional: only
-   * supported by providers whose recovery mode is not `'none'`.
+   * Recovers a deposit or address that was not picked up automatically, using the protocol's recovery mode.
    *
    * @param {SdaRecoveryOptions} options - The recovery options.
    * @returns {Promise<SdaRecoveryResult>} The recovery outcome.
@@ -429,10 +357,9 @@ export class ISdaProtocol {
   }
 
   /**
-   * Disables a deposit address so it no longer accepts deposits. Optional: only
-   * supported by providers that allow disabling an address.
+   * Disables a deposit address so it no longer accepts deposits.
    *
-   * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the provider needs).
+   * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the protocol needs).
    * @returns {Promise<void>} Resolves once the address has been disabled.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
@@ -442,8 +369,7 @@ export class ISdaProtocol {
 }
 
 /**
- * Abstract base class for "Smart Deposit Address" (SDA) providers. Concrete
- * providers extend this and implement the provider-specific calls.
+ * Abstract base class for "Smart Deposit Address" (SDA) protocols.
  *
  * @abstract
  * @implements {ISdaProtocol}
@@ -471,8 +397,8 @@ export default class SdaProtocol {
    */
   constructor (account) {
     /**
-     * The wallet account to use to interact with the protocol. The account's
-     * address is the default delivery destination for created addresses.
+     * The wallet account to use to interact with the protocol. The account's address is the default delivery
+     * destination for created addresses.
      *
      * @protected
      * @type {IWalletAccountReadOnly | IWalletAccount | undefined}
@@ -481,10 +407,9 @@ export default class SdaProtocol {
   }
 
   /**
-   * Lists the conversion routes the provider supports: source chains, accepted
-   * input tokens, destination assets and per-route deposit limits. A provider
-   * whose route discovery is `'by-chain-pair'` ({@link SdaRouteDiscoveryMode})
-   * requires `sourceChain` and `destinationChain` to be supplied.
+   * Lists the conversion routes the protocol supports: source chains, accepted input tokens, output assets and
+   * per-route deposit limits. A protocol that discovers routes by blockchain pairs might require the `sourceChain`
+   * and `destinationChain` options to be set.
    *
    * @abstract
    * @param {SdaRoutesOptions} [options] - Optional filters for route discovery.
@@ -496,14 +421,10 @@ export default class SdaProtocol {
   }
 
   /**
-   * Fetches a non-binding quote (estimate) for a deposit — what a given deposit
-   * would deliver. Optional: only supported by providers that offer quoting. A
-   * standalone estimate; {@link ISdaProtocol#createDepositAddress} never requires
-   * a quote (a provider that binds an address to a quote fetches one internally).
+   * Fetches a non-binding quote (estimate) for a deposit — what a given deposit would deliver.
    *
-   * @abstract
-   * @param {SdaQuoteOptions} options - The quote options.
-   * @returns {Promise<SdaQuote>} The quoted deposit details.
+   * @param {SdaDepositOptions} options - The quote options.
+   * @returns {Promise<SdaDepositQuote>} The quoted deposit details.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async quoteDeposit (options) {
@@ -511,16 +432,13 @@ export default class SdaProtocol {
   }
 
   /**
-   * Creates deposit addresses for the given route and destination, ready to
-   * receive per the provider's activation model ({@link SdaActivationModel}) —
-   * for a `'required'` / `'ttl'` provider this also activates the address so it
-   * is monitored. Returns one entry per distinct address: a provider that issues
-   * a single address across a chain family returns one entry covering all of
-   * `sourceChains`, while a provider that issues one address per source chain
-   * returns one entry each.
+   * Creates deposit addresses for the given route and destination, ready to receive per the protocol's activation
+   * lifecycle — a protocol that activates addresses also activates the created address so it is monitored. Returns
+   * one entry per distinct address: a protocol that issues a single address across a chain family returns one entry
+   * covering all of `sourceChains`, while a protocol that issues one address per source chain returns one entry each.
    *
    * @abstract
-   * @param {SdaCreateOptions} options - The address creation options.
+   * @param {SdaCreateDepositAddressOptions} options - The address creation options.
    * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
    * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
    */
@@ -529,13 +447,10 @@ export default class SdaProtocol {
   }
 
   /**
-   * Derives a deposit address client-side, without any provider call and
-   * without activating or monitoring it — used to verify (derive + compare) or
-   * recover an address for a self-custodial provider. Optional: only supported
-   * by providers whose deposit address is client-derivable.
+   * Derives a deposit address client-side, without any protocol call and without activating or monitoring it —
+   * used to verify (derive + compare) or recover an address for a self-custodial protocol.
    *
-   * @abstract
-   * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a provider needing extra derivation inputs declares them on its own options type (which extends `SdaCreateOptions`).
+   * @param {SdaCreateDepositAddressOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a protocol needing extra derivation inputs declares them on its own options type (which extends `SdaCreateDepositAddressOptions`).
    * @returns {Promise<string>} The derived deposit address.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
@@ -545,13 +460,10 @@ export default class SdaProtocol {
   }
 
   /**
-   * Looks up an existing deposit address by its identifier — the
-   * `SdaDepositAddress.id` returned by {@link ISdaProtocol#createDepositAddress},
-   * which round-trips any chain context the provider needs. Optional: only
-   * supported by providers that expose address lookup.
+   * Looks up an existing deposit address by its identifier — the `SdaDepositAddress.id` returned by
+   * {@link ISdaProtocol#createDepositAddress}, which round-trips any chain context the protocol needs.
    *
-   * @abstract
-   * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the provider needs).
+   * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the protocol needs).
    * @returns {Promise<SdaDepositAddress>} The deposit address descriptor.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    * @throws {NoSuchElementError} If no such address exists.
@@ -561,11 +473,8 @@ export default class SdaProtocol {
   }
 
   /**
-   * Refreshes the activation of a deposit address so the provider keeps
-   * monitoring it. Optional: only relevant for providers whose activation model
-   * ({@link SdaActivationModel}) is `'ttl'`.
+   * Refreshes the activation of a deposit address so the protocol keeps monitoring it.
    *
-   * @abstract
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id`.
    * @returns {Promise<SdaDepositAddress>} The refreshed deposit address descriptor (with the new `expiry`).
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
@@ -575,12 +484,10 @@ export default class SdaProtocol {
   }
 
   /**
-   * Lists the deposits observed at a deposit address. Optional: only supported
-   * by providers that expose pull-based history keyed by deposit address.
+   * Lists the deposits observed at a deposit address.
    *
-   * @abstract
    * @param {string} address - The deposit address to list transfers for.
-   * @param {SdaTransfersOptions} [options] - Optional pagination/filtering, plus `sourceChain` for providers that key addresses by (address, chain).
+   * @param {SdaTransfersOptions} [options] - Optional pagination/filtering, plus `sourceChain` for protocols that key addresses by (address, chain).
    * @returns {Promise<SdaTransfer[]>} The transfers for the address.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
@@ -589,12 +496,9 @@ export default class SdaProtocol {
   }
 
   /**
-   * Lists transfers aggregated by recipient — every deposit routed to the given
-   * recipient across all of that recipient's deposit addresses and source
-   * chains. Optional: only supported by providers that expose recipient-keyed
-   * history.
+   * Lists transfers aggregated by recipient — every deposit routed to the given recipient across all of that
+   * recipient's deposit addresses and source chains.
    *
-   * @abstract
    * @param {Blockchain} destinationChain - The destination chain the transfers are delivered to.
    * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
    * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
@@ -606,25 +510,20 @@ export default class SdaProtocol {
   }
 
   /**
-   * Retrieves the status of a single transfer by its identifier. Optional: only
-   * supported by providers that expose status-by-transfer-id.
+   * Retrieves a single transfer by its identifier.
    *
-   * @abstract
    * @param {string} id - The transfer identifier.
    * @returns {Promise<SdaTransfer>} The transfer's current status.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    * @throws {NoSuchElementError} If no such transfer exists.
    */
-  async getTransferStatus (id) {
-    throw new UnsupportedOperationError('getTransferStatus(id)')
+  async getTransfer (id) {
+    throw new UnsupportedOperationError('getTransfer(id)')
   }
 
   /**
-   * Recovers a deposit or address that was not picked up automatically, using
-   * the provider's recovery mode ({@link SdaRecoveryMode}). Optional: only
-   * supported by providers whose recovery mode is not `'none'`.
+   * Recovers a deposit or address that was not picked up automatically, using the protocol's recovery mode.
    *
-   * @abstract
    * @param {SdaRecoveryOptions} options - The recovery options.
    * @returns {Promise<SdaRecoveryResult>} The recovery outcome.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
@@ -634,11 +533,9 @@ export default class SdaProtocol {
   }
 
   /**
-   * Disables a deposit address so it no longer accepts deposits. Optional: only
-   * supported by providers that allow disabling an address.
+   * Disables a deposit address so it no longer accepts deposits.
    *
-   * @abstract
-   * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the provider needs).
+   * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the protocol needs).
    * @returns {Promise<void>} Resolves once the address has been disabled.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
