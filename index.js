@@ -36,7 +36,8 @@ export {
   NotImplementedError,
   SignerError,
   UnsupportedOperationError,
-  AccountRequiredError
+  ValueError,
+  NoSuchElementError
 } from './src/errors.js'
 
 export { ISigner } from './src/signer.js'

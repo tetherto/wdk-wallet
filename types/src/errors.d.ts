@@ -17,19 +17,27 @@ export class SignerError extends Error {
 export class UnsupportedOperationError extends Error {
     /**
      * Create a new unsupported operation error. Thrown by an optional operation
-     * that the concrete implementation deliberately does not support, so consumers
-     * can distinguish "not supported here" from an abstract method left unimplemented.
+     * that the concrete implementation deliberately does not support.
      *
      * @param {string} operation - The name of the operation that is not supported.
      */
     constructor(operation: string);
 }
-export class AccountRequiredError extends Error {
+export class ValueError extends Error {
     /**
-     * Create a new account required error. Thrown when an operation needs a wallet
-     * account to run but none was bound at construction.
+     * Create a new value error. Thrown when an argument has the correct type but
+     * violates a validation rule.
      *
-     * @param {string} operation - The name of the operation that requires a wallet account.
+     * @param {string} message - The error's message.
      */
-    constructor(operation: string);
+    constructor(message: string);
+}
+export class NoSuchElementError extends Error {
+    /**
+     * Create a new no such element error. Thrown when a lookup finds no element for
+     * the given identifier.
+     *
+     * @param {string} message - The error's message.
+     */
+    constructor(message: string);
 }

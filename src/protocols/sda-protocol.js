@@ -19,7 +19,9 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
 
 /** @typedef {import('../wallet-account.js').IWalletAccount} IWalletAccount */
 
-/** @typedef {import('../errors.js').AccountRequiredError} AccountRequiredError */
+/** @typedef {import('../errors.js').ValueError} ValueError */
+
+/** @typedef {import('../errors.js').NoSuchElementError} NoSuchElementError */
 
 /**
  * A blockchain identifier: a numeric chain id (e.g. `1`) or a provider-specific
@@ -291,7 +293,7 @@ export class ISdaProtocol {
    *
    * @param {SdaRoutesOptions} [options] - Optional filters for route discovery.
    * @returns {Promise<SdaRoute[]>} The supported routes.
-   * @throws {Error} If the provider's route discovery is `'by-chain-pair'` and `sourceChain` or `destinationChain` is missing.
+   * @throws {ValueError} If the protocol discovers routes by blockchain pairs and the source or destination blockchain is not set.
    */
   async getSupportedRoutes (options) {
     throw new NotImplementedError('getSupportedRoutes(options)')
@@ -305,10 +307,10 @@ export class ISdaProtocol {
    *
    * @param {SdaQuoteOptions} options - The quote options.
    * @returns {Promise<SdaQuote>} The quoted deposit details.
-   * @throws {UnsupportedOperationError} If this provider does not support quoting.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async quoteDeposit (options) {
-    throw new UnsupportedOperationError('quoteDeposit(options)')
+    throw new NotImplementedError('quoteDeposit(options)')
   }
 
   /**
@@ -322,7 +324,7 @@ export class ISdaProtocol {
    *
    * @param {SdaCreateOptions} options - The address creation options.
    * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
-   * @throws {AccountRequiredError} If `destinationAddress` is omitted and no account was bound at construction.
+   * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
    */
   async createDepositAddress (options) {
     throw new NotImplementedError('createDepositAddress(options)')
@@ -336,11 +338,11 @@ export class ISdaProtocol {
    *
    * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a provider needing extra derivation inputs declares them on its own options type (which extends `SdaCreateOptions`).
    * @returns {Promise<string>} The derived deposit address.
-   * @throws {UnsupportedOperationError} If this provider does not support client-side derivation.
-   * @throws {AccountRequiredError} If `destinationAddress` is omitted and no account was bound at construction.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+   * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
    */
   async deriveDepositAddress (options) {
-    throw new UnsupportedOperationError('deriveDepositAddress(options)')
+    throw new NotImplementedError('deriveDepositAddress(options)')
   }
 
   /**
@@ -351,11 +353,11 @@ export class ISdaProtocol {
    *
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the provider needs).
    * @returns {Promise<SdaDepositAddress>} The deposit address descriptor.
-   * @throws {UnsupportedOperationError} If this provider does not support address lookup.
-   * @throws {Error} If no such address exists.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+   * @throws {NoSuchElementError} If no such address exists.
    */
   async getDepositAddress (id) {
-    throw new UnsupportedOperationError('getDepositAddress(id)')
+    throw new NotImplementedError('getDepositAddress(id)')
   }
 
   /**
@@ -365,10 +367,10 @@ export class ISdaProtocol {
    *
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id`.
    * @returns {Promise<SdaDepositAddress>} The refreshed deposit address descriptor (with the new `expiry`).
-   * @throws {UnsupportedOperationError} If this provider does not use activation TTLs.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async renewDepositAddress (id) {
-    throw new UnsupportedOperationError('renewDepositAddress(id)')
+    throw new NotImplementedError('renewDepositAddress(id)')
   }
 
   /**
@@ -378,10 +380,10 @@ export class ISdaProtocol {
    * @param {string} address - The deposit address to list transfers for.
    * @param {SdaTransfersOptions} [options] - Optional pagination/filtering, plus `sourceChain` for providers that key addresses by (address, chain).
    * @returns {Promise<SdaTransfer[]>} The transfers for the address.
-   * @throws {UnsupportedOperationError} If this provider does not support pull-based history.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async getTransfers (address, options) {
-    throw new UnsupportedOperationError('getTransfers(address, options)')
+    throw new NotImplementedError('getTransfers(address, options)')
   }
 
   /**
@@ -394,10 +396,10 @@ export class ISdaProtocol {
    * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
    * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
    * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
-   * @throws {UnsupportedOperationError} If this provider does not support recipient-keyed history.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async getTransfersByRecipient (destinationChain, recipient, options) {
-    throw new UnsupportedOperationError('getTransfersByRecipient(destinationChain, recipient, options)')
+    throw new NotImplementedError('getTransfersByRecipient(destinationChain, recipient, options)')
   }
 
   /**
@@ -406,11 +408,11 @@ export class ISdaProtocol {
    *
    * @param {string} id - The transfer identifier.
    * @returns {Promise<SdaTransfer>} The transfer's current status.
-   * @throws {UnsupportedOperationError} If this provider does not support transfer-status lookup.
-   * @throws {Error} If no such transfer exists.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+   * @throws {NoSuchElementError} If no such transfer exists.
    */
   async getTransferStatus (id) {
-    throw new UnsupportedOperationError('getTransferStatus(id)')
+    throw new NotImplementedError('getTransferStatus(id)')
   }
 
   /**
@@ -420,10 +422,10 @@ export class ISdaProtocol {
    *
    * @param {SdaRecoveryOptions} options - The recovery options.
    * @returns {Promise<SdaRecoveryResult>} The recovery outcome.
-   * @throws {UnsupportedOperationError} If this provider does not support recovery.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async recoverDepositAddress (options) {
-    throw new UnsupportedOperationError('recoverDepositAddress(options)')
+    throw new NotImplementedError('recoverDepositAddress(options)')
   }
 
   /**
@@ -432,10 +434,10 @@ export class ISdaProtocol {
    *
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the provider needs).
    * @returns {Promise<void>} Resolves once the address has been disabled.
-   * @throws {UnsupportedOperationError} If this provider does not support disabling addresses.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async disableDepositAddress (id) {
-    throw new UnsupportedOperationError('disableDepositAddress(id)')
+    throw new NotImplementedError('disableDepositAddress(id)')
   }
 }
 
@@ -487,7 +489,7 @@ export default class SdaProtocol {
    * @abstract
    * @param {SdaRoutesOptions} [options] - Optional filters for route discovery.
    * @returns {Promise<SdaRoute[]>} The supported routes.
-   * @throws {Error} If the provider's route discovery is `'by-chain-pair'` and `sourceChain` or `destinationChain` is missing.
+   * @throws {ValueError} If the protocol discovers routes by blockchain pairs and the source or destination blockchain is not set.
    */
   async getSupportedRoutes (options) {
     throw new NotImplementedError('getSupportedRoutes(options)')
@@ -502,7 +504,7 @@ export default class SdaProtocol {
    * @abstract
    * @param {SdaQuoteOptions} options - The quote options.
    * @returns {Promise<SdaQuote>} The quoted deposit details.
-   * @throws {UnsupportedOperationError} If this provider does not support quoting.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async quoteDeposit (options) {
     throw new UnsupportedOperationError('quoteDeposit(options)')
@@ -520,7 +522,7 @@ export default class SdaProtocol {
    * @abstract
    * @param {SdaCreateOptions} options - The address creation options.
    * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
-   * @throws {AccountRequiredError} If `destinationAddress` is omitted and no account was bound at construction.
+   * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
    */
   async createDepositAddress (options) {
     throw new NotImplementedError('createDepositAddress(options)')
@@ -535,8 +537,8 @@ export default class SdaProtocol {
    * @abstract
    * @param {SdaCreateOptions} options - The same options passed to {@link ISdaProtocol#createDepositAddress}; a provider needing extra derivation inputs declares them on its own options type (which extends `SdaCreateOptions`).
    * @returns {Promise<string>} The derived deposit address.
-   * @throws {UnsupportedOperationError} If this provider does not support client-side derivation.
-   * @throws {AccountRequiredError} If `destinationAddress` is omitted and no account was bound at construction.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+   * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
    */
   async deriveDepositAddress (options) {
     throw new UnsupportedOperationError('deriveDepositAddress(options)')
@@ -551,8 +553,8 @@ export default class SdaProtocol {
    * @abstract
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the provider needs).
    * @returns {Promise<SdaDepositAddress>} The deposit address descriptor.
-   * @throws {UnsupportedOperationError} If this provider does not support address lookup.
-   * @throws {Error} If no such address exists.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+   * @throws {NoSuchElementError} If no such address exists.
    */
   async getDepositAddress (id) {
     throw new UnsupportedOperationError('getDepositAddress(id)')
@@ -566,7 +568,7 @@ export default class SdaProtocol {
    * @abstract
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id`.
    * @returns {Promise<SdaDepositAddress>} The refreshed deposit address descriptor (with the new `expiry`).
-   * @throws {UnsupportedOperationError} If this provider does not use activation TTLs.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async renewDepositAddress (id) {
     throw new UnsupportedOperationError('renewDepositAddress(id)')
@@ -580,7 +582,7 @@ export default class SdaProtocol {
    * @param {string} address - The deposit address to list transfers for.
    * @param {SdaTransfersOptions} [options] - Optional pagination/filtering, plus `sourceChain` for providers that key addresses by (address, chain).
    * @returns {Promise<SdaTransfer[]>} The transfers for the address.
-   * @throws {UnsupportedOperationError} If this provider does not support pull-based history.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async getTransfers (address, options) {
     throw new UnsupportedOperationError('getTransfers(address, options)')
@@ -597,7 +599,7 @@ export default class SdaProtocol {
    * @param {string} recipient - The recipient (destination) address to aggregate transfers for.
    * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
    * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
-   * @throws {UnsupportedOperationError} If this provider does not support recipient-keyed history.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async getTransfersByRecipient (destinationChain, recipient, options) {
     throw new UnsupportedOperationError('getTransfersByRecipient(destinationChain, recipient, options)')
@@ -610,8 +612,8 @@ export default class SdaProtocol {
    * @abstract
    * @param {string} id - The transfer identifier.
    * @returns {Promise<SdaTransfer>} The transfer's current status.
-   * @throws {UnsupportedOperationError} If this provider does not support transfer-status lookup.
-   * @throws {Error} If no such transfer exists.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+   * @throws {NoSuchElementError} If no such transfer exists.
    */
   async getTransferStatus (id) {
     throw new UnsupportedOperationError('getTransferStatus(id)')
@@ -625,7 +627,7 @@ export default class SdaProtocol {
    * @abstract
    * @param {SdaRecoveryOptions} options - The recovery options.
    * @returns {Promise<SdaRecoveryResult>} The recovery outcome.
-   * @throws {UnsupportedOperationError} If this provider does not support recovery.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async recoverDepositAddress (options) {
     throw new UnsupportedOperationError('recoverDepositAddress(options)')
@@ -638,7 +640,7 @@ export default class SdaProtocol {
    * @abstract
    * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id` (round-trips any chain context the provider needs).
    * @returns {Promise<void>} Resolves once the address has been disabled.
-   * @throws {UnsupportedOperationError} If this provider does not support disabling addresses.
+   * @throws {UnsupportedOperationError} If the protocol does not support this operation.
    */
   async disableDepositAddress (id) {
     throw new UnsupportedOperationError('disableDepositAddress(id)')

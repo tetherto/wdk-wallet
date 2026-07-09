@@ -9,4 +9,4 @@ export type TransferOptions = import("./src/wallet-account-read-only.js").Transf
 export type TransferResult = import("./src/wallet-account-read-only.js").TransferResult;
 export type KeyPair = import("./src/wallet-account.js").KeyPair;
 export { default as WalletAccountReadOnly, IWalletAccountReadOnly } from "./src/wallet-account-read-only.js";
-export { NotImplementedError, SignerError, UnsupportedOperationError, AccountRequiredError } from "./src/errors.js";
+export { NotImplementedError, SignerError, UnsupportedOperationError, ValueError, NoSuchElementError } from "./src/errors.js";
