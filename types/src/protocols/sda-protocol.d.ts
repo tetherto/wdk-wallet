@@ -134,13 +134,10 @@
  * @property {string} id - The protocol identifier for this transfer.
  * @property {string} [depositAddress] - The SDA the deposit was sent to, when known (a status-by-id lookup may not return it).
  * @property {SdaTransferStatus} status - The current status of the transfer.
- * @property {SdaToken} [inputToken] - The token that was deposited.
  * @property {bigint} [inputAmount] - The amount deposited, in the input token's base unit.
- * @property {SdaToken} [outputAsset] - The asset delivered to the destination.
  * @property {bigint} [outputAmount] - The amount delivered, in the destination asset's base unit.
  * @property {string} [sourceTxHash] - The hash of the deposit transaction on the source chain.
  * @property {string} [destinationTxHash] - The hash of the delivery transaction on the destination chain.
- * @property {SdaFee[]} [fees] - Itemised fees applied to this transfer.
  * @property {number} [createdAt] - Unix timestamp (seconds) when the transfer was first observed.
  * @property {number} [updatedAt] - Unix timestamp (seconds) when the transfer was last updated.
  */
@@ -756,17 +753,9 @@ export type SdaTransfer = {
      */
     status: SdaTransferStatus;
     /**
-     * - The token that was deposited.
-     */
-    inputToken?: SdaToken;
-    /**
      * - The amount deposited, in the input token's base unit.
      */
     inputAmount?: bigint;
-    /**
-     * - The asset delivered to the destination.
-     */
-    outputAsset?: SdaToken;
     /**
      * - The amount delivered, in the destination asset's base unit.
      */
@@ -779,10 +768,6 @@ export type SdaTransfer = {
      * - The hash of the delivery transaction on the destination chain.
      */
     destinationTxHash?: string;
-    /**
-     * - Itemised fees applied to this transfer.
-     */
-    fees?: SdaFee[];
     /**
      * - Unix timestamp (seconds) when the transfer was first observed.
      */
