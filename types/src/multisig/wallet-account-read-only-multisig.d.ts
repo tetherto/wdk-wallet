@@ -51,7 +51,7 @@ export type MultisigInfo = {
      */
     threshold: number;
     /**
-     * - True if the multisig wallet account has already been created.
+     * - True if the multisig wallet account has already been created; omitted when the implementation cannot determine it without an on-chain lookup.
      */
     isCreated?: boolean;
 };
