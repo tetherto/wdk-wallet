@@ -206,8 +206,8 @@ export interface ISdaProtocol {
      *
      * @param {SdaRoutesOptions} [options] - Optional filters for route discovery.
      * @returns {Promise<SdaRoute[]>} The supported routes.
-     * @throws {ValueError} If the protocol discovers routes by blockchain pairs and the source or destination
-     *   blockchain is not set.
+     * @throws {ValueError} If the protocol discovers routes by blockchain pairs and the source or destination blockchain
+     *   is not set.
      */
     getSupportedRoutes(options?: SdaRoutesOptions): Promise<SdaRoute[]>;
     /**
@@ -352,8 +352,8 @@ export default abstract class SdaProtocol implements ISdaProtocol {
      * @abstract
      * @param {SdaRoutesOptions} [options] - Optional filters for route discovery.
      * @returns {Promise<SdaRoute[]>} The supported routes.
-     * @throws {ValueError} If the protocol discovers routes by blockchain pairs and the source or destination
-     *   blockchain is not set.
+     * @throws {ValueError} If the protocol discovers routes by blockchain pairs and the source or destination blockchain
+     *   is not set.
      */
     getSupportedRoutes(options?: SdaRoutesOptions): Promise<SdaRoute[]>;
     /**
@@ -535,8 +535,8 @@ export type SdaRoutesOptions = {
  */
 export type SdaRoute = {
     /**
-     * - The source chains this route accepts deposits from. A list because some protocols issue one address valid
-     *   across a VM family.
+     * - The source chains this route accepts deposits from. A list because some
+     * protocols issue one address valid across a VM family.
      */
     sourceChains: Blockchain[];
     /**
@@ -672,8 +672,8 @@ export type SdaDepositQuote = {
  */
 export type SdaCreateDepositAddressOptions = {
     /**
-     * - One or more source chains the address should accept deposits from. Protocols that issue one address per VM
-     *   family use the full list; single-chain protocols use a one-element list.
+     * - One or more source chains the address should accept deposits from. Protocols
+     * that issue one address per VM family use the full list; single-chain protocols use a one-element list.
      */
     sourceChains: Blockchain[];
     /**
@@ -685,7 +685,8 @@ export type SdaCreateDepositAddressOptions = {
      */
     outputAsset: string;
     /**
-     * - The address that receives the delivered asset. Defaults to the bound account's address.
+     * - The address that receives the delivered asset. Defaults to the bound
+     * account's address.
      */
     destinationAddress?: string;
     /**
@@ -693,11 +694,13 @@ export type SdaCreateDepositAddressOptions = {
      */
     inputToken?: string;
     /**
-     * - The address that receives refunds if a deposit cannot be processed (push-refund style).
+     * - The address that receives refunds if a deposit cannot be processed (push-refund
+     * style).
      */
     refundAddress?: string;
     /**
-     * - Request a reusable address, for protocols that let the caller pick reusable vs single-use per request.
+     * - Request a reusable address, for protocols that let the caller pick reusable vs
+     * single-use per request.
      */
     reusable?: boolean;
 };
@@ -751,8 +754,8 @@ export type SdaDepositAddress = {
      */
     refundAddress?: string;
     /**
-     * - Unix timestamp (seconds) at which the address's activation expires, when the protocol's address activation is
-     *   time-limited.
+     * - Unix timestamp (seconds) at which the address's activation expires, when the protocol's
+     * address activation is time-limited.
      */
     expiry?: number;
 };
@@ -769,7 +772,8 @@ export type SdaTransfer = {
      */
     id: string;
     /**
-     * - The SDA the deposit was sent to, when known (a status-by-id lookup may not return it).
+     * - The SDA the deposit was sent to, when known (a status-by-id lookup may not
+     * return it).
      */
     depositAddress?: string;
     /**
@@ -806,7 +810,8 @@ export type SdaTransfer = {
  */
 export type SdaTransfersOptions = {
     /**
-     * - The source chain of the deposit address, required by protocols that key addresses by (address, chain).
+     * - The source chain of the deposit address, required by protocols that key
+     * addresses by (address, chain).
      */
     sourceChain?: Blockchain;
     /**
@@ -840,7 +845,8 @@ export type SdaRecoverByAddress = {
      */
     address: string;
     /**
-     * - The chain of the deposit address, required by protocols that key addresses by (address, chain).
+     * - The chain of the deposit address, required by protocols that key addresses by
+     * (address, chain).
      */
     sourceChain?: Blockchain;
 };
