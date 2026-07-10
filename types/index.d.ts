@@ -1,6 +1,6 @@
 export { default } from "./src/wallet-manager.js";
 export { IWalletAccount } from "./src/wallet-account.js";
-export { NotImplementedError } from "./src/errors.js";
+export { NotImplementedError, SignerError, ValueError, NoSuchElementError } from "./src/errors.js";
 export type FeeRates = import("./src/wallet-manager.js").FeeRates;
 export type WalletConfig = import("./src/wallet-manager.js").WalletConfig;
 export type Transaction = import("./src/wallet-account-read-only.js").Transaction;

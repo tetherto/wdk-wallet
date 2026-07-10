@@ -25,6 +25,10 @@ import { NotImplementedError } from '../errors.js'
 
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigProposal */
 
+/** @typedef {import('../errors.js').SignerError} SignerError */
+/** @typedef {import('../errors.js').NoSuchElementError} NoSuchElementError */
+/** @typedef {import('../errors.js').ValueError} ValueError */
+
 /**
  * @typedef {Object} MultisigTransactionOptions
  * @property {boolean} [autoExecute] - If true, automatically executes the transaction when the approval threshold is met (only takes effect if this signer's approval is the last one required).
@@ -76,6 +80,7 @@ export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
    * @param {Transaction} tx - The transaction.
    * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
    * @returns {Promise<MultisigProposal>} The created proposal; its `status` is `'executed'` when `autoExecute` ran to completion, otherwise `'pending'`.
+   * @throws {SignerError} If the signer is not an owner of the multisig account.
    */
   async propose (tx, transactionOptions) {
     throw new NotImplementedError('propose(tx, transactionOptions)')
@@ -88,6 +93,7 @@ export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
    * @param {TransferOptions} options - The transfer's options.
    * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
    * @returns {Promise<MultisigProposal>} The created proposal; its `status` is `'executed'` when `autoExecute` ran to completion, otherwise `'pending'`.
+   * @throws {SignerError} If the signer is not an owner of the multisig account.
    */
   async proposeTransfer (options, transactionOptions) {
     throw new NotImplementedError('proposeTransfer(options, transactionOptions)')
@@ -98,6 +104,7 @@ export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
    *
    * @param {string} message - The message to sign.
    * @returns {Promise<MultisigMessageProposal>} The multisig message proposal.
+   * @throws {SignerError} If the signer is not an owner of the multisig account.
    */
   async proposeMessage (message) {
     throw new NotImplementedError('proposeMessage(message)')
@@ -108,6 +115,8 @@ export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
    *
    * @param {string} messageId - The message's hash.
    * @returns {Promise<MultisigMessageProposal>} The multisig message proposal.
+   * @throws {SignerError} If the signer is not an owner of the multisig account.
+   * @throws {NoSuchElementError} If no message exists for the given id.
    */
   async approveMessage (messageId) {
     throw new NotImplementedError('approveMessage(messageId)')
@@ -118,6 +127,8 @@ export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
    *
    * @param {string} proposalId - The proposal's id.
    * @returns {Promise<MultisigProposal>} The multisig proposal.
+   * @throws {SignerError} If the signer is not an owner of the multisig account.
+   * @throws {NoSuchElementError} If no proposal exists for the given id.
    */
   async approveProposal (proposalId) {
     throw new NotImplementedError('approveProposal(proposalId)')
@@ -128,6 +139,7 @@ export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
    *
    * @param {string} proposalId - The proposal's id.
    * @returns {Promise<MultisigProposal>} The multisig proposal.
+   * @throws {NoSuchElementError} If no proposal exists for the given id.
    */
   async rejectProposal (proposalId) {
     throw new NotImplementedError('rejectProposal(proposalId)')
@@ -138,6 +150,8 @@ export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
    *
    * @param {string} proposalId - The proposal's id.
    * @returns {Promise<TransactionResult>} The on-chain transaction's result.
+   * @throws {NoSuchElementError} If no proposal exists for the given id.
+   * @throws {ValueError} If the proposal has not reached the approval threshold.
    */
   async executeProposal (proposalId) {
     throw new NotImplementedError('executeProposal(proposalId)')

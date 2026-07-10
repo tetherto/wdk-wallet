@@ -17,6 +17,8 @@ import { IWalletAccountReadOnlyBase } from '../wallet-account-read-only-base.js'
 
 import { NotImplementedError } from '../errors.js'
 
+/** @typedef {import('../errors.js').NoSuchElementError} NoSuchElementError */
+
 /**
  * @typedef {Object} MultisigInfo
  * @property {string} address - The multisig wallet account address.
@@ -95,6 +97,7 @@ export class IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlyBase {
    *
    * @param {string} proposalId - The proposal's id.
    * @returns {Promise<MultisigExecuteQuote>} The execution cost estimate.
+   * @throws {NoSuchElementError} If no proposal exists for the given id.
    */
   async quoteExecuteProposal (proposalId) {
     throw new NotImplementedError('quoteExecuteProposal(proposalId)')

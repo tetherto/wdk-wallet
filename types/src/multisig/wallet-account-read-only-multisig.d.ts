@@ -33,6 +33,7 @@ export interface IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlyBa
      *
      * @param {string} proposalId - The proposal's id.
      * @returns {Promise<MultisigExecuteQuote>} The execution cost estimate.
+     * @throws {NoSuchElementError} If no proposal exists for the given id.
      */
     quoteExecuteProposal(proposalId: string): Promise<MultisigExecuteQuote>;
 }

@@ -26,6 +26,7 @@ export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
      * @param {Transaction} tx - The transaction.
      * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
      * @returns {Promise<MultisigProposal>} The created proposal; its `status` is `'executed'` when `autoExecute` ran to completion, otherwise `'pending'`.
+     * @throws {SignerError} If the signer is not an owner of the multisig account.
      */
     propose(tx: Transaction, transactionOptions?: MultisigTransactionOptions): Promise<MultisigProposal>;
     /**
@@ -35,6 +36,7 @@ export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
      * @param {TransferOptions} options - The transfer's options.
      * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
      * @returns {Promise<MultisigProposal>} The created proposal; its `status` is `'executed'` when `autoExecute` ran to completion, otherwise `'pending'`.
+     * @throws {SignerError} If the signer is not an owner of the multisig account.
      */
     proposeTransfer(options: TransferOptions, transactionOptions?: MultisigTransactionOptions): Promise<MultisigProposal>;
     /**
@@ -42,6 +44,7 @@ export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
      *
      * @param {string} message - The message to sign.
      * @returns {Promise<MultisigMessageProposal>} The multisig message proposal.
+     * @throws {SignerError} If the signer is not an owner of the multisig account.
      */
     proposeMessage(message: string): Promise<MultisigMessageProposal>;
     /**
@@ -49,6 +52,8 @@ export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
      *
      * @param {string} messageId - The message's hash.
      * @returns {Promise<MultisigMessageProposal>} The multisig message proposal.
+     * @throws {SignerError} If the signer is not an owner of the multisig account.
+     * @throws {NoSuchElementError} If no message exists for the given id.
      */
     approveMessage(messageId: string): Promise<MultisigMessageProposal>;
     /**
@@ -56,6 +61,8 @@ export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
      *
      * @param {string} proposalId - The proposal's id.
      * @returns {Promise<MultisigProposal>} The multisig proposal.
+     * @throws {SignerError} If the signer is not an owner of the multisig account.
+     * @throws {NoSuchElementError} If no proposal exists for the given id.
      */
     approveProposal(proposalId: string): Promise<MultisigProposal>;
     /**
@@ -63,6 +70,7 @@ export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
      *
      * @param {string} proposalId - The proposal's id.
      * @returns {Promise<MultisigProposal>} The multisig proposal.
+     * @throws {NoSuchElementError} If no proposal exists for the given id.
      */
     rejectProposal(proposalId: string): Promise<MultisigProposal>;
     /**
@@ -70,6 +78,8 @@ export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
      *
      * @param {string} proposalId - The proposal's id.
      * @returns {Promise<TransactionResult>} The on-chain transaction's result.
+     * @throws {NoSuchElementError} If no proposal exists for the given id.
+     * @throws {ValueError} If the proposal has not reached the approval threshold.
      */
     executeProposal(proposalId: string): Promise<TransactionResult>;
 }

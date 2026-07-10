@@ -29,4 +29,4 @@ export { default as WalletAccountReadOnly, IWalletAccountReadOnly } from './src/
 
 export { IWalletAccount } from './src/wallet-account.js'
 
-export { NotImplementedError } from './src/errors.js'
+export { NotImplementedError, SignerError, ValueError, NoSuchElementError } from './src/errors.js'
