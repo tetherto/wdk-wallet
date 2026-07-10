@@ -16,7 +16,6 @@
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigInfo} MultisigInfo */
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigProposal */
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigMessage} MultisigMessage */
-/** @typedef {import('./wallet-account-read-only-multisig.js').MultisigExecuteQuote} MultisigExecuteQuote */
 /** @typedef {import('../wallet-account.js').KeyPair} KeyPair */
 
 /** @typedef {import('./wallet-account-multisig.js').MultisigTransactionOptions} MultisigTransactionOptions */

@@ -6,7 +6,6 @@ export { toTransportJson } from "./transport-serialization.js";
 export type MultisigInfo = import("./wallet-account-read-only-multisig.js").MultisigInfo;
 export type MultisigProposal = import("./wallet-account-read-only-multisig.js").MultisigProposal;
 export type MultisigMessage = import("./wallet-account-read-only-multisig.js").MultisigMessage;
-export type MultisigExecuteQuote = import("./wallet-account-read-only-multisig.js").MultisigExecuteQuote;
 export type KeyPair = import("../wallet-account.js").KeyPair;
 export type MultisigTransactionOptions = import("./wallet-account-multisig.js").MultisigTransactionOptions;
 export type MultisigMessageProposal = import("./wallet-account-multisig.js").MultisigMessageProposal;

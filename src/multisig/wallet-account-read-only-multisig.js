@@ -19,6 +19,8 @@ import { NotImplementedError } from '../errors.js'
 
 /** @typedef {import('../errors.js').NoSuchElementError} NoSuchElementError */
 
+/** @typedef {import('../wallet-account-read-only.js').TransactionResult} TransactionResult */
+
 /**
  * @typedef {Object} MultisigInfo
  * @property {string} address - The multisig wallet account address.
@@ -43,11 +45,6 @@ import { NotImplementedError } from '../errors.js'
  * @property {number} confirmations - The current number of confirmations.
  * @property {number} threshold -  The minimum amount of confirmations to sign the message.
  * @property {string | null} combinedSignature - The final combined signature when the threshold is met.
- */
-
-/**
- * @typedef {Object} MultisigExecuteQuote
- * @property {bigint} fee - The estimated cost of executing the proposal on-chain.
  */
 
 /** @interface */
@@ -96,7 +93,7 @@ export class IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlyBase {
    * Quotes the on-chain cost of executing a pending proposal.
    *
    * @param {string} proposalId - The proposal's id.
-   * @returns {Promise<MultisigExecuteQuote>} The execution cost estimate.
+   * @returns {Promise<Omit<TransactionResult, 'hash'>>} The execution cost estimate.
    * @throws {NoSuchElementError} If no proposal exists for the given id.
    */
   async quoteExecuteProposal (proposalId) {

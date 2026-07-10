@@ -32,10 +32,10 @@ export interface IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlyBa
      * Quotes the on-chain cost of executing a pending proposal.
      *
      * @param {string} proposalId - The proposal's id.
-     * @returns {Promise<MultisigExecuteQuote>} The execution cost estimate.
+     * @returns {Promise<Omit<TransactionResult, 'hash'>>} The execution cost estimate.
      * @throws {NoSuchElementError} If no proposal exists for the given id.
      */
-    quoteExecuteProposal(proposalId: string): Promise<MultisigExecuteQuote>;
+    quoteExecuteProposal(proposalId: string): Promise<Omit<TransactionResult, "hash">>;
 }
 export type MultisigInfo = {
     /**
@@ -95,10 +95,5 @@ export type MultisigMessage = {
      */
     combinedSignature: string | null;
 };
-export type MultisigExecuteQuote = {
-    /**
-     * - The estimated cost of executing the proposal on-chain.
-     */
-    fee: bigint;
-};
+export type TransactionResult = import("../wallet-account-read-only.js").TransactionResult;
 import { IWalletAccountReadOnlyBase } from '../wallet-account-read-only-base.js';
