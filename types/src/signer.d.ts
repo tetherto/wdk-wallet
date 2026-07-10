@@ -5,6 +5,19 @@
  */
 export class ISigner {
     /**
+     * Whether the signer supports account derivation via {@link derive}.
+     *
+     * @type {boolean}
+     */
+    get isDerivable(): boolean;
+    /**
+     * The signer's key pair, or null if the signer does not allow retrieving
+     * key material (e.g. hardware signers).
+     *
+     * @type {KeyPair | null}
+     */
+    get keyPair(): KeyPair | null;
+    /**
      * Derive a child signer using a relative path (e.g., "0'/0/0").
      *
      * @param {string} relPath - The relative derivation path.
@@ -23,4 +36,5 @@ export class ISigner {
      */
     dispose(): void;
 }
+export type KeyPair = import("./wallet-account.js").KeyPair;
 export type SignerError = import("./errors.js").SignerError;

@@ -19,6 +19,7 @@ export default abstract class WalletManager {
      *
      * @param {string | Uint8Array} seed - The BIP-39 seed phrase or raw seed bytes.
      * @param {WalletConfig} [config] - The wallet configuration.
+     * @throws {Error} If the seed phrase is invalid.
      */
     constructor(seed: string | Uint8Array, config?: WalletConfig);
     /**
@@ -26,6 +27,7 @@ export default abstract class WalletManager {
      *
      * @param {ISigner} signer - The default signer.
      * @param {WalletConfig} [config] - The wallet configuration.
+     * @throws {SignerError} If the default signer does not support account derivation.
      */
     constructor(signer: ISigner, config?: WalletConfig);
     /** @private */

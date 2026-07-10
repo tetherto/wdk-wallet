@@ -19,6 +19,7 @@ import { NotImplementedError } from './errors.js'
 
 /** @typedef {import('./wallet-account.js').IWalletAccount} IWalletAccount */
 /** @typedef {import('./signer.js').ISigner} ISigner */
+/** @typedef {import('./errors.js').SignerError} SignerError */
 
 /**
  * @typedef {Object} WalletConfig
@@ -40,6 +41,7 @@ export default class WalletManager {
    * @overload
    * @param {string | Uint8Array} seed - The BIP-39 seed phrase or raw seed bytes.
    * @param {WalletConfig} [config] - The wallet configuration.
+   * @throws {Error} If the seed phrase is invalid.
    */
 
   /**
@@ -48,6 +50,7 @@ export default class WalletManager {
    * @overload
    * @param {ISigner} signer - The default signer.
    * @param {WalletConfig} [config] - The wallet configuration.
+   * @throws {SignerError} If the default signer does not support account derivation.
    */
   constructor (seedOrSigner, config = {}) {
     if (typeof seedOrSigner === 'string') {

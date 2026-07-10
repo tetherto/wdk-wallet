@@ -15,12 +15,33 @@
 
 import { NotImplementedError } from './errors.js'
 
+/** @typedef {import('./wallet-account.js').KeyPair} KeyPair */
+
 /**
  * A minimal, cross-chain signer interface.
  *
  * @interface
  */
 export class ISigner {
+  /**
+   * Whether the signer supports account derivation via {@link derive}.
+   *
+   * @type {boolean}
+   */
+  get isDerivable () {
+    throw new NotImplementedError('isDerivable')
+  }
+
+  /**
+   * The signer's key pair, or null if the signer does not allow retrieving
+   * key material (e.g. hardware signers).
+   *
+   * @type {KeyPair | null}
+   */
+  get keyPair () {
+    throw new NotImplementedError('keyPair')
+  }
+
   /**
    * Derive a child signer using a relative path (e.g., "0'/0/0").
    *
