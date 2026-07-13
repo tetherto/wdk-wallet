@@ -151,7 +151,6 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
  * @property {SdaToken} outputAsset - The asset delivered to the destination.
  * @property {string} destinationAddress - The resolved address that receives the delivered asset.
- * @property {SdaDepositQuote} [quote] - The quote bound to this address, if any.
  * @property {SdaDepositAddressLimits} [limits] - Deposit limits for this address.
  * @property {boolean} reusable - Whether the address can receive more than one deposit.
  * @property {string} [refundAddress] - The refund address bound to this address.
@@ -171,15 +170,7 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  *
  * @typedef {Object} SdaTransfer
  * @property {string} id - The protocol identifier for this transfer.
- * @property {string} [depositAddress] - The SDA the deposit was sent to, when known (a status-by-id lookup may not
- *   return it).
  * @property {SdaTransferStatus} status - The current status of the transfer.
- * @property {bigint} [inputAmount] - The amount deposited, in the input token's base unit.
- * @property {bigint} [outputAmount] - The amount delivered, in the destination asset's base unit.
- * @property {string} [sourceTxHash] - The hash of the deposit transaction on the source chain.
- * @property {string} [destinationTxHash] - The hash of the delivery transaction on the destination chain.
- * @property {number} [createdAt] - Unix timestamp (seconds) when the transfer was first observed.
- * @property {number} [updatedAt] - Unix timestamp (seconds) when the transfer was last updated.
  */
 
 /**
