@@ -490,20 +490,6 @@ export type SdaCreateDepositAddressOptions = {
      * account's address.
      */
     destinationAddress?: string;
-    /**
-     * - The expected input token, when the protocol needs it declared up front.
-     */
-    inputToken?: string;
-    /**
-     * - The address that receives refunds if a deposit cannot be processed (push-refund
-     * style).
-     */
-    refundAddress?: string;
-    /**
-     * - Request a reusable address, for protocols that let the caller pick reusable vs
-     * single-use per request.
-     */
-    reusable?: boolean;
 };
 /**
  * A deposit address plus its normalized descriptor: where it accepts deposits from, what it accepts, where it
@@ -546,10 +532,6 @@ export type SdaDepositAddress = {
      * - Whether the address can receive more than one deposit.
      */
     reusable: boolean;
-    /**
-     * - The refund address bound to this address.
-     */
-    refundAddress?: string;
     /**
      * - Unix timestamp (seconds) at which the address's activation expires, when the protocol's
      * address activation is time-limited.

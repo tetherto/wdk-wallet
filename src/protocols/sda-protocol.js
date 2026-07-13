@@ -132,11 +132,6 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  * @property {string} outputAsset - The protocol identifier of the asset to deliver (e.g., USDT).
  * @property {string} [destinationAddress] - The address that receives the delivered asset. Defaults to the bound
  *   account's address.
- * @property {string} [inputToken] - The expected input token, when the protocol needs it declared up front.
- * @property {string} [refundAddress] - The address that receives refunds if a deposit cannot be processed (push-refund
- *   style).
- * @property {boolean} [reusable] - Request a reusable address, for protocols that let the caller pick reusable vs
- *   single-use per request.
  */
 
 /**
@@ -153,7 +148,6 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  * @property {string} destinationAddress - The resolved address that receives the delivered asset.
  * @property {SdaDepositAddressLimits} [limits] - Deposit limits for this address.
  * @property {boolean} reusable - Whether the address can receive more than one deposit.
- * @property {string} [refundAddress] - The refund address bound to this address.
  * @property {number} [expiry] - Unix timestamp (seconds) at which the address's activation expires, when the protocol's
  *   address activation is time-limited.
  */
