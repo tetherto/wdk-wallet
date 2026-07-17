@@ -71,7 +71,8 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  *   protocols issue one address valid across a VM family.
  * @property {SdaToken[]} inputTokens - The deposit tokens accepted on the source side.
  * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
- * @property {SdaToken} outputAsset - The asset delivered to the destination (e.g., USDT).
+ * @property {SdaToken} [outputAsset] - The asset delivered to the destination (e.g., USDT). If unset, the route
+ *   delivers each input token as its own equivalent on the destination chain.
  * @property {SdaDepositAddressLimits} [limits] - Deposit limits for this route.
  * @property {boolean} [reusable] - Whether addresses issued for this route can receive more than one deposit.
  * @property {number} [estimatedDuration] - Typical end-to-end duration in seconds.
@@ -84,7 +85,8 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  * @property {Blockchain} sourceChain - The chain the deposit originates from.
  * @property {string} inputToken - The protocol identifier of the token being deposited.
  * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
- * @property {string} outputAsset - The protocol identifier of the asset to deliver.
+ * @property {string} [outputAsset] - The protocol identifier of the asset to deliver. Omit for protocols that deliver
+ *   each input token as its own equivalent.
  * @property {number | bigint} inputAmount - The amount to deposit, in the input token's base unit.
  */
 
@@ -129,7 +131,8 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  * @property {Blockchain[]} sourceChains - One or more source chains the address should accept deposits from. Protocols
  *   that issue one address per VM family use the full list; single-chain protocols use a one-element list.
  * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
- * @property {string} outputAsset - The protocol identifier of the asset to deliver (e.g., USDT).
+ * @property {string} [outputAsset] - The protocol identifier of the asset to deliver (e.g., USDT). Omit for protocols
+ *   that deliver each input token as its own equivalent.
  * @property {string} [destinationAddress] - The address that receives the delivered asset. Defaults to the bound
  *   account's address.
  */
@@ -144,7 +147,8 @@ import { NotImplementedError, UnsupportedOperationError } from '../errors.js'
  * @property {Blockchain[]} sourceChains - The chains this address accepts deposits from.
  * @property {SdaToken[]} supportedInputTokens - The tokens this address accepts.
  * @property {Blockchain} destinationChain - The chain the converted asset is delivered to.
- * @property {SdaToken} outputAsset - The asset delivered to the destination.
+ * @property {SdaToken} [outputAsset] - The asset delivered to the destination. If unset, the address delivers each
+ *   input token as its own equivalent on the destination chain.
  * @property {string} destinationAddress - The resolved address that receives the delivered asset.
  * @property {SdaDepositAddressLimits} [limits] - Deposit limits for this address.
  * @property {boolean} reusable - Whether the address can receive more than one deposit.
@@ -243,6 +247,7 @@ export class ISdaProtocol {
    * @param {SdaDepositOptions} options - The quote options.
    * @returns {Promise<SdaDepositQuote>} The quoted deposit details.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+   * @throws {ValueError} If the protocol requires an output asset and none is provided.
    */
   async quoteDeposit (options) {
     throw new NotImplementedError('quoteDeposit(options)')
@@ -257,6 +262,7 @@ export class ISdaProtocol {
    * @param {SdaCreateDepositAddressOptions} options - The address creation options.
    * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
    * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
+   * @throws {ValueError} If the protocol requires an output asset and none is provided.
    */
   async createDepositAddress (options) {
     throw new NotImplementedError('createDepositAddress(options)')
@@ -424,6 +430,7 @@ export default class SdaProtocol {
    * @param {SdaDepositOptions} options - The quote options.
    * @returns {Promise<SdaDepositQuote>} The quoted deposit details.
    * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+   * @throws {ValueError} If the protocol requires an output asset and none is provided.
    */
   async quoteDeposit (options) {
     throw new UnsupportedOperationError('quoteDeposit(options)')
@@ -439,6 +446,7 @@ export default class SdaProtocol {
    * @param {SdaCreateDepositAddressOptions} options - The address creation options.
    * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
    * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
+   * @throws {ValueError} If the protocol requires an output asset and none is provided.
    */
   async createDepositAddress (options) {
     throw new NotImplementedError('createDepositAddress(options)')

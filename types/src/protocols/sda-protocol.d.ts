@@ -17,6 +17,7 @@ export interface ISdaProtocol {
      * @param {SdaDepositOptions} options - The quote options.
      * @returns {Promise<SdaDepositQuote>} The quoted deposit details.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+     * @throws {ValueError} If the protocol requires an output asset and none is provided.
      */
     quoteDeposit(options: SdaDepositOptions): Promise<SdaDepositQuote>;
     /**
@@ -28,6 +29,7 @@ export interface ISdaProtocol {
      * @param {SdaCreateDepositAddressOptions} options - The address creation options.
      * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
      * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
+     * @throws {ValueError} If the protocol requires an output asset and none is provided.
      */
     createDepositAddress(options: SdaCreateDepositAddressOptions): Promise<SdaDepositAddress[]>;
     /**
@@ -163,6 +165,7 @@ export default abstract class SdaProtocol implements ISdaProtocol {
      * @param {SdaDepositOptions} options - The quote options.
      * @returns {Promise<SdaDepositQuote>} The quoted deposit details.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+     * @throws {ValueError} If the protocol requires an output asset and none is provided.
      */
     quoteDeposit(options: SdaDepositOptions): Promise<SdaDepositQuote>;
     /**
@@ -175,6 +178,7 @@ export default abstract class SdaProtocol implements ISdaProtocol {
      * @param {SdaCreateDepositAddressOptions} options - The address creation options.
      * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
      * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
+     * @throws {ValueError} If the protocol requires an output asset and none is provided.
      */
     createDepositAddress(options: SdaCreateDepositAddressOptions): Promise<SdaDepositAddress[]>;
     /**
@@ -349,9 +353,10 @@ export type SdaRoute = {
      */
     destinationChain: Blockchain;
     /**
-     * - The asset delivered to the destination (e.g., USDT).
+     * - The asset delivered to the destination (e.g., USDT). If unset, the route
+     * delivers each input token as its own equivalent on the destination chain.
      */
-    outputAsset: SdaToken;
+    outputAsset?: SdaToken;
     /**
      * - Deposit limits for this route.
      */
@@ -382,9 +387,10 @@ export type SdaDepositOptions = {
      */
     destinationChain: Blockchain;
     /**
-     * - The protocol identifier of the asset to deliver.
+     * - The protocol identifier of the asset to deliver. Omit for protocols that deliver each input token as its
+     * own equivalent.
      */
-    outputAsset: string;
+    outputAsset?: string;
     /**
      * - The amount to deposit, in the input token's base unit.
      */
@@ -482,9 +488,10 @@ export type SdaCreateDepositAddressOptions = {
      */
     destinationChain: Blockchain;
     /**
-     * - The protocol identifier of the asset to deliver (e.g., USDT).
+     * - The protocol identifier of the asset to deliver (e.g., USDT). Omit for protocols that deliver each input
+     * token as its own equivalent.
      */
-    outputAsset: string;
+    outputAsset?: string;
     /**
      * - The address that receives the delivered asset. Defaults to the bound
      * account's address.
@@ -517,9 +524,10 @@ export type SdaDepositAddress = {
      */
     destinationChain: Blockchain;
     /**
-     * - The asset delivered to the destination.
+     * - The asset delivered to the destination. If unset, the address delivers each input token as its own
+     * equivalent on the destination chain.
      */
-    outputAsset: SdaToken;
+    outputAsset?: SdaToken;
     /**
      * - The resolved address that receives the delivered asset.
      */
