@@ -1,19 +1,19 @@
 /** @interface */
 export interface IWalletAccount<TSignedTransaction = unknown> extends IWalletAccountReadOnly {
     /**
-     * The derivation path's index of this account, or undefined if the account's
+     * The derivation path's index of this account, or null if the account's
      * signer is not bound to a BIP-44 position (e.g. private-key signers).
      *
-     * @type {number | undefined}
+     * @type {number | null}
      */
-    get index(): number | undefined;
+    get index(): number | null;
     /**
      * The derivation path of this account (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)),
-     * or undefined if the account's signer is not bound to a BIP-44 position (e.g. private-key signers).
+     * or null if the account's signer is not bound to a BIP-44 position (e.g. private-key signers).
      *
-     * @type {string | undefined}
+     * @type {string | null}
      */
-    get path(): string | undefined;
+    get path(): string | null;
     /**
      * The account's key pair, or null if the account's signer does not allow
      * retrieving key material (e.g. hardware signers).

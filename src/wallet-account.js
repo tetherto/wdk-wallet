@@ -35,10 +35,10 @@ import { NotImplementedError } from './errors.js'
  */
 export class IWalletAccount extends IWalletAccountReadOnly {
   /**
-   * The derivation path's index of this account, or undefined if the account's
+   * The derivation path's index of this account, or null if the account's
    * signer is not bound to a BIP-44 position (e.g. private-key signers).
    *
-   * @type {number | undefined}
+   * @type {number | null}
    */
   get index () {
     throw new NotImplementedError('index')
@@ -46,9 +46,9 @@ export class IWalletAccount extends IWalletAccountReadOnly {
 
   /**
    * The derivation path of this account (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)),
-   * or undefined if the account's signer is not bound to a BIP-44 position (e.g. private-key signers).
+   * or null if the account's signer is not bound to a BIP-44 position (e.g. private-key signers).
    *
-   * @type {string | undefined}
+   * @type {string | null}
    */
   get path () {
     throw new NotImplementedError('path')
