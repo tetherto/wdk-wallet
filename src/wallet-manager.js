@@ -19,6 +19,8 @@ import { NotImplementedError } from './errors.js'
 
 /** @typedef {import('./wallet-account.js').IWalletAccount} IWalletAccount */
 /** @typedef {import('./signer.js').ISigner} ISigner */
+/** @typedef {import('./errors.js').SignerError} SignerError */
+/** @typedef {import('./disposable.js').IDisposable} IDisposable */
 
 /**
  * @typedef {Object} WalletConfig
@@ -32,7 +34,10 @@ import { NotImplementedError } from './errors.js'
  * @property {bigint} fast - The fee rate for transaction sent with fast priority.
  */
 
-/** @abstract */
+/**
+ * @abstract
+ * @implements {IDisposable}
+ */
 export default class WalletManager {
   /**
    * Creates a new wallet manager from a BIP-39 seed.
@@ -40,6 +45,7 @@ export default class WalletManager {
    * @overload
    * @param {string | Uint8Array} seed - The BIP-39 seed phrase or raw seed bytes.
    * @param {WalletConfig} [config] - The wallet configuration.
+   * @throws {Error} If the seed phrase is invalid.
    */
 
   /**
@@ -48,6 +54,7 @@ export default class WalletManager {
    * @overload
    * @param {ISigner} signer - The default signer.
    * @param {WalletConfig} [config] - The wallet configuration.
+   * @throws {SignerError} If the default signer does not support account derivation.
    */
   constructor (seedOrSigner, config = {}) {
     if (typeof seedOrSigner === 'string') {

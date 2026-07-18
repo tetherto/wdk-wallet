@@ -29,33 +29,29 @@ import { NotImplementedError } from './errors.js'
  * @property {Uint8Array | null} privateKey - The private key (null if the account has been disposed).
  */
 
+/** @typedef {import('./disposable.js').IDisposable} IDisposable */
+
 /**
  * @interface
+ * @implements {IDisposable}
  * @template [TSignedTransaction=unknown]
  */
 export class IWalletAccount extends IWalletAccountReadOnly {
   /**
-   * The derivation path's index of this account.
+   * The derivation path of this account (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)),
+   * or null if the account's signer is not bound to a BIP-44 position (e.g. private-key signers).
    *
-   * @type {number}
-   */
-  get index () {
-    throw new NotImplementedError('index')
-  }
-
-  /**
-   * The derivation path of this account (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)).
-   *
-   * @type {string}
+   * @type {string | null}
    */
   get path () {
     throw new NotImplementedError('path')
   }
 
   /**
-   * The account's key pair.
+   * The account's key pair, or null if the account's signer does not allow
+   * retrieving key material (e.g. hardware signers).
    *
-   * @type {KeyPair}
+   * @type {KeyPair | null}
    */
   get keyPair () {
     throw new NotImplementedError('keyPair')
