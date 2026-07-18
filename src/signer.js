@@ -15,6 +15,8 @@
 
 import { NotImplementedError } from './errors.js'
 
+import { IDisposable } from './disposable.js'
+
 /** @typedef {import('./wallet-account.js').KeyPair} KeyPair */
 
 /**
@@ -22,7 +24,7 @@ import { NotImplementedError } from './errors.js'
  *
  * @interface
  */
-export class ISigner {
+export class ISigner extends IDisposable {
   /**
    * Whether the signer supports account derivation via {@link derive}.
    *
@@ -40,6 +42,15 @@ export class ISigner {
    */
   get keyPair () {
     throw new NotImplementedError('keyPair')
+  }
+
+  /**
+   * The BIP 0044 derivation path.
+   *
+   * @type {string | null}
+   */
+  get path () {
+    throw new NotImplementedError('path')
   }
 
   /**
@@ -63,9 +74,12 @@ export class ISigner {
   }
 
   /**
-   * Disposes the signer and clears any secret material from memory.
+   * Signs a message.
+   *
+   * @param {string} message - The message to sign.
+   * @returns {Promise<string>} The message's signature.
    */
-  dispose () {
-    throw new NotImplementedError('dispose()')
+  async sign (message) {
+    throw new NotImplementedError('sign(message)')
   }
 }

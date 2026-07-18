@@ -1,5 +1,8 @@
-/** @abstract */
-export default abstract class WalletManager {
+/**
+ * @abstract
+ * @implements {IDisposable}
+ */
+export default abstract class WalletManager implements IDisposable {
     /**
      * Returns a random [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) seed phrase.
      *
@@ -176,3 +179,4 @@ export type FeeRates = {
      */
     fast: bigint;
 };
+import { IDisposable } from "./disposable.js";

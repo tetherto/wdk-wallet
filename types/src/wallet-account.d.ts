@@ -1,12 +1,8 @@
-/** @interface */
-export interface IWalletAccount<TSignedTransaction = unknown> extends IWalletAccountReadOnly {
-    /**
-     * The derivation path's index of this account, or null if the account's
-     * signer is not bound to a BIP-44 position (e.g. private-key signers).
-     *
-     * @type {number | null}
-     */
-    get index(): number | null;
+/**
+ * @interface
+ * @implements {IDisposable}
+ */
+export interface IWalletAccount<TSignedTransaction = unknown> extends IWalletAccountReadOnly, IDisposable {
     /**
      * The derivation path of this account (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)),
      * or null if the account's signer is not bound to a BIP-44 position (e.g. private-key signers).
@@ -72,10 +68,6 @@ export interface IWalletAccount<TSignedTransaction = unknown> extends IWalletAcc
      * @returns {Promise<IWalletAccountReadOnly>} The read-only account.
      */
     toReadOnlyAccount(): Promise<IWalletAccountReadOnly>;
-    /**
-     * Disposes the wallet account, erasing the private key from the memory.
-     */
-    dispose(): void;
 }
 export type Transaction = import("./wallet-account-read-only.js").Transaction;
 export type TransactionResult = import("./wallet-account-read-only.js").TransactionResult;
@@ -92,3 +84,4 @@ export type KeyPair = {
     privateKey: Uint8Array | null;
 };
 import { IWalletAccountReadOnly } from './wallet-account-read-only.js';
+export type IDisposable = import("./disposable.js").IDisposable;

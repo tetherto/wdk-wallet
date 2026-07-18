@@ -10,3 +10,4 @@ export { default as WalletAccountReadOnly, IWalletAccountReadOnly } from "./src/
 export { IWalletAccount } from "./src/wallet-account.js";
 export { NotImplementedError, SignerError } from "./src/errors.js";
 export { ISigner } from "./src/signer.js";
+export { IDisposable } from "./src/disposable.js";

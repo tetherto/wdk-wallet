@@ -20,6 +20,7 @@ import { NotImplementedError } from './errors.js'
 /** @typedef {import('./wallet-account.js').IWalletAccount} IWalletAccount */
 /** @typedef {import('./signer.js').ISigner} ISigner */
 /** @typedef {import('./errors.js').SignerError} SignerError */
+/** @typedef {import('./disposable.js').IDisposable} IDisposable */
 
 /**
  * @typedef {Object} WalletConfig
@@ -33,7 +34,10 @@ import { NotImplementedError } from './errors.js'
  * @property {bigint} fast - The fee rate for transaction sent with fast priority.
  */
 
-/** @abstract */
+/**
+ * @abstract
+ * @implements {IDisposable}
+ */
 export default class WalletManager {
   /**
    * Creates a new wallet manager from a BIP-39 seed.
