@@ -16,8 +16,7 @@ export class SignerError extends Error {
 }
 export class ValueError extends Error {
     /**
-     * Create a new value error. Thrown when an argument has the correct type but
-     * violates a validation rule.
+     * Create a new value error. Thrown when an argument fails validation.
      *
      * @param {string} message - The error's message.
      */
