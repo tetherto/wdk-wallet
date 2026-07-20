@@ -51,6 +51,42 @@
 /** @typedef {import('./fiat-protocol.js').SupportedFiatCurrency} SupportedFiatCurrency */
 /** @typedef {import('./fiat-protocol.js').SupportedCountry} SupportedCountry */
 
+/** @typedef {import('./swidge-protocol.js').SwidgeStatus} SwidgeStatus */
+/** @typedef {import('./swidge-protocol.js').SwidgeFeeType} SwidgeFeeType */
+/** @typedef {import('./swidge-protocol.js').SwidgeProtocolConfig} SwidgeProtocolConfig */
+/** @typedef {import('./swidge-protocol.js').SwidgeOptions} SwidgeOptions */
+/** @typedef {import('./swidge-protocol.js').SwidgeCommonOptions} SwidgeCommonOptions */
+/** @typedef {import('./swidge-protocol.js').SwidgeExactInOptions} SwidgeExactInOptions */
+/** @typedef {import('./swidge-protocol.js').SwidgeExactOutOptions} SwidgeExactOutOptions */
+/** @typedef {import('./swidge-protocol.js').SwidgeFee} SwidgeFee */
+/** @typedef {import('./swidge-protocol.js').SwidgeTransaction} SwidgeTransaction */
+/** @typedef {import('./swidge-protocol.js').SwidgeQuote} SwidgeQuote */
+/** @typedef {import('./swidge-protocol.js').SwidgeResult} SwidgeResult */
+/** @typedef {import('./swidge-protocol.js').SwidgeStatusOptions} SwidgeStatusOptions */
+/** @typedef {import('./swidge-protocol.js').SwidgeStatusResult} SwidgeStatusResult */
+/** @typedef {import('./swidge-protocol.js').SwidgeSupportedChain} SwidgeSupportedChain */
+/** @typedef {import('./swidge-protocol.js').SwidgeSupportedToken} SwidgeSupportedToken */
+/** @typedef {import('./swidge-protocol.js').SwidgeSupportedTokensOptions} SwidgeSupportedTokensOptions */
+
+/** @typedef {import('./sda-protocol.js').Blockchain} Blockchain */
+/** @typedef {import('./sda-protocol.js').SdaToken} SdaToken */
+/** @typedef {import('./sda-protocol.js').SdaDepositAddressLimits} SdaDepositAddressLimits */
+/** @typedef {import('./sda-protocol.js').SdaRoutesOptions} SdaRoutesOptions */
+/** @typedef {import('./sda-protocol.js').SdaRoute} SdaRoute */
+/** @typedef {import('./sda-protocol.js').SdaDepositOptions} SdaDepositOptions */
+/** @typedef {import('./sda-protocol.js').SdaFeeType} SdaFeeType */
+/** @typedef {import('./sda-protocol.js').SdaFee} SdaFee */
+/** @typedef {import('./sda-protocol.js').SdaDepositQuote} SdaDepositQuote */
+/** @typedef {import('./sda-protocol.js').SdaCreateDepositAddressOptions} SdaCreateDepositAddressOptions */
+/** @typedef {import('./sda-protocol.js').SdaDepositAddress} SdaDepositAddress */
+/** @typedef {import('./sda-protocol.js').SdaTransferStatus} SdaTransferStatus */
+/** @typedef {import('./sda-protocol.js').SdaTransfer} SdaTransfer */
+/** @typedef {import('./sda-protocol.js').SdaTransfersOptions} SdaTransfersOptions */
+/** @typedef {import('./sda-protocol.js').SdaRecoverById} SdaRecoverById */
+/** @typedef {import('./sda-protocol.js').SdaRecoverByAddress} SdaRecoverByAddress */
+/** @typedef {import('./sda-protocol.js').SdaRecoveryOptions} SdaRecoveryOptions */
+/** @typedef {import('./sda-protocol.js').SdaRecoveryResult} SdaRecoveryResult */
+
 export { default as SwapProtocol, ISwapProtocol } from './swap-protocol.js'
 
 export { default as BridgeProtocol, IBridgeProtocol } from './bridge-protocol.js'
@@ -58,3 +94,7 @@ export { default as BridgeProtocol, IBridgeProtocol } from './bridge-protocol.js
 export { default as LendingProtocol, ILendingProtocol } from './lending-protocol.js'
 
 export { default as FiatProtocol, IFiatProtocol } from './fiat-protocol.js'
+
+export { default as SwidgeProtocol, ISwidgeProtocol } from './swidge-protocol.js'
+
+export { default as SdaProtocol, ISdaProtocol } from './sda-protocol.js'

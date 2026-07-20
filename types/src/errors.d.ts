@@ -14,6 +14,15 @@ export class SignerError extends Error {
      */
     constructor(message: string);
 }
+export class UnsupportedOperationError extends Error {
+    /**
+     * Create a new unsupported operation error. Thrown by an optional operation
+     * that the concrete implementation deliberately does not support.
+     *
+     * @param {string} operation - The name of the operation that is not supported.
+     */
+    constructor(operation: string);
+}
 export class ValueError extends Error {
     /**
      * Create a new value error. Thrown when an argument fails validation.

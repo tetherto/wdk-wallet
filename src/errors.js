@@ -39,6 +39,20 @@ export class SignerError extends Error {
   }
 }
 
+export class UnsupportedOperationError extends Error {
+  /**
+   * Create a new unsupported operation error. Thrown by an optional operation
+   * that the concrete implementation deliberately does not support.
+   *
+   * @param {string} operation - The name of the operation that is not supported.
+   */
+  constructor (operation) {
+    super(`Operation '${operation}' is not supported by this protocol.`)
+
+    this.name = 'UnsupportedOperationError'
+  }
+}
+
 export class ValueError extends Error {
   /**
    * Create a new value error. Thrown when an argument fails validation.
