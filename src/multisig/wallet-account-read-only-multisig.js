@@ -26,7 +26,6 @@ import { NotImplementedError } from '../errors.js'
  * @property {string} address - The multisig wallet account address.
  * @property {string[]} owners - The owners of the multisig wallet account.
  * @property {number} threshold - The minimum amount of signatures to execute a transaction.
- * @property {boolean} [isCreated] - True if the multisig wallet account has already been created; omitted when the implementation cannot determine it without an on-chain lookup.
  */
 
 /**

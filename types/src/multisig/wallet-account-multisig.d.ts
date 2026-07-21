@@ -30,16 +30,6 @@ export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
      */
     propose(tx: Transaction, transactionOptions?: MultisigTransactionOptions): Promise<MultisigProposal>;
     /**
-     * Proposes transferring a token to another address for the other owners to approve. Does not
-     * execute on-chain; see {@link propose}.
-     *
-     * @param {TransferOptions} options - The transfer's options.
-     * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
-     * @returns {Promise<MultisigProposal>} The created proposal; its `status` is `'executed'` when `autoExecute` ran to completion, otherwise `'pending'`.
-     * @throws {SignerError} If the signer is not an owner of the multisig account.
-     */
-    proposeTransfer(options: TransferOptions, transactionOptions?: MultisigTransactionOptions): Promise<MultisigProposal>;
-    /**
      * Proposes signing a message.
      *
      * @param {string} message - The message to sign.
@@ -84,7 +74,6 @@ export interface IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
     executeProposal(proposalId: string): Promise<TransactionResult>;
 }
 export type Transaction = import("../wallet-account-read-only.js").Transaction;
-export type TransferOptions = import("../wallet-account-read-only.js").TransferOptions;
 export type TransactionResult = import("../wallet-account-read-only.js").TransactionResult;
 export type IWalletAccountReadOnlyMultisig = import("./wallet-account-read-only-multisig.js").IWalletAccountReadOnlyMultisig;
 export type MultisigProposal = import("./wallet-account-read-only-multisig.js").MultisigProposal;

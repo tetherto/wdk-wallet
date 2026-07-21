@@ -50,10 +50,6 @@ export type MultisigInfo = {
      * - The minimum amount of signatures to execute a transaction.
      */
     threshold: number;
-    /**
-     * - True if the multisig wallet account has already been created; omitted when the implementation cannot determine it without an on-chain lookup.
-     */
-    isCreated?: boolean;
 };
 export type MultisigProposal = {
     /**

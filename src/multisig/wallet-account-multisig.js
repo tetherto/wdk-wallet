@@ -18,7 +18,6 @@ import { IWalletAccountReadOnlyMultisig } from './wallet-account-read-only-multi
 import { NotImplementedError } from '../errors.js'
 
 /** @typedef {import('../wallet-account-read-only.js').Transaction} Transaction */
-/** @typedef {import('../wallet-account-read-only.js').TransferOptions} TransferOptions */
 /** @typedef {import('../wallet-account-read-only.js').TransactionResult} TransactionResult */
 
 /** @typedef {import('../wallet-account.js').KeyPair} KeyPair */
@@ -84,19 +83,6 @@ export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
    */
   async propose (tx, transactionOptions) {
     throw new NotImplementedError('propose(tx, transactionOptions)')
-  }
-
-  /**
-   * Proposes transferring a token to another address for the other owners to approve. Does not
-   * execute on-chain; see {@link propose}.
-   *
-   * @param {TransferOptions} options - The transfer's options.
-   * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
-   * @returns {Promise<MultisigProposal>} The created proposal; its `status` is `'executed'` when `autoExecute` ran to completion, otherwise `'pending'`.
-   * @throws {SignerError} If the signer is not an owner of the multisig account.
-   */
-  async proposeTransfer (options, transactionOptions) {
-    throw new NotImplementedError('proposeTransfer(options, transactionOptions)')
   }
 
   /**
