@@ -15,15 +15,20 @@
 
 import * as bip39 from 'bip39'
 
-import { NotImplementedError } from './errors.js'
+import { NoSuchElementError, NotImplementedError, ValueError } from './errors.js'
 
 /** @typedef {import('./wallet-account.js').IWalletAccount} IWalletAccount */
+
 /** @typedef {import('./signer.js').ISigner} ISigner */
+
+/** @typedef {import('./errors.js').InvalidSignerError} InvalidSignerError */
+/** @typedef {import('./errors.js').ProviderError} ProviderError */
+/** @typedef {import('./errors.js').ProviderRequiredError} ProviderRequiredError */
 
 /**
  * @typedef {Object} WalletConfig
+ * @property {number | bigint} [transactionMaxFee] - The maximum fee amount for sending transactions.
  * @property {number | bigint} [transferMaxFee] - The maximum fee amount for transfer operations.
- * @property {number | bigint} [transactionMaxFee] - The maximum fee amount for sendTransaction and signTransaction operations.
  */
 
 /**
@@ -40,6 +45,7 @@ export default class WalletManager {
    * @overload
    * @param {string | Uint8Array} seed - The BIP-39 seed phrase or raw seed bytes.
    * @param {WalletConfig} [config] - The wallet configuration.
+   * @throws {ValueError} If the seed is not a valid seed or BIP-39 seed phrase.
    */
 
   /**
@@ -48,11 +54,14 @@ export default class WalletManager {
    * @overload
    * @param {ISigner} signer - The default signer.
    * @param {WalletConfig} [config] - The wallet configuration.
+   * @throws {InvalidSignerError} If the given signer doesn't support account derivation.
    */
   constructor (seedOrSigner, config = {}) {
+    // TODO: Add check to assert that the default signer is derivable.
+
     if (typeof seedOrSigner === 'string') {
       if (!WalletManager.isValidSeedPhrase(seedOrSigner)) {
-        throw new Error('The seed phrase is invalid.')
+        throw new ValueError('Invalid seed phrase.')
       }
 
       seedOrSigner = bip39.mnemonicToSeedSync(seedOrSigner)
@@ -101,11 +110,12 @@ export default class WalletManager {
   /**
    * Returns a random [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) seed phrase.
    *
-   * @param {12 | 24} [wordCount=12] - The number of words in the seed phrase.
+   * @param {12 | 24} [wordCount] - The number of words in the seed phrase (default: 12).
    * @returns {string} The seed phrase.
    */
   static getRandomSeedPhrase (wordCount = 12) {
-    const strength = wordCount === 24 ? 256 : 128
+    const strength = wordCount === 12 ? 128 : 256
+
     return bip39.generateMnemonic(strength)
   }
 
@@ -129,43 +139,45 @@ export default class WalletManager {
   }
 
   /**
-   * Registers a signer under the given name.
+   * Registers a signer with the given name.
    *
    * @param {string} signerName - The signer name.
    * @param {ISigner} signer - The signer.
    * @returns {WalletManager} The wallet manager.
-   * @throws {Error} If `signerName` is an empty or blank string.
+   * @throws {ValueError} If the signer name is an empty or blank string.
    */
   addSigner (signerName, signer) {
     if (!signerName.trim()) {
-      throw new Error('The signer name cannot be an empty or blank string.')
+      throw new ValueError('The signer name cannot be an empty or blank string.')
     }
 
     this._signers[signerName] = signer
+
     return this
   }
 
   /**
-   * Returns a signer. With no arguments, returns the default signer provided
-   * at construction. With a name, returns the signer registered under that
-   * name via {@link addSigner}.
+   * Returns the default signer, or the signer with the given name.
    *
-   * @param {string} [signerName] - The signer name. Omit to get the default.
+   * @param {string} [signerName] - If set, returns the signer with the given name.
    * @returns {ISigner} The signer.
-   * @throws {Error} If called with no arguments and no default signer was
-   * provided at construction, or if called with a name that is not registered.
+   * @throws {NoSuchElementError} If the default signer is not set, or no signers are found for the given name.
    */
   getSigner (signerName) {
     if (signerName === undefined) {
       if (this._defaultSigner === undefined) {
-        throw new Error('No default signer registered.')
+        throw new NoSuchElementError('No default signer set.')
       }
+
       return this._defaultSigner
     }
+
     const signer = this._signers[signerName]
+
     if (signer === undefined) {
-      throw new Error(`No signer registered with name "${signerName}".`)
+      throw new NoSuchElementError(`No signer found with name "${signerName}".`)
     }
+
     return signer
   }
 
@@ -186,10 +198,11 @@ export default class WalletManager {
    * @overload
    * @param {number} [index] - The index of the account to get (default: 0).
    * @param {Object} [options] - Account options.
-   * @param {string} [options.signerName] - The signer name. Omit to use the default signer.
+   * @param {string} [options.signerName] - The signer name.
    * @returns {Promise<IWalletAccount>} The account.
-   * @throws {Error} If a signer name is given but no signer exists with that name.
-   * @throws {SignerError} If the signer doesn't support account derivation.
+   * @throws {ValueError} If the index is not valid.
+   * @throws {NoSuchElementError} If a signer name is given but no signer exists with that name.
+   * @throws {InvalidSignerError} If the signer doesn't support account derivation.
    */
 
   /**
@@ -201,7 +214,7 @@ export default class WalletManager {
    * @overload
    * @param {string} signerName - The signer name registered via {@link addSigner}.
    * @returns {Promise<IWalletAccount>} The account.
-   * @throws {Error} If no signer exists with the given name.
+   * @throws {NoSuchElementError} If no signer exists with the given name.
    */
 
   /** @abstract */
@@ -217,8 +230,9 @@ export default class WalletManager {
    * @param {Object} [options] - Account options.
    * @param {string} [options.signerName] - The signer name. Omit to use the default signer.
    * @returns {Promise<IWalletAccount>} The account.
-   * @throws {Error} If a signer name is given but no signer exists with that name.
-   * @throws {SignerError} If the signer doesn't support account derivation.
+   * @throws {ValueError} If the path is not valid.
+   * @throws {NoSuchElementError} If a signer name is given but no signer exists with that name.
+   * @throws {InvalidSignerError} If the signer doesn't support account derivation.
    */
   async getAccountByPath (path, options = {}) {
     throw new NotImplementedError('getAccountByPath(path, options?)')
@@ -229,6 +243,8 @@ export default class WalletManager {
    *
    * @abstract
    * @returns {Promise<FeeRates>} The fee rates (in base unit).
+   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderError} If the provider fails to fetch fee rates.
    */
   async getFeeRates () {
     throw new NotImplementedError('getFeeRates()')

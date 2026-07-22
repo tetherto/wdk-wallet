@@ -87,6 +87,8 @@
 /** @typedef {import('./sda-protocol.js').SdaRecoveryOptions} SdaRecoveryOptions */
 /** @typedef {import('./sda-protocol.js').SdaRecoveryResult} SdaRecoveryResult */
 
+/** @typedef {import('./errors.js').SwapErrorOptions} SwapErrorOptions */
+
 export { default as SwapProtocol, ISwapProtocol } from './swap-protocol.js'
 
 export { default as BridgeProtocol, IBridgeProtocol } from './bridge-protocol.js'
@@ -98,3 +100,5 @@ export { default as FiatProtocol, IFiatProtocol } from './fiat-protocol.js'
 export { default as SwidgeProtocol, ISwidgeProtocol } from './swidge-protocol.js'
 
 export { default as SdaProtocol, ISdaProtocol } from './sda-protocol.js'
+
+export { AccountRequiredError, InvalidTokenError, MaximumFeeExceededError, ProviderError, ProviderRequiredError, ReadOnlyAccountRequiredError, SwapError, SwapErrorReason, ValueError, WdkError } from './errors.js'

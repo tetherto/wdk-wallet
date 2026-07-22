@@ -13,7 +13,14 @@
 // limitations under the License.
 'use strict'
 
-import { NotImplementedError } from './errors.js'
+import { AssertionError, NotImplementedError, UnsupportedOperationError } from './errors.js'
+
+/** @typedef {import('./errors.js').InvalidTokenError} InvalidTokenError */
+/** @typedef {import('./errors.js').ProviderError} ProviderError */
+/** @typedef {import('./errors.js').ProviderRequiredError} ProviderRequiredError */
+/** @typedef {import('./errors.js').TransactionError} TransactionError */
+/** @typedef {import('./errors.js').TransferError} TransferError */
+/** @typedef {import('./errors.js').ValueError} ValueError */
 
 /**
  * @typedef {Object} Transaction
@@ -57,7 +64,7 @@ export class IWalletAccountReadOnly {
    * @param {string} message - The original message.
    * @param {string} signature - The signature to verify.
    * @returns {Promise<boolean>} True if the signature is valid.
-   * @throws {Error} If the read-only wallet account class is not able to provide an implementation for the method.
+   * @throws {UnsupportedOperationError} If the read-only wallet account class is not able to provide an implementation for the method.
    */
   async verify (message, signature) {
     throw new NotImplementedError('verify(message, signature)')
@@ -67,6 +74,8 @@ export class IWalletAccountReadOnly {
    * Returns the account's native token balance.
    *
    * @returns {Promise<bigint>} The native token balance.
+   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderError} If the provider fails to fetch the account's balance.
    */
   async getBalance () {
     throw new NotImplementedError('getBalance()')
@@ -77,6 +86,10 @@ export class IWalletAccountReadOnly {
    *
    * @param {string} tokenAddress - The smart contract address of the token.
    * @returns {Promise<bigint>} The token balance.
+   * @throws {ValueError} If the token's address is not valid.
+   * @throws {InvalidTokenError} If the token's address doesn't match an existing ERC 20 token.
+   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderError} If the provider fails to fetch the account's token balance.
    */
   async getTokenBalance (tokenAddress) {
     throw new NotImplementedError('getTokenBalance(tokenAddress)')
@@ -87,6 +100,10 @@ export class IWalletAccountReadOnly {
    *
    * @param {Transaction} tx - The transaction.
    * @returns {Promise<Omit<TransactionResult, 'hash'>>} The transaction's quotes.
+   * @throws {ValueError} If the transaction is not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderError} If the provider fails to estimate the costs of the transaction.
+   * @throws {TransactionError} If the transaction fails with an error.
    */
   async quoteSendTransaction (tx) {
     throw new NotImplementedError('quoteSendTransaction(tx)')
@@ -97,6 +114,11 @@ export class IWalletAccountReadOnly {
    *
    * @param {TransferOptions} options - The transfer's options.
    * @returns {Promise<Omit<TransferResult, 'hash'>>} The transfer's quotes.
+   * @throws {ValueError} If the transfer options are not valid.
+   * @throws {InvalidTokenError} If the token is not a valid ERC 20 token's address.
+   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderError} If the provider fails to estimate the costs of the transfer.
+   * @throws {TransferError} If the transfer fails with an error.
    */
   async quoteTransfer (options) {
     throw new NotImplementedError('quoteTransfer(options)')
@@ -107,6 +129,9 @@ export class IWalletAccountReadOnly {
    *
    * @param {string} hash - The transaction's hash.
    * @returns {Promise<unknown | null>} The receipt, or null if the transaction has not been included in a block yet.
+   * @throws {ValueError} If the hash is not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderError} If the provider fails to fetch the transaction's receipt.
    */
   async getTransactionReceipt (hash) {
     throw new NotImplementedError('getTransactionReceipt(hash)')
@@ -145,7 +170,7 @@ export default class WalletAccountReadOnly {
    */
   async getAddress () {
     if (!this._address) {
-      throw new Error("The account's address must be set to perform this operation.")
+      throw new AssertionError("The account's address must be set to perform this operation.")
     }
 
     return this._address
@@ -154,14 +179,13 @@ export default class WalletAccountReadOnly {
   /**
    * Verifies a message's signature.
    *
-   * @abstract
    * @param {string} message - The original message.
    * @param {string} signature - The signature to verify.
    * @returns {Promise<boolean>} True if the signature is valid.
-   * @throws {Error} If the read-only wallet account class is not able to provide an implementation for the method.
+   * @throws {UnsupportedOperationError} If the read-only wallet account class is not able to provide an implementation for the method.
    */
   async verify (message, signature) {
-    throw new NotImplementedError('verify(message, signature)')
+    throw new UnsupportedOperationError('verify(message, signature)')
   }
 
   /**
@@ -169,6 +193,8 @@ export default class WalletAccountReadOnly {
    *
    * @abstract
    * @returns {Promise<bigint>} The native token balance.
+   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderError} If the provider fails to fetch the account's balance.
    */
   async getBalance () {
     throw new NotImplementedError('getBalance()')
@@ -180,6 +206,10 @@ export default class WalletAccountReadOnly {
    * @abstract
    * @param {string} tokenAddress - The smart contract address of the token.
    * @returns {Promise<bigint>} The token balance.
+   * @throws {ValueError} If the token's address is not valid.
+   * @throws {InvalidTokenError} If the token's address doesn't match an existing ERC 20 token.
+   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderError} If the provider fails to fetch the account's token balance.
    */
   async getTokenBalance (tokenAddress) {
     throw new NotImplementedError('getTokenBalance(tokenAddress)')
@@ -191,6 +221,10 @@ export default class WalletAccountReadOnly {
    * @abstract
    * @param {Transaction} tx - The transaction.
    * @returns {Promise<Omit<TransactionResult, 'hash'>>} The transaction's quotes.
+   * @throws {ValueError} If the transaction is not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderError} If the provider fails to estimate the costs of the transaction.
+   * @throws {TransactionError} If the transaction fails with an error.
    */
   async quoteSendTransaction (tx) {
     throw new NotImplementedError('quoteSendTransaction(tx)')
@@ -202,6 +236,11 @@ export default class WalletAccountReadOnly {
    * @abstract
    * @param {TransferOptions} options - The transfer's options.
    * @returns {Promise<Omit<TransferResult, 'hash'>>} The transfer's quotes.
+   * @throws {ValueError} If the transfer options are not valid.
+   * @throws {InvalidTokenError} If the token is not a valid ERC 20 token's address.
+   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderError} If the provider fails to estimate the costs of the transfer.
+   * @throws {TransferError} If the transfer fails with an error.
    */
   async quoteTransfer (options) {
     throw new NotImplementedError('quoteTransfer(options)')
@@ -213,6 +252,9 @@ export default class WalletAccountReadOnly {
    * @abstract
    * @param {string} hash - The transaction's hash.
    * @returns {Promise<unknown | null>} The receipt, or null if the transaction has not been included in a block yet.
+   * @throws {ValueError} If the hash is not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderError} If the provider fails to fetch the transaction's receipt.
    */
   async getTransactionReceipt (hash) {
     throw new NotImplementedError('getTransactionReceipt(hash)')
