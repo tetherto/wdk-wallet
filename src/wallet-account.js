@@ -15,7 +15,7 @@
 
 import { IWalletAccountReadOnly } from './wallet-account-read-only.js'
 
-import { NotImplementedError, ValueError } from './errors.js'
+import { NotImplementedError } from './errors.js'
 
 /** @typedef {import('./wallet-account-read-only.js').Transaction} Transaction */
 /** @typedef {import('./wallet-account-read-only.js').TransactionResult} TransactionResult */
