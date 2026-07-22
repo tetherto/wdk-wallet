@@ -13,7 +13,7 @@
 // limitations under the License.
 'use strict'
 
-import { NotImplementedError } from '../errors.js'
+import { BridgeError, NotImplementedError, SwapError, SwidgeError } from './errors.js'
 
 /** @typedef {import('../wallet-account-read-only.js').IWalletAccountReadOnly} IWalletAccountReadOnly */
 
@@ -26,6 +26,15 @@ import { NotImplementedError } from '../errors.js'
 /** @typedef {import('./bridge-protocol.js').IBridgeProtocol} IBridgeProtocol */
 /** @typedef {import('./bridge-protocol.js').BridgeOptions} BridgeOptions */
 /** @typedef {import('./bridge-protocol.js').BridgeResult} BridgeResult */
+
+/** @typedef {import('./errors.js').AccountRequiredError} AccountRequiredError */
+/** @typedef {import('./errors.js').InvalidTokenError} InvalidTokenError */
+/** @typedef {import('./errors.js').MaximumFeeExceededError} MaximumFeeExceededError */
+/** @typedef {import('./errors.js').NoSuchElementError} NoSuchElementError */
+/** @typedef {import('./errors.js').ReadOnlyAccountRequiredError} ReadOnlyAccountRequiredError */
+/** @typedef {import('./errors.js').ProviderError} ProviderError */
+/** @typedef {import('./errors.js').ProviderRequiredError} ProviderRequiredError */
+/** @typedef {import('./errors.js').ValueError} ValueError */
 
 /**
  * @typedef {'pending' | 'action-required' | 'completed' | 'failed'
@@ -151,8 +160,8 @@ import { NotImplementedError } from '../errors.js'
 
 /**
  * @interface
- * @implements {ISwapProtocol}
- * @implements {IBridgeProtocol}
+ * @extends {ISwapProtocol}
+ * @extends {IBridgeProtocol}
  */
 export class ISwidgeProtocol {
   /**
@@ -162,6 +171,12 @@ export class ISwidgeProtocol {
    *
    * @param {SwidgeOptions} options - The swidge options.
    * @returns {Promise<SwidgeQuote>} The quoted swidge details.
+   * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a swidge.
+   * @throws {ValueError} If the swidge options are not valid.
+   * @throws {InvalidTokenError} If the from or to tokens are not valid ERC 20 token's addresses.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the swidge.
+   * @throws {SwidgeError} If the swidge fails with an error.
    */
   async quoteSwidge (options) {
     throw new NotImplementedError('quoteSwidge(options)')
@@ -173,6 +188,13 @@ export class ISwidgeProtocol {
    * @param {SwidgeOptions} options - The swidge options.
    * @param {SwidgeProtocolConfig} [config] - Optional provider-specific execution configuration.
    * @returns {Promise<SwidgeResult>} The swidge execution result.
+   * @throws {AccountRequiredError} If the protocol requires a full account to perform a swidge.
+   * @throws {ValueError} If the swidge options are not valid.
+   * @throws {InvalidTokenError} If the from or to tokens are not valid ERC 20 token's addresses.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the swidge.
+   * @throws {SwidgeError} If the swidge fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the max. network or protocol fee options.
    */
   async swidge (options, config) {
     throw new NotImplementedError('swidge(options, config)')
@@ -184,7 +206,10 @@ export class ISwidgeProtocol {
    * @param {string} id - The swidge execution identifier returned by swidge.
    * @param {SwidgeStatusOptions} [options] - Optional hints to assist provider lookups.
    * @returns {Promise<SwidgeStatusResult>} The current swidge status.
-   * @throws {Error} If the id is invalid, or no swidge exists with the given identifier.
+   * @throws {ValueError} If the id is not valid.
+   * @throws {NoSuchElementError} If no swidge exists for the given id.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the swidge's status.
    */
   async getSwidgeStatus (id, options) {
     throw new NotImplementedError('getSwidgeStatus(id, options)')
@@ -194,6 +219,8 @@ export class ISwidgeProtocol {
    * Retrieves the chains supported by the provider for swidge operations.
    *
    * @returns {Promise<SwidgeSupportedChain[]>} The supported chains.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the available blockchains.
    */
   async getSupportedChains () {
     throw new NotImplementedError('getSupportedChains()')
@@ -204,6 +231,8 @@ export class ISwidgeProtocol {
    *
    * @param {SwidgeSupportedTokensOptions} [options] - Optional filters for chain- or route-scoped token discovery.
    * @returns {Promise<SwidgeSupportedToken[]>} The supported tokens.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the available tokens.
    */
   async getSupportedTokens (options) {
     throw new NotImplementedError('getSupportedTokens(options)')
@@ -263,19 +292,35 @@ export default class SwidgeProtocol {
    *
    * @param {SwapOptions} options - The swap's options.
    * @returns {Promise<SwapResult>} The swap's result.
-   * @throws {Error} If no account, or a read-only account was given at construction.
+   * @throws {AccountRequiredError} If the protocol requires a full account to perform a swap.
+   * @throws {ValueError} If the swap options are not valid.
+   * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the swap.
+   * @throws {SwapError} If the swap fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the max. network or protocol fee options.
    */
   async swap (options) {
-    const result = await this.swidge({
-      fromToken: options.tokenIn,
-      toToken: options.tokenOut,
-      recipient: options.to,
-      fromTokenAmount: options.tokenInAmount,
-      toTokenAmount: options.tokenOutAmount,
-      minAmountOut: options.minAmountOut
-    })
-    const fee = result.fees.reduce((acc, f) => acc + f.amount, 0n)
-    return { hash: result.id, fee, tokenInAmount: result.fromTokenAmount, tokenOutAmount: result.toTokenAmount }
+    try {
+      const result = await this.swidge({
+        fromToken: options.tokenIn,
+        toToken: options.tokenOut,
+        recipient: options.to,
+        fromTokenAmount: options.tokenInAmount,
+        toTokenAmount: options.tokenOutAmount,
+        minAmountOut: options.minAmountOut
+      })
+
+      const fee = result.fees.reduce((acc, f) => acc + f.amount, 0n)
+
+      return { hash: result.id, fee, tokenInAmount: result.fromTokenAmount, tokenOutAmount: result.toTokenAmount }
+    } catch (error) {
+      if (error instanceof SwidgeError) {
+        throw new SwapError(error.message, { reason: error.reason, cause: error })
+      }
+
+      throw error
+    }
   }
 
   /**
@@ -283,19 +328,34 @@ export default class SwidgeProtocol {
    *
    * @param {SwapOptions} options - The swap's options.
    * @returns {Promise<Omit<SwapResult, 'hash'>>} The swap's quotes.
-   * @throws {Error} If no account was given at construction.
+   * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a swap.
+   * @throws {ValueError} If the swap options are not valid.
+   * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to estimate the costs of the swap.
+   * @throws {SwapError} If the swap fails with an error.
    */
   async quoteSwap (options) {
-    const result = await this.quoteSwidge({
-      fromToken: options.tokenIn,
-      toToken: options.tokenOut,
-      recipient: options.to,
-      fromTokenAmount: options.tokenInAmount,
-      toTokenAmount: options.tokenOutAmount,
-      minAmountOut: options.minAmountOut
-    })
-    const fee = result.fees.reduce((acc, f) => acc + f.amount, 0n)
-    return { fee, tokenInAmount: result.fromTokenAmount, tokenOutAmount: result.toTokenAmount }
+    try {
+      const result = await this.quoteSwidge({
+        fromToken: options.tokenIn,
+        toToken: options.tokenOut,
+        recipient: options.to,
+        fromTokenAmount: options.tokenInAmount,
+        toTokenAmount: options.tokenOutAmount,
+        minAmountOut: options.minAmountOut
+      })
+
+      const fee = result.fees.reduce((acc, f) => acc + f.amount, 0n)
+
+      return { fee, tokenInAmount: result.fromTokenAmount, tokenOutAmount: result.toTokenAmount }
+    } catch (error) {
+      if (error instanceof SwidgeError) {
+        throw new SwapError(error.message, { reason: error.reason, cause: error })
+      }
+
+      throw error
+    }
   }
 
   /**
@@ -303,21 +363,38 @@ export default class SwidgeProtocol {
    *
    * @param {BridgeOptions} options - The bridge's options.
    * @returns {Promise<BridgeResult>} The bridge's result.
-   * @throws {Error} If no account, or a read-only account was given at construction.
+   * @throws {AccountRequiredError} If the protocol requires a full account to perform a bridge.
+   * @throws {ValueError} If the bridge options are not valid.
+   * @throws {InvalidTokenError} If the token is not a valid ERC 20 token's address.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the bridge.
+   * @throws {BridgeError} If the bridge fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the max. network or protocol fee options.
    */
   async bridge (options) {
-    const { id: hash, fees } = await this.swidge({
-      fromToken: options.token,
-      toToken: options.token,
-      toChain: options.targetChain,
-      recipient: options.recipient,
-      fromTokenAmount: options.amount
-    })
-    const fee = fees.filter(f => f.type === 'network')
-      .reduce((acc, { amount }) => acc + amount, 0n)
-    const bridgeFee = fees.filter(f => f.type === 'protocol')
-      .reduce((acc, { amount }) => acc + amount, 0n)
-    return { hash, fee, bridgeFee }
+    try {
+      const { id: hash, fees } = await this.swidge({
+        fromToken: options.token,
+        toToken: options.token,
+        toChain: options.targetChain,
+        recipient: options.recipient,
+        fromTokenAmount: options.amount
+      })
+
+      const fee = fees.filter(f => f.type === 'network')
+        .reduce((acc, { amount }) => acc + amount, 0n)
+
+      const bridgeFee = fees.filter(f => f.type === 'protocol')
+        .reduce((acc, { amount }) => acc + amount, 0n)
+
+      return { hash, fee, bridgeFee }
+    } catch (error) {
+      if (error instanceof SwidgeError) {
+        throw new BridgeError(error.message, { reason: error.reason, cause: error })
+      }
+
+      throw error
+    }
   }
 
   /**
@@ -325,21 +402,37 @@ export default class SwidgeProtocol {
    *
    * @param {BridgeOptions} options - The bridge's options.
    * @returns {Promise<Omit<BridgeResult, 'hash'>>} The bridge's quotes.
-   * @throws {Error} If no account was given at construction.
+   * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a swap.
+   * @throws {ValueError} If the bridge options are not valid.
+   * @throws {InvalidTokenError} If the token is not a valid ERC 20 token's address.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the bridge.
+   * @throws {BridgeError} If the bridge fails with an error.
    */
   async quoteBridge (options) {
-    const { fees } = await this.quoteSwidge({
-      fromToken: options.token,
-      toToken: options.token,
-      toChain: options.targetChain,
-      recipient: options.recipient,
-      fromTokenAmount: options.amount
-    })
-    const fee = fees.filter(f => f.type === 'network')
-      .reduce((acc, { amount }) => acc + amount, 0n)
-    const bridgeFee = fees.filter(f => f.type === 'protocol')
-      .reduce((acc, { amount }) => acc + amount, 0n)
-    return { fee, bridgeFee }
+    try {
+      const { fees } = await this.quoteSwidge({
+        fromToken: options.token,
+        toToken: options.token,
+        toChain: options.targetChain,
+        recipient: options.recipient,
+        fromTokenAmount: options.amount
+      })
+
+      const fee = fees.filter(f => f.type === 'network')
+        .reduce((acc, { amount }) => acc + amount, 0n)
+
+      const bridgeFee = fees.filter(f => f.type === 'protocol')
+        .reduce((acc, { amount }) => acc + amount, 0n)
+
+      return { fee, bridgeFee }
+    } catch (error) {
+      if (error instanceof SwidgeError) {
+        throw new BridgeError(error.message, { reason: error.reason, cause: error })
+      }
+
+      throw error
+    }
   }
 
   /**
@@ -351,6 +444,12 @@ export default class SwidgeProtocol {
    * @param {SwidgeOptions} options - The swidge options.
    * @returns {Promise<SwidgeQuote>} The quoted swidge details.
    * @throws {Error} If no account was given at construction.
+   * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a swidge.
+   * @throws {ValueError} If the swidge options are not valid.
+   * @throws {InvalidTokenError} If the from or to tokens are not valid ERC 20 token's addresses.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the swidge.
+   * @throws {SwidgeError} If the swidge fails with an error.
    */
   async quoteSwidge (options) {
     throw new NotImplementedError('quoteSwidge(options)')
@@ -364,6 +463,13 @@ export default class SwidgeProtocol {
    * @param {SwidgeProtocolConfig} [config] - Optional provider-specific execution configuration.
    * @returns {Promise<SwidgeResult>} The swidge execution result.
    * @throws {Error} If no account, or a read-only account was given at construction.
+   * @throws {AccountRequiredError} If the protocol requires a full account to perform a swidge.
+   * @throws {ValueError} If the swidge options are not valid.
+   * @throws {InvalidTokenError} If the from or to tokens are not valid ERC 20 token's addresses.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the swidge.
+   * @throws {SwidgeError} If the swidge fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the max. network or protocol fee options.
    */
   async swidge (options, config) {
     throw new NotImplementedError('swidge(options, config)')
@@ -376,7 +482,10 @@ export default class SwidgeProtocol {
    * @param {string} id - The swidge execution identifier returned by swidge.
    * @param {SwidgeStatusOptions} [options] - Optional hints to assist provider lookups.
    * @returns {Promise<SwidgeStatusResult>} The current swidge status.
-   * @throws {Error} If the id is invalid, or no swidge exists with the given identifier.
+   * @throws {ValueError} If the id is not valid.
+   * @throws {NoSuchElementError} If no swidge exists for the given id.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the swidge's status.
    */
   async getSwidgeStatus (id, options) {
     throw new NotImplementedError('getSwidgeStatus(id, options)')
@@ -387,6 +496,8 @@ export default class SwidgeProtocol {
    *
    * @abstract
    * @returns {Promise<SwidgeSupportedChain[]>} The supported chains.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the available blockchains.
    */
   async getSupportedChains () {
     throw new NotImplementedError('getSupportedChains()')
@@ -398,6 +509,8 @@ export default class SwidgeProtocol {
    * @abstract
    * @param {SwidgeSupportedTokensOptions} [options] - Optional filters for chain- or route-scoped token discovery.
    * @returns {Promise<SwidgeSupportedToken[]>} The supported tokens.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the available tokens.
    */
   async getSupportedTokens (options) {
     throw new NotImplementedError('getSupportedTokens(options)')

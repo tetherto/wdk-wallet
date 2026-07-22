@@ -74,7 +74,7 @@ export class IWalletAccountReadOnly {
    * Returns the account's native token balance.
    *
    * @returns {Promise<bigint>} The native token balance.
-   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to fetch the account's balance.
    */
   async getBalance () {
@@ -88,7 +88,7 @@ export class IWalletAccountReadOnly {
    * @returns {Promise<bigint>} The token balance.
    * @throws {ValueError} If the token's address is not valid.
    * @throws {InvalidTokenError} If the token's address doesn't match an existing ERC 20 token.
-   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to fetch the account's token balance.
    */
   async getTokenBalance (tokenAddress) {
@@ -101,7 +101,7 @@ export class IWalletAccountReadOnly {
    * @param {Transaction} tx - The transaction.
    * @returns {Promise<Omit<TransactionResult, 'hash'>>} The transaction's quotes.
    * @throws {ValueError} If the transaction is not valid.
-   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to estimate the costs of the transaction.
    * @throws {TransactionError} If the transaction fails with an error.
    */
@@ -116,7 +116,7 @@ export class IWalletAccountReadOnly {
    * @returns {Promise<Omit<TransferResult, 'hash'>>} The transfer's quotes.
    * @throws {ValueError} If the transfer options are not valid.
    * @throws {InvalidTokenError} If the token is not a valid ERC 20 token's address.
-   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to estimate the costs of the transfer.
    * @throws {TransferError} If the transfer fails with an error.
    */
@@ -130,7 +130,7 @@ export class IWalletAccountReadOnly {
    * @param {string} hash - The transaction's hash.
    * @returns {Promise<unknown | null>} The receipt, or null if the transaction has not been included in a block yet.
    * @throws {ValueError} If the hash is not valid.
-   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to fetch the transaction's receipt.
    */
   async getTransactionReceipt (hash) {
@@ -193,7 +193,7 @@ export default class WalletAccountReadOnly {
    *
    * @abstract
    * @returns {Promise<bigint>} The native token balance.
-   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to fetch the account's balance.
    */
   async getBalance () {
@@ -208,7 +208,7 @@ export default class WalletAccountReadOnly {
    * @returns {Promise<bigint>} The token balance.
    * @throws {ValueError} If the token's address is not valid.
    * @throws {InvalidTokenError} If the token's address doesn't match an existing ERC 20 token.
-   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to fetch the account's token balance.
    */
   async getTokenBalance (tokenAddress) {
@@ -222,7 +222,7 @@ export default class WalletAccountReadOnly {
    * @param {Transaction} tx - The transaction.
    * @returns {Promise<Omit<TransactionResult, 'hash'>>} The transaction's quotes.
    * @throws {ValueError} If the transaction is not valid.
-   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to estimate the costs of the transaction.
    * @throws {TransactionError} If the transaction fails with an error.
    */
@@ -238,7 +238,7 @@ export default class WalletAccountReadOnly {
    * @returns {Promise<Omit<TransferResult, 'hash'>>} The transfer's quotes.
    * @throws {ValueError} If the transfer options are not valid.
    * @throws {InvalidTokenError} If the token is not a valid ERC 20 token's address.
-   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to estimate the costs of the transfer.
    * @throws {TransferError} If the transfer fails with an error.
    */
@@ -253,7 +253,7 @@ export default class WalletAccountReadOnly {
    * @param {string} hash - The transaction's hash.
    * @returns {Promise<unknown | null>} The receipt, or null if the transaction has not been included in a block yet.
    * @throws {ValueError} If the hash is not valid.
-   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to fetch the transaction's receipt.
    */
   async getTransactionReceipt (hash) {

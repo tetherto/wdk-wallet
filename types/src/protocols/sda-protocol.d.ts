@@ -1,4 +1,13 @@
-/** @interface */
+/**
+ * Interface for "Smart Deposit Address" (SDA) protocols: services that issue a deposit address, accept a
+ * stablecoin (or native token) from a supported source chain, convert it, and deliver a chosen asset (e.g., USDT)
+ * to a chosen destination chain and address.
+ *
+ * The required core every protocol implements is route discovery and address creation; every other operation is
+ * optional.
+ *
+ * @interface
+ */
 export interface ISdaProtocol {
     /**
      * Lists the conversion routes the protocol supports: source chains, accepted input tokens, output assets and
@@ -9,6 +18,8 @@ export interface ISdaProtocol {
      * @returns {Promise<SdaRoute[]>} The supported routes.
      * @throws {ValueError} If the protocol discovers routes by blockchain pairs and the source or destination blockchain
      *   is not set.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the available routes.
      */
     getSupportedRoutes(options?: SdaRoutesOptions): Promise<SdaRoute[]>;
     /**
@@ -17,7 +28,11 @@ export interface ISdaProtocol {
      * @param {SdaDepositOptions} options - The quote options.
      * @returns {Promise<SdaDepositQuote>} The quoted deposit details.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
-     * @throws {ValueError} If the protocol requires an output asset and none is provided.
+     * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a deposit.
+     * @throws {ValueError} If the deposit options are not valid.
+     * @throws {InvalidTokenError} If the input token is not a valid ERC 20 token's address.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to estimate the costs of the deposit.
      */
     quoteDeposit(options: SdaDepositOptions): Promise<SdaDepositQuote>;
     /**
@@ -28,8 +43,10 @@ export interface ISdaProtocol {
      *
      * @param {SdaCreateDepositAddressOptions} options - The address creation options.
      * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
-     * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
-     * @throws {ValueError} If the protocol requires an output asset and none is provided.
+     * @throws {AccountRequiredError} If the protocol requires a full account to create a new deposit address.
+     * @throws {ValueError} If the create deposit address options are not valid.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to create a new deposit address.
      */
     createDepositAddress(options: SdaCreateDepositAddressOptions): Promise<SdaDepositAddress[]>;
     /**
@@ -41,7 +58,10 @@ export interface ISdaProtocol {
      *   options type (which extends `SdaCreateDepositAddressOptions`).
      * @returns {Promise<string>} The derived deposit address.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
-     * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
+     * @throws {AccountRequiredError} If the protocol requires a full account to derive a deposit address.
+     * @throws {ValueError} If the create deposit address options are not valid.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to derive the deposit address.
      */
     deriveDepositAddress(options: SdaCreateDepositAddressOptions): Promise<string>;
     /**
@@ -52,7 +72,10 @@ export interface ISdaProtocol {
      *   context the protocol needs).
      * @returns {Promise<SdaDepositAddress>} The deposit address descriptor.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
-     * @throws {NoSuchElementError} If no such address exists.
+     * @throws {ValueError} If the id is not valid.
+     * @throws {NoSuchElementError} If no deposit address exists for the given id.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the deposit's address.
      */
     getDepositAddress(id: string): Promise<SdaDepositAddress>;
     /**
@@ -61,6 +84,11 @@ export interface ISdaProtocol {
      * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id`.
      * @returns {Promise<SdaDepositAddress>} The refreshed deposit address descriptor (with the new `expiry`).
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+     * @throws {AccountRequiredError} If the protocol requires a full account to renew a deposit address.
+     * @throws {ValueError} If the id is not valid.
+     * @throws {NoSuchElementError} If no deposit address exists for the given id.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to renew the deposit address.
      */
     renewDepositAddress(id: string): Promise<SdaDepositAddress>;
     /**
@@ -71,6 +99,8 @@ export interface ISdaProtocol {
      *   addresses by (address, chain).
      * @returns {Promise<SdaTransfer[]>} The transfers for the address.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch transfers.
      */
     getTransfers(address: string, options?: SdaTransfersOptions): Promise<SdaTransfer[]>;
     /**
@@ -82,6 +112,8 @@ export interface ISdaProtocol {
      * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
      * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch transfers.
      */
     getTransfersByRecipient(destinationChain: Blockchain, recipient: string, options?: SdaTransfersOptions): Promise<SdaTransfer[]>;
     /**
@@ -90,7 +122,10 @@ export interface ISdaProtocol {
      * @param {string} id - The transfer identifier.
      * @returns {Promise<SdaTransfer>} The transfer's current status.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
-     * @throws {NoSuchElementError} If no such transfer exists.
+     * @throws {ValueError} If the id is not valid.
+     * @throws {NoSuchElementError} If no transfer exists for the given id.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the transfer.
      */
     getTransfer(id: string): Promise<SdaTransfer>;
     /**
@@ -99,6 +134,11 @@ export interface ISdaProtocol {
      * @param {SdaRecoveryOptions} options - The recovery options.
      * @returns {Promise<SdaRecoveryResult>} The recovery outcome.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+     * @throws {AccountRequiredError} If the protocol requires a full account to recover a deposit address.
+     * @throws {ValueError} If the id is not valid.
+     * @throws {NoSuchElementError} If no deposit address exists for the given id or address.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to recover the deposit address.
      */
     recoverDepositAddress(options: SdaRecoveryOptions): Promise<SdaRecoveryResult>;
     /**
@@ -108,6 +148,11 @@ export interface ISdaProtocol {
      *   context the protocol needs).
      * @returns {Promise<void>} Resolves once the address has been disabled.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+     * @throws {AccountRequiredError} If the protocol requires a full account to disable a deposit address.
+     * @throws {ValueError} If the id is not valid.
+     * @throws {NoSuchElementError} If no deposit address exists for the given id.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to disable the deposit address.
      */
     disableDepositAddress(id: string): Promise<void>;
 }
@@ -157,15 +202,21 @@ export default abstract class SdaProtocol implements ISdaProtocol {
      * @returns {Promise<SdaRoute[]>} The supported routes.
      * @throws {ValueError} If the protocol discovers routes by blockchain pairs and the source or destination blockchain
      *   is not set.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the available routes.
      */
-    getSupportedRoutes(options?: SdaRoutesOptions): Promise<SdaRoute[]>;
+    abstract getSupportedRoutes(options?: SdaRoutesOptions): Promise<SdaRoute[]>;
     /**
      * Fetches a non-binding quote (estimate) for a deposit — what a given deposit would deliver.
      *
      * @param {SdaDepositOptions} options - The quote options.
      * @returns {Promise<SdaDepositQuote>} The quoted deposit details.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
-     * @throws {ValueError} If the protocol requires an output asset and none is provided.
+     * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a deposit.
+     * @throws {ValueError} If the deposit options are not valid.
+     * @throws {InvalidTokenError} If the input token is not a valid ERC 20 token's address.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to estimate the costs of the deposit.
      */
     quoteDeposit(options: SdaDepositOptions): Promise<SdaDepositQuote>;
     /**
@@ -177,10 +228,12 @@ export default abstract class SdaProtocol implements ISdaProtocol {
      * @abstract
      * @param {SdaCreateDepositAddressOptions} options - The address creation options.
      * @returns {Promise<SdaDepositAddress[]>} The created deposit addresses, one per distinct address.
-     * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
-     * @throws {ValueError} If the protocol requires an output asset and none is provided.
+     * @throws {AccountRequiredError} If the protocol requires a full account to create a new deposit address.
+     * @throws {ValueError} If the create deposit address options are not valid.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to create a new deposit address.
      */
-    createDepositAddress(options: SdaCreateDepositAddressOptions): Promise<SdaDepositAddress[]>;
+    abstract createDepositAddress(options: SdaCreateDepositAddressOptions): Promise<SdaDepositAddress[]>;
     /**
      * Derives a deposit address client-side, without any protocol call and without activating or monitoring it —
      * used to verify (derive + compare) or recover an address for a self-custodial protocol.
@@ -190,7 +243,10 @@ export default abstract class SdaProtocol implements ISdaProtocol {
      *   options type (which extends `SdaCreateDepositAddressOptions`).
      * @returns {Promise<string>} The derived deposit address.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
-     * @throws {ValueError} If `destinationAddress` is omitted and no account was bound at construction.
+     * @throws {AccountRequiredError} If the protocol requires a full account to derive a deposit address.
+     * @throws {ValueError} If the create deposit address options are not valid.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to derive the deposit address.
      */
     deriveDepositAddress(options: SdaCreateDepositAddressOptions): Promise<string>;
     /**
@@ -201,7 +257,10 @@ export default abstract class SdaProtocol implements ISdaProtocol {
      *   context the protocol needs).
      * @returns {Promise<SdaDepositAddress>} The deposit address descriptor.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
-     * @throws {NoSuchElementError} If no such address exists.
+     * @throws {ValueError} If the id is not valid.
+     * @throws {NoSuchElementError} If no deposit address exists for the given id.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the deposit's address.
      */
     getDepositAddress(id: string): Promise<SdaDepositAddress>;
     /**
@@ -210,6 +269,11 @@ export default abstract class SdaProtocol implements ISdaProtocol {
      * @param {string} id - The deposit-address identifier returned in `SdaDepositAddress.id`.
      * @returns {Promise<SdaDepositAddress>} The refreshed deposit address descriptor (with the new `expiry`).
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+     * @throws {AccountRequiredError} If the protocol requires a full account to renew a deposit address.
+     * @throws {ValueError} If the id is not valid.
+     * @throws {NoSuchElementError} If no deposit address exists for the given id.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to renew the deposit address.
      */
     renewDepositAddress(id: string): Promise<SdaDepositAddress>;
     /**
@@ -220,6 +284,8 @@ export default abstract class SdaProtocol implements ISdaProtocol {
      *   addresses by (address, chain).
      * @returns {Promise<SdaTransfer[]>} The transfers for the address.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch transfers.
      */
     getTransfers(address: string, options?: SdaTransfersOptions): Promise<SdaTransfer[]>;
     /**
@@ -231,6 +297,8 @@ export default abstract class SdaProtocol implements ISdaProtocol {
      * @param {SdaTransfersOptions} [options] - Optional pagination/filtering.
      * @returns {Promise<SdaTransfer[]>} The transfers routed to the recipient.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch transfers.
      */
     getTransfersByRecipient(destinationChain: Blockchain, recipient: string, options?: SdaTransfersOptions): Promise<SdaTransfer[]>;
     /**
@@ -239,7 +307,10 @@ export default abstract class SdaProtocol implements ISdaProtocol {
      * @param {string} id - The transfer identifier.
      * @returns {Promise<SdaTransfer>} The transfer's current status.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
-     * @throws {NoSuchElementError} If no such transfer exists.
+     * @throws {ValueError} If the id is not valid.
+     * @throws {NoSuchElementError} If no transfer exists for the given id.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the transfer.
      */
     getTransfer(id: string): Promise<SdaTransfer>;
     /**
@@ -248,6 +319,11 @@ export default abstract class SdaProtocol implements ISdaProtocol {
      * @param {SdaRecoveryOptions} options - The recovery options.
      * @returns {Promise<SdaRecoveryResult>} The recovery outcome.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+     * @throws {AccountRequiredError} If the protocol requires a full account to recover a deposit address.
+     * @throws {ValueError} If the id is not valid.
+     * @throws {NoSuchElementError} If no deposit address exists for the given id or address.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to recover the deposit address.
      */
     recoverDepositAddress(options: SdaRecoveryOptions): Promise<SdaRecoveryResult>;
     /**
@@ -257,13 +333,23 @@ export default abstract class SdaProtocol implements ISdaProtocol {
      *   context the protocol needs).
      * @returns {Promise<void>} Resolves once the address has been disabled.
      * @throws {UnsupportedOperationError} If the protocol does not support this operation.
+     * @throws {AccountRequiredError} If the protocol requires a full account to disable a deposit address.
+     * @throws {ValueError} If the id is not valid.
+     * @throws {NoSuchElementError} If no deposit address exists for the given id.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to disable the deposit address.
      */
     disableDepositAddress(id: string): Promise<void>;
 }
 export type IWalletAccountReadOnly = import("../wallet-account-read-only.js").IWalletAccountReadOnly;
 export type IWalletAccount = import("../wallet-account.js").IWalletAccount;
-export type ValueError = import("../errors.js").ValueError;
-export type NoSuchElementError = import("../errors.js").NoSuchElementError;
+export type AccountRequiredError = import("./errors.js").AccountRequiredError;
+export type InvalidTokenError = import("./errors.js").InvalidTokenError;
+export type NoSuchElementError = import("./errors.js").NoSuchElementError;
+export type ReadOnlyAccountRequiredError = import("./errors.js").ReadOnlyAccountRequiredError;
+export type ProviderError = import("./errors.js").ProviderError;
+export type ProviderRequiredError = import("./errors.js").ProviderRequiredError;
+export type ValueError = import("./errors.js").ValueError;
 /**
  * A blockchain identifier: a numeric chain id (e.g. `1`) or a protocol-specific chain name (e.g. `'ethereum'`).
  */
@@ -387,8 +473,8 @@ export type SdaDepositOptions = {
      */
     destinationChain: Blockchain;
     /**
-     * - The protocol identifier of the asset to deliver. Omit for protocols that deliver each input token as its
-     * own equivalent.
+     * - The protocol identifier of the asset to deliver. Omit for protocols that deliver
+     * each input token as its own equivalent.
      */
     outputAsset?: string;
     /**
@@ -488,8 +574,8 @@ export type SdaCreateDepositAddressOptions = {
      */
     destinationChain: Blockchain;
     /**
-     * - The protocol identifier of the asset to deliver (e.g., USDT). Omit for protocols that deliver each input
-     * token as its own equivalent.
+     * - The protocol identifier of the asset to deliver (e.g., USDT). Omit for protocols
+     * that deliver each input token as its own equivalent.
      */
     outputAsset?: string;
     /**
@@ -524,8 +610,8 @@ export type SdaDepositAddress = {
      */
     destinationChain: Blockchain;
     /**
-     * - The asset delivered to the destination. If unset, the address delivers each input token as its own
-     * equivalent on the destination chain.
+     * - The asset delivered to the destination. If unset, the address delivers each
+     * input token as its own equivalent on the destination chain.
      */
     outputAsset?: SdaToken;
     /**

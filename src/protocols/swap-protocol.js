@@ -13,7 +13,7 @@
 // limitations under the License.
 'use strict'
 
-import { NotImplementedError } from '../errors.js'
+import { NotImplementedError } from './errors.js'
 
 /** @typedef {import('../wallet-account-read-only.js').IWalletAccountReadOnly} IWalletAccountReadOnly */
 

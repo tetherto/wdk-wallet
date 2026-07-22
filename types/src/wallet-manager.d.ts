@@ -142,7 +142,7 @@ export default abstract class WalletManager {
      *
      * @abstract
      * @returns {Promise<FeeRates>} The fee rates (in base unit).
-     * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+     * @throws {ProviderRequiredError} If the method requires a provider.
      * @throws {ProviderError} If the provider fails to fetch fee rates.
      */
     abstract getFeeRates(): Promise<FeeRates>;

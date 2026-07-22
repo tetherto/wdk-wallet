@@ -14,6 +14,21 @@
 'use strict'
 
 /**
+ * @typedef {Object} ProviderErrorOptions
+ * @property {ProviderErrorReason} reason - The error's reason.
+ */
+
+/**
+ * @typedef {Object} TransactionErrorOptions
+ * @property {TransactionErrorReason} reason - The error's reason.
+ */
+
+/**
+ * @typedef {Object} TransferErrorOptions
+ * @property {TransferErrorReason} reason - The error's reason.
+ */
+
+/**
  * Enum for provider error reasons.
  *
  * @readonly
@@ -71,21 +86,6 @@ export const TransferErrorReason = {
    */
   INSUFFICIENT_TOKEN_BALANCE: 'INSUFFICIENT_TOKEN_BALANCE'
 }
-
-/**
- * @typedef {Object} ProviderErrorOptions
- * @property {ProviderErrorReason} reason - The error's reason.
- */
-
-/**
- * @typedef {Object} TransactionErrorOptions
- * @property {TransactionErrorReason} reason - The error's reason.
- */
-
-/**
- * @typedef {Object} TransferErrorOptions
- * @property {TransferErrorReason} reason - The error's reason.
- */
 
 /**
  * Super-class for errors thrown by wallet development kit's wallet and protocol modules.

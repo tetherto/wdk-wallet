@@ -8,7 +8,7 @@ export interface ISwapProtocol {
      * @throws {AccountRequiredError} If the protocol requires a full account to perform a swap.
      * @throws {ValueError} If the swap options are not valid.
      * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
-     * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+     * @throws {ProviderRequiredError} If the method requires a provider.
      * @throws {ProviderError} If the provider fails to perform the swap.
      * @throws {SwapError} If the swap fails with an error.
      * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the swap max. fee option.
@@ -22,7 +22,7 @@ export interface ISwapProtocol {
      * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a swap.
      * @throws {ValueError} If the swap options are not valid.
      * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
-     * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+     * @throws {ProviderRequiredError} If the method requires a provider.
      * @throws {ProviderError} If the provider fails to estimate the costs of the swap.
      * @throws {SwapError} If the swap fails with an error.
      */
@@ -72,7 +72,7 @@ export default abstract class SwapProtocol implements ISwapProtocol {
      * @throws {AccountRequiredError} If the protocol requires a full account to perform a swap.
      * @throws {ValueError} If the swap options are not valid.
      * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
-     * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+     * @throws {ProviderRequiredError} If the method requires a provider.
      * @throws {ProviderError} If the provider fails to perform the swap.
      * @throws {SwapError} If the swap fails with an error.
      * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the swap max. fee option.
@@ -86,7 +86,7 @@ export default abstract class SwapProtocol implements ISwapProtocol {
      * @returns {Promise<Omit<SwapResult, 'hash'>>} The swap's quotes.
      * @throws {ValueError} If the swap options are not valid.
      * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
-     * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+     * @throws {ProviderRequiredError} If the method requires a provider.
      * @throws {ProviderError} If the provider fails to estimate the costs of the swap.
      * @throws {SwapError} If the swap fails with an error.
      */

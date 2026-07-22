@@ -107,7 +107,7 @@ export class IWalletAccount extends IWalletAccountReadOnly {
    * @param {Transaction | TSignedTransaction} tx - The transaction.
    * @returns {Promise<TransactionResult>} The transaction's result.
    * @throws {ValueError} If the transaction is not valid.
-   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to perform the transaction.
    * @throws {TransactionError} If the transaction fails with an error.
    * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the transaction max. fee option.
@@ -122,7 +122,7 @@ export class IWalletAccount extends IWalletAccountReadOnly {
    * @param {Transaction | TSignedTransaction} tx - The transaction.
    * @returns {Promise<Omit<TransactionResult, 'hash'>>} The transaction's quotes.
    * @throws {ValueError} If the transaction is not valid.
-   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to estimate the costs of the transaction.
    * @throws {TransactionError} If the transaction fails with an error.
    */
@@ -136,8 +136,8 @@ export class IWalletAccount extends IWalletAccountReadOnly {
    * @param {TransferOptions} options - The transfer's options.
    * @returns {Promise<TransferResult>} The transfer's result.
    * @throws {ValueError} If the transfer options are not valid.
-   * @throws {InvalidTokenError} If the token's address doesn't match an existing ERC 20 token.
-   * @throws {ProviderRequiredError} If the method requires a provider and none is set.
+   * @throws {InvalidTokenError} If the token is not a valid ERC 20 token's address.
+   * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to perform the transfer.
    * @throws {TransferError} If the transfer fails with an error.
    * @throws {MaximumFeeExceededError} If the the costs of the transfer exceeds the transfer max. fee option.
