@@ -13,69 +13,314 @@
 // limitations under the License.
 'use strict'
 
-export class NotImplementedError extends Error {
+/**
+ * @typedef {Object} ProviderErrorOptions
+ * @property {ProviderErrorReason} reason - The error's reason.
+ */
+
+/**
+ * @typedef {Object} TransactionErrorOptions
+ * @property {TransactionErrorReason} reason - The error's reason.
+ */
+
+/**
+ * @typedef {Object} TransferErrorOptions
+ * @property {TransferErrorReason} reason - The error's reason.
+ */
+
+/**
+ * Enum for provider error reasons.
+ *
+ * @readonly
+ * @enum {number}
+ */
+export const ProviderErrorReason = {
   /**
-   * Create a new not implemented error.
+   * Thrown when the client fails to establish a connection with the provider.
+   */
+  NETWORK_ERROR: 0,
+  /**
+   * Thrown when the client fails to authenticate to the provider.
+   */
+  UNAUTHORIZED: 401,
+  /**
+   * Thrown when the client doesn't have enough permissions to perform an operation.
+   */
+  FORBIDDEN: 403,
+  /**
+   * Thrown when the provider times out.
+   */
+  REQUEST_TIMEOUT: 408,
+  /**
+   * Thrown when the provider experiences an internal server error.
+   */
+  INTERNAL_SERVER_ERROR: 500
+}
+
+/**
+ * Enum for transaction error reasons.
+ *
+ * @readonly
+ * @enum {string}
+ */
+export const TransactionErrorReason = {
+  /**
+   * Thrown when the account doesn't have enough funds to perform the transaction.
+   */
+  INSUFFICIENT_BALANCE: 'INSUFFICIENT_BALANCE'
+}
+
+/**
+ * Enum for transfer error reasons.
+ *
+ * @readonly
+ * @enum {string}
+ */
+export const TransferErrorReason = {
+  /**
+   * Thrown when the account doesn't have enough funds to cover the costs of the transfer.
+   */
+  INSUFFICIENT_BALANCE: 'INSUFFICIENT_BALANCE',
+  /**
+   * Thrown when the account doesn't have enough funds to perform the transfer.
+   */
+  INSUFFICIENT_TOKEN_BALANCE: 'INSUFFICIENT_TOKEN_BALANCE'
+}
+
+/**
+ * Super-class for errors thrown by wallet development kit's wallet and protocol modules.
+ */
+export class WdkError extends Error {
+  /**
+   * Creates a new wallet development kit error.
+   *
+   * @param {string} message - The error's message.
+   * @param {ErrorOptions} [options] - The error's options.
+   */
+  constructor (message, options) {
+    super(message, options)
+
+    this.name = 'WdkError'
+  }
+}
+
+/**
+ * Thrown when an abstract method is lacking implementation in the sub-class.
+ */
+export class NotImplementedError extends WdkError {
+  /**
+   * Creates a new not implemented error.
    *
    * @param {string} methodName - The method's name.
    */
   constructor (methodName) {
-    super(`Method '${methodName}' must be implemented.`)
+    super(`Method '${methodName}' is not implemented.`)
 
     this.name = 'NotImplementedError'
   }
 }
 
-export class SignerError extends Error {
+/**
+ * Thrown when an assertion fails.
+ */
+export class AssertionError extends WdkError {
   /**
-   * Create a new signer error.
+   * Creates a new assertion error.
    *
    * @param {string} message - The error's message.
    */
   constructor (message) {
     super(message)
 
-    this.name = 'SignerError'
+    this.name = 'AssertionError'
   }
 }
 
-export class UnsupportedOperationError extends Error {
+/**
+ * Thrown when an operation is not supported in the implementation of an interface or abstract class.
+ */
+export class UnsupportedOperationError extends WdkError {
   /**
-   * Create a new unsupported operation error. Thrown by an optional operation
-   * that the concrete implementation deliberately does not support.
+   * Creates a new unsupported operation error.
    *
-   * @param {string} operation - The name of the operation that is not supported.
+   * @param {string} method - The method's name.
    */
-  constructor (operation) {
-    super(`Operation '${operation}' is not supported by this protocol.`)
+  constructor (method) {
+    super(`Method '${method}' is not supported.`)
 
     this.name = 'UnsupportedOperationError'
   }
 }
 
-export class ValueError extends Error {
+/**
+ * Thrown when a method's argument holds an invalid value.
+ */
+export class ValueError extends WdkError {
   /**
-   * Create a new value error. Thrown when an argument fails validation.
+   * Creates a new value error.
    *
    * @param {string} message - The error's message.
+   * @param {ErrorOptions} [options] - The error's options.
    */
-  constructor (message) {
-    super(message)
+  constructor (message, options) {
+    super(message, options)
 
     this.name = 'ValueError'
   }
 }
 
-export class NoSuchElementError extends Error {
+/**
+ * Thrown when no element is found for the given identifier.
+ */
+export class NoSuchElementError extends WdkError {
   /**
-   * Create a new no such element error. Thrown when a lookup finds no element for
-   * the given identifier.
+   * Creates a new no such element error.
+   *
+   * @param {string} message - The error's message.
+   * @param {ErrorOptions} [options] - The error's options.
+   */
+  constructor (message, options) {
+    super(message, options)
+
+    this.name = 'NoSuchElementError'
+  }
+}
+
+/**
+ * Thrown when an operation rejects to use the given signer.
+ */
+export class InvalidSignerError extends WdkError {
+  /**
+   * Creates a new invalid signer error.
+   *
+   * @param {string} message - The error's message.
+   * @param {ErrorOptions} [options] - The error's options.
+   */
+  constructor (message, options) {
+    super(message, options)
+
+    this.name = 'InvalidSignerError'
+  }
+}
+
+/**
+ * Thrown when an address doesn't match an existing token.
+ */
+export class InvalidTokenError extends WdkError {
+  /**
+   * Creates a new invalid token error.
+   *
+   * @param {string} message - The error's message.
+   * @param {ErrorOptions} options - The error's options.
+   */
+  constructor (message, options) {
+    super(message, options)
+
+    this.name = 'InvalidTokenError'
+  }
+}
+
+/**
+ * Thrown when an operation requires a provider.
+ */
+export class ProviderRequiredError extends WdkError {
+  /**
+   * Creates a new provider required error.
    *
    * @param {string} message - The error's message.
    */
   constructor (message) {
     super(message)
 
-    this.name = 'NoSuchElementError'
+    this.name = 'ProviderRequiredError'
+  }
+}
+
+/**
+ * Thrown when a provider fails to perform an operation.
+ */
+export class ProviderError extends WdkError {
+  /**
+   * Creates a new provider error.
+   *
+   * @param {string} message - The error's message.
+   * @param {ProviderErrorOptions & ErrorOptions} options - The error's options.
+   */
+  constructor (message, options) {
+    super(message, options)
+
+    this.name = 'ProviderError'
+
+    /**
+     * The error's reason.
+     *
+     * @type {number}
+     */
+    this.reason = options.reason
+  }
+}
+
+/**
+ * Thrown when a transaction fails with an error.
+ */
+export class TransactionError extends WdkError {
+  /**
+   * Creates a new transaction error.
+   *
+   * @param {string} message - The error's message.
+   * @param {TransactionErrorOptions & ErrorOptions} options - The error's options.
+   */
+  constructor (message, options) {
+    super(message, options)
+
+    this.name = 'TransactionError'
+
+    /**
+     * The error's reason.
+     *
+     * @type {string}
+     */
+    this.reason = options.reason
+  }
+}
+
+/**
+ * Thrown when a transfer fails with an error.
+ */
+export class TransferError extends WdkError {
+  /**
+   * Creates a new transaction error.
+   *
+   * @param {string} message - The error's message.
+   * @param {TransferErrorOptions & ErrorOptions} options - The error's options.
+   */
+  constructor (message, options) {
+    super(message, options)
+
+    this.name = 'TransferError'
+
+    /**
+     * The error's reason.
+     *
+     * @type {string}
+     */
+    this.reason = options.reason
+  }
+}
+
+/**
+ * Thrown when an operation exceeds its maximum fee threshold.
+ */
+export class MaximumFeeExceededError extends WdkError {
+  /**
+   * Creates a new maximum fee exceeded error.
+   *
+   * @param {string} message - The error's message.
+   * @param {ErrorOptions} options - The error's options.
+   */
+  constructor (message, options) {
+    super(message, options)
+
+    this.name = 'MaximumFeeExceededError'
   }
 }

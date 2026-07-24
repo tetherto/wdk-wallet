@@ -87,6 +87,16 @@
 /** @typedef {import('./sda-protocol.js').SdaRecoveryOptions} SdaRecoveryOptions */
 /** @typedef {import('./sda-protocol.js').SdaRecoveryResult} SdaRecoveryResult */
 
+/** @typedef {import('./errors.js').SwapErrorOptions} SwapErrorOptions */
+/** @typedef {import('./errors.js').BridgeErrorOptions} BridgeErrorOptions */
+/** @typedef {import('./errors.js').SupplyErrorOptions} SupplyErrorOptions */
+/** @typedef {import('./errors.js').WithdrawErrorOptions} WithdrawErrorOptions */
+/** @typedef {import('./errors.js').BorrowErrorOptions} BorrowErrorOptions */
+/** @typedef {import('./errors.js').RepayErrorOptions} RepayErrorOptions */
+/** @typedef {import('./errors.js').BuyErrorOptions} BuyErrorOptions */
+/** @typedef {import('./errors.js').SellErrorOptions} SellErrorOptions */
+/** @typedef {import('./errors.js').SwidgeErrorOptions} SwidgeErrorOptions */
+
 export { default as SwapProtocol, ISwapProtocol } from './swap-protocol.js'
 
 export { default as BridgeProtocol, IBridgeProtocol } from './bridge-protocol.js'
@@ -98,3 +108,5 @@ export { default as FiatProtocol, IFiatProtocol } from './fiat-protocol.js'
 export { default as SwidgeProtocol, ISwidgeProtocol } from './swidge-protocol.js'
 
 export { default as SdaProtocol, ISdaProtocol } from './sda-protocol.js'
+
+export { AccountRequiredError, BorrowError, BorrowErrorReason, BridgeError, BridgeErrorReason, BuyError, BuyErrorReason, InvalidTokenError, MaximumFeeExceededError, NoSuchElementError, NotImplementedError, ProviderError, ProviderRequiredError, ReadOnlyAccountRequiredError, RepayError, RepayErrorReason, SellError, SellErrorReason, SupplyError, SupplyErrorReason, SwapError, SwapErrorReason, SwidgeError, SwidgeErrorReason, UnsupportedOperationError, ValueError, WdkError, WithdrawError, WithdrawErrorReason } from './errors.js'

@@ -2,7 +2,7 @@ import * as bip39 from 'bip39'
 
 import { describe, expect, jest, test } from '@jest/globals'
 
-import WalletManager from '../index.js'
+import WalletManager, { NoSuchElementError, ValueError } from '../index.js'
 
 class DummySigner {
   async derive (relPath) {
@@ -56,7 +56,7 @@ describe('WalletManager', () => {
     test('should throw if the seed phrase is invalid', () => {
       // eslint-disable-next-line no-new
       expect(() => { new DummyWalletManager(INVALID_SEED_PHRASE) })
-        .toThrow('The seed phrase is invalid.')
+        .toThrow(new ValueError('Invalid seed phrase.'))
     })
 
     test('should set the provided signer as the default signer', () => {
@@ -70,7 +70,7 @@ describe('WalletManager', () => {
       const wallet = new DummyWalletManager(SEED_PHRASE)
 
       expect(() => wallet.getSigner())
-        .toThrow('No default signer registered.')
+        .toThrow(new NoSuchElementError('No default signer set.'))
     })
     test('should store both transferMaxFee and transactionMaxFee in config', () => {
       const wallet = new DummyWalletManager(SEED_PHRASE, { transferMaxFee: 100, transactionMaxFee: 500 })
@@ -143,7 +143,7 @@ describe('WalletManager', () => {
       const wallet = new DummyWalletManager(SEED_PHRASE)
 
       expect(() => wallet.addSigner('', signer))
-        .toThrow('The signer name cannot be an empty or blank string.')
+        .toThrow(new ValueError('The signer name cannot be an empty or blank string.'))
     })
 
     test('should throw when the signer name is blank', () => {
@@ -151,7 +151,7 @@ describe('WalletManager', () => {
       const wallet = new DummyWalletManager(SEED_PHRASE)
 
       expect(() => wallet.addSigner('   ', signer))
-        .toThrow('The signer name cannot be an empty or blank string.')
+        .toThrow(new ValueError('The signer name cannot be an empty or blank string.'))
     })
   })
 
@@ -161,7 +161,7 @@ describe('WalletManager', () => {
       const wallet = new DummyWalletManager(signer)
 
       expect(() => wallet.getSigner('ledger'))
-        .toThrow('No signer registered with name "ledger".')
+        .toThrow(new NoSuchElementError('No signer found with name "ledger".'))
     })
   })
 
@@ -177,7 +177,7 @@ describe('WalletManager', () => {
 
       expect(disposeSpy).toHaveBeenCalledTimes(1)
       expect(() => wallet.getSigner())
-        .toThrow('No default signer registered.')
+        .toThrow(new NoSuchElementError('No default signer set.'))
     })
   })
 })

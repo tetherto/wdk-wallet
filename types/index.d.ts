@@ -8,5 +8,8 @@ export type TransactionResult = import("./src/wallet-account-read-only.js").Tran
 export type TransferOptions = import("./src/wallet-account-read-only.js").TransferOptions;
 export type TransferResult = import("./src/wallet-account-read-only.js").TransferResult;
 export type KeyPair = import("./src/wallet-account.js").KeyPair;
+export type ProviderErrorOptions = import("./src/errors.js").ProviderErrorOptions;
+export type TransactionErrorOptions = import("./src/errors.js").TransactionErrorOptions;
+export type TransferErrorOptions = import("./src/errors.js").TransferErrorOptions;
 export { default as WalletAccountReadOnly, IWalletAccountReadOnly } from "./src/wallet-account-read-only.js";
-export { NotImplementedError, SignerError, UnsupportedOperationError, ValueError, NoSuchElementError } from "./src/errors.js";
+export { AssertionError, InvalidTokenError, InvalidSignerError, MaximumFeeExceededError, NoSuchElementError, NotImplementedError, ProviderError, ProviderErrorReason, ProviderRequiredError, TransactionError, TransactionErrorReason, TransferError, TransferErrorReason, UnsupportedOperationError, ValueError, WdkError } from "./src/errors.js";

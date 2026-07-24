@@ -23,6 +23,14 @@ import { NotImplementedError } from './errors.js'
 /** @typedef {import('./wallet-account-read-only.js').TransferOptions} TransferOptions */
 /** @typedef {import('./wallet-account-read-only.js').TransferResult} TransferResult */
 
+/** @typedef {import('./errors.js').InvalidTokenError} InvalidTokenError */
+/** @typedef {import('./errors.js').MaximumFeeExceededError} MaximumFeeExceededError */
+/** @typedef {import('./errors.js').ProviderError} ProviderError */
+/** @typedef {import('./errors.js').ProviderRequiredError} ProviderRequiredError */
+/** @typedef {import('./errors.js').TransactionError} TransactionError */
+/** @typedef {import('./errors.js').TransferError} TransferError */
+/** @typedef {import('./errors.js').ValueError} ValueError */
+
 /**
  * @typedef {Object} KeyPair
  * @property {Uint8Array} publicKey - The public key.
@@ -72,10 +80,11 @@ export class IWalletAccount extends IWalletAccountReadOnly {
   }
 
   /**
-   * Signs a transaction
+   * Signs a transaction.
    *
    * @param {Transaction} tx - The transaction to sign.
    * @returns {Promise<TSignedTransaction>} The signed transaction.
+   * @throws {ValueError} If the transaction is not valid.
    */
   async signTransaction (tx) {
     throw new NotImplementedError('signTransaction(tx)')
@@ -97,6 +106,11 @@ export class IWalletAccount extends IWalletAccountReadOnly {
    *
    * @param {Transaction | TSignedTransaction} tx - The transaction.
    * @returns {Promise<TransactionResult>} The transaction's result.
+   * @throws {ValueError} If the transaction is not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the transaction.
+   * @throws {TransactionError} If the transaction fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the transaction max. fee option.
    */
   async sendTransaction (tx) {
     throw new NotImplementedError('sendTransaction(tx)')
@@ -107,6 +121,10 @@ export class IWalletAccount extends IWalletAccountReadOnly {
    *
    * @param {Transaction | TSignedTransaction} tx - The transaction.
    * @returns {Promise<Omit<TransactionResult, 'hash'>>} The transaction's quotes.
+   * @throws {ValueError} If the transaction is not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to estimate the costs of the transaction.
+   * @throws {TransactionError} If the transaction fails with an error.
    */
   async quoteSendTransaction (tx) {
     throw new NotImplementedError('quoteSendTransaction(tx)')
@@ -117,6 +135,12 @@ export class IWalletAccount extends IWalletAccountReadOnly {
    *
    * @param {TransferOptions} options - The transfer's options.
    * @returns {Promise<TransferResult>} The transfer's result.
+   * @throws {ValueError} If the transfer options are not valid.
+   * @throws {InvalidTokenError} If the token is not a valid ERC 20 token's address.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the transfer.
+   * @throws {TransferError} If the transfer fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the transfer exceeds the transfer max. fee option.
    */
   async transfer (options) {
     throw new NotImplementedError('transfer(options)')

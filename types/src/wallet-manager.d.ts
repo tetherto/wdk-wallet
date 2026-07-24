@@ -3,7 +3,7 @@ export default abstract class WalletManager {
     /**
      * Returns a random [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) seed phrase.
      *
-     * @param {12 | 24} [wordCount=12] - The number of words in the seed phrase.
+     * @param {12 | 24} [wordCount] - The number of words in the seed phrase (default: 12).
      * @returns {string} The seed phrase.
      */
     static getRandomSeedPhrase(wordCount?: 12 | 24): string;
@@ -17,22 +17,25 @@ export default abstract class WalletManager {
     /**
      * Creates a new wallet manager from a BIP-39 seed.
      *
+     * @overload
      * @param {string | Uint8Array} seed - The BIP-39 seed phrase or raw seed bytes.
      * @param {WalletConfig} [config] - The wallet configuration.
+     * @throws {ValueError} If the seed is not a valid seed or BIP-39 seed phrase.
      */
     constructor(seed: string | Uint8Array, config?: WalletConfig);
     /**
      * Creates a new wallet manager from a default signer.
      *
+     * @overload
      * @param {ISigner} signer - The default signer.
      * @param {WalletConfig} [config] - The wallet configuration.
+     * @throws {InvalidSignerError} If the given signer doesn't support account derivation.
      */
     constructor(signer: ISigner, config?: WalletConfig);
     /** @private */
-    private _seed: Uint8Array | undefined;
+    private _seed;
     /**
-     * The default signer provided at construction. Accessed via {@link getSigner}
-     * with no arguments.
+     * The default signer.
      *
      * @protected
      * @type {ISigner | undefined}
@@ -68,23 +71,20 @@ export default abstract class WalletManager {
      */
     get seed(): Uint8Array | undefined;
     /**
-     * Registers a signer under the given name.
+     * Registers a signer with the given name.
      *
      * @param {string} signerName - The signer name.
      * @param {ISigner} signer - The signer.
      * @returns {WalletManager} The wallet manager.
-     * @throws {Error} If `signerName` is an empty or blank string.
+     * @throws {ValueError} If the signer name is an empty or blank string.
      */
     addSigner(signerName: string, signer: ISigner): WalletManager;
     /**
-     * Returns a signer. With no arguments, returns the default signer provided
-     * at construction. With a name, returns the signer registered under that
-     * name via {@link addSigner}.
+     * Returns the default signer, or the signer with the given name.
      *
-     * @param {string} [signerName] - The signer name. Omit to get the default.
+     * @param {string} [signerName] - If set, returns the signer with the given name.
      * @returns {ISigner} The signer.
-     * @throws {Error} If called with no arguments and no default signer was
-     * provided at construction, or if called with a name that is not registered.
+     * @throws {NoSuchElementError} If the default signer is not set, or no signers are found for the given name.
      */
     getSigner(signerName?: string): ISigner;
     /**
@@ -98,28 +98,28 @@ export default abstract class WalletManager {
     /**
      * Returns the wallet account at a specific index (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)).
      *
+     * @overload
      * @param {number} [index] - The index of the account to get (default: 0).
      * @param {Object} [options] - Account options.
-     * @param {string} [options.signerName] - The signer name. Omit to use the default signer.
+     * @param {string} [options.signerName] - The signer name.
      * @returns {Promise<IWalletAccount>} The account.
-     * @throws {Error} If a signer name is given but no signer exists with that name.
-     * @throws {SignerError} If the signer doesn't support account derivation.
+     * @throws {ValueError} If the index is not valid.
+     * @throws {NoSuchElementError} If a signer name is given but no signer exists with that name.
+     * @throws {InvalidSignerError} If the signer doesn't support account derivation.
      */
-    abstract getAccount(
-        index?: number,
-        options?: {
-            signerName?: string;
-        },
-    ): Promise<IWalletAccount>;
+    abstract getAccount(index?: number, options?: {
+        signerName?: string;
+    }): Promise<IWalletAccount>;
     /**
      * Returns the wallet account associated with a registered signer. For
      * non-derivable signers (e.g., private-key signers), returns the signer's
      * single account. For derivable signers, returns the wallet account at the
      * signer's root, with no further derivation.
      *
+     * @overload
      * @param {string} signerName - The signer name registered via {@link addSigner}.
      * @returns {Promise<IWalletAccount>} The account.
-     * @throws {Error} If no signer exists with the given name.
+     * @throws {NoSuchElementError} If no signer exists with the given name.
      */
     abstract getAccount(signerName: string): Promise<IWalletAccount>;
     /**
@@ -130,20 +130,20 @@ export default abstract class WalletManager {
      * @param {Object} [options] - Account options.
      * @param {string} [options.signerName] - The signer name. Omit to use the default signer.
      * @returns {Promise<IWalletAccount>} The account.
-     * @throws {Error} If a signer name is given but no signer exists with that name.
-     * @throws {SignerError} If the signer doesn't support account derivation.
+     * @throws {ValueError} If the path is not valid.
+     * @throws {NoSuchElementError} If a signer name is given but no signer exists with that name.
+     * @throws {InvalidSignerError} If the signer doesn't support account derivation.
      */
-    abstract getAccountByPath(
-        path: string,
-        options?: {
-            signerName?: string;
-        },
-    ): Promise<IWalletAccount>;
+    abstract getAccountByPath(path: string, options?: {
+        signerName?: string;
+    }): Promise<IWalletAccount>;
     /**
      * Returns the current fee rates.
      *
      * @abstract
      * @returns {Promise<FeeRates>} The fee rates (in base unit).
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch fee rates.
      */
     abstract getFeeRates(): Promise<FeeRates>;
     /**
@@ -153,16 +153,18 @@ export default abstract class WalletManager {
 }
 export type IWalletAccount = import("./wallet-account.js").IWalletAccount;
 export type ISigner = import("./signer.js").ISigner;
-export type SignerError = import("./errors.js").SignerError;
+export type InvalidSignerError = import("./errors.js").InvalidSignerError;
+export type ProviderError = import("./errors.js").ProviderError;
+export type ProviderRequiredError = import("./errors.js").ProviderRequiredError;
 export type WalletConfig = {
+    /**
+     * - The maximum fee amount for sending transactions.
+     */
+    transactionMaxFee?: number | bigint;
     /**
      * - The maximum fee amount for transfer operations.
      */
     transferMaxFee?: number | bigint;
-    /**
-     * - The maximum fee amount for sendTransaction and signTransaction operations.
-     */
-    transactionMaxFee?: number | bigint;
 };
 export type FeeRates = {
     /**

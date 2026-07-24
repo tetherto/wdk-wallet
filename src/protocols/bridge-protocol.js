@@ -13,11 +13,20 @@
 // limitations under the License.
 'use strict'
 
-import { NotImplementedError } from '../errors.js'
+import { NotImplementedError } from './errors.js'
 
 /** @typedef {import('../wallet-account-read-only.js').IWalletAccountReadOnly} IWalletAccountReadOnly */
 
 /** @typedef {import('../wallet-account.js').IWalletAccount} IWalletAccount */
+
+/** @typedef {import('./errors.js').AccountRequiredError} AccountRequiredError */
+/** @typedef {import('./errors.js').BridgeError} BridgeError */
+/** @typedef {import('./errors.js').InvalidTokenError} InvalidTokenError */
+/** @typedef {import('./errors.js').MaximumFeeExceededError} MaximumFeeExceededError */
+/** @typedef {import('./errors.js').ReadOnlyAccountRequiredError} ReadOnlyAccountRequiredError */
+/** @typedef {import('./errors.js').ProviderError} ProviderError */
+/** @typedef {import('./errors.js').ProviderRequiredError} ProviderRequiredError */
+/** @typedef {import('./errors.js').ValueError} ValueError */
 
 /**
  * @typedef {Object} BridgeProtocolConfig
@@ -46,6 +55,13 @@ export class IBridgeProtocol {
    *
    * @param {BridgeOptions} options - The bridge's options.
    * @returns {Promise<BridgeResult>} The bridge's result.
+   * @throws {AccountRequiredError} If the protocol requires a full account to perform a bridge.
+   * @throws {ValueError} If the bridge options are not valid.
+   * @throws {InvalidTokenError} If the token is not a valid ERC 20 token's address.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the bridge.
+   * @throws {BridgeError} If the bridge fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the bridge max. fee option.
    */
   async bridge (options) {
     throw new NotImplementedError('bridge(options)')
@@ -56,6 +72,12 @@ export class IBridgeProtocol {
    *
    * @param {BridgeOptions} options - The bridge's options.
    * @returns {Promise<Omit<BridgeResult, 'hash'>>} The bridge's quotes.
+   * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a swap.
+   * @throws {ValueError} If the bridge options are not valid.
+   * @throws {InvalidTokenError} If the token is not a valid ERC 20 token's address.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the bridge.
+   * @throws {BridgeError} If the bridge fails with an error.
    */
   async quoteBridge (options) {
     throw new NotImplementedError('quoteBridge(options)')
@@ -106,6 +128,13 @@ export default class BridgeProtocol {
    * @abstract
    * @param {BridgeOptions} options - The bridge's options.
    * @returns {Promise<BridgeResult>} The bridge's result.
+   * @throws {AccountRequiredError} If the protocol requires a full account to perform a bridge.
+   * @throws {ValueError} If the bridge options are not valid.
+   * @throws {InvalidTokenError} If the token is not a valid ERC 20 token's address.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the bridge.
+   * @throws {BridgeError} If the bridge fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the bridge max. fee option.
    */
   async bridge (options) {
     throw new NotImplementedError('bridge(options)')
@@ -117,6 +146,11 @@ export default class BridgeProtocol {
    * @abstract
    * @param {BridgeOptions} options - The bridge's options.
    * @returns {Promise<Omit<BridgeResult, 'hash'>>} The bridge's quotes.
+   * @throws {ValueError} If the bridge options are not valid.
+   * @throws {InvalidTokenError} If the token is not a valid ERC 20 token's address.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the bridge.
+   * @throws {BridgeError} If the bridge fails with an error.
    */
   async quoteBridge (options) {
     throw new NotImplementedError('quoteBridge(options)')

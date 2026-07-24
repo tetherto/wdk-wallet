@@ -7,11 +7,12 @@ export class ISigner {
     /**
      * Derive a child signer using a relative path (e.g., "0'/0/0").
      *
-     * @param {string} relPath - The relative derivation path.
+     * @param {string} path - The relative derivation path.
      * @returns {Promise<ISigner>} The derived signer.
-     * @throws {SignerError} If the signer does not support derivation.
+     * @throws {UnsupportedOperationError} If the signer does not support account derivation.
+     * @throws {ValueError} If the path is not valid.
      */
-    derive(relPath: string): Promise<ISigner>;
+    derive(path: string): Promise<ISigner>;
     /**
      * Returns the signer's address.
      *
@@ -23,4 +24,5 @@ export class ISigner {
      */
     dispose(): void;
 }
-export type SignerError = import("./errors.js").SignerError;
+export type UnsupportedOperationError = import("./errors.js").UnsupportedOperationError;
+export type ValueError = import("./errors.js").ValueError;

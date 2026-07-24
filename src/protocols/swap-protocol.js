@@ -13,11 +13,20 @@
 // limitations under the License.
 'use strict'
 
-import { NotImplementedError } from '../errors.js'
+import { NotImplementedError } from './errors.js'
 
 /** @typedef {import('../wallet-account-read-only.js').IWalletAccountReadOnly} IWalletAccountReadOnly */
 
 /** @typedef {import('../wallet-account.js').IWalletAccount} IWalletAccount */
+
+/** @typedef {import('./errors.js').AccountRequiredError} AccountRequiredError */
+/** @typedef {import('./errors.js').InvalidTokenError} InvalidTokenError */
+/** @typedef {import('./errors.js').MaximumFeeExceededError} MaximumFeeExceededError */
+/** @typedef {import('./errors.js').ReadOnlyAccountRequiredError} ReadOnlyAccountRequiredError */
+/** @typedef {import('./errors.js').ProviderError} ProviderError */
+/** @typedef {import('./errors.js').ProviderRequiredError} ProviderRequiredError */
+/** @typedef {import('./errors.js').SwapError} SwapError */
+/** @typedef {import('./errors.js').ValueError} ValueError */
 
 /**
  * @typedef {Object} SwapProtocolConfig
@@ -63,6 +72,13 @@ export class ISwapProtocol {
    *
    * @param {SwapOptions} options - The swap's options.
    * @returns {Promise<SwapResult>} The swap's result.
+   * @throws {AccountRequiredError} If the protocol requires a full account to perform a swap.
+   * @throws {ValueError} If the swap options are not valid.
+   * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the swap.
+   * @throws {SwapError} If the swap fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the swap max. fee option.
    */
   async swap (options) {
     throw new NotImplementedError('swap(options)')
@@ -73,6 +89,12 @@ export class ISwapProtocol {
    *
    * @param {SwapOptions} options - The swap's options.
    * @returns {Promise<Omit<SwapResult, 'hash'>>} The swap's quotes.
+   * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a swap.
+   * @throws {ValueError} If the swap options are not valid.
+   * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to estimate the costs of the swap.
+   * @throws {SwapError} If the swap fails with an error.
    */
   async quoteSwap (options) {
     throw new NotImplementedError('quoteSwap(options)')
@@ -123,6 +145,13 @@ export default class SwapProtocol {
    * @abstract
    * @param {SwapOptions} options - The swap's options.
    * @returns {Promise<SwapResult>} The swap's result.
+   * @throws {AccountRequiredError} If the protocol requires a full account to perform a swap.
+   * @throws {ValueError} If the swap options are not valid.
+   * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the swap.
+   * @throws {SwapError} If the swap fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the swap max. fee option.
    */
   async swap (options) {
     throw new NotImplementedError('swap(options)')
@@ -134,6 +163,11 @@ export default class SwapProtocol {
    * @abstract
    * @param {SwapOptions} options - The swap's options.
    * @returns {Promise<Omit<SwapResult, 'hash'>>} The swap's quotes.
+   * @throws {ValueError} If the swap options are not valid.
+   * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to estimate the costs of the swap.
+   * @throws {SwapError} If the swap fails with an error.
    */
   async quoteSwap (options) {
     throw new NotImplementedError('quoteSwap(options)')

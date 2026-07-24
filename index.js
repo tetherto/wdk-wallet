@@ -23,21 +23,16 @@
 
 /** @typedef {import('./src/wallet-account.js').KeyPair} KeyPair */
 
+/** @typedef {import('./src/errors.js').ProviderErrorOptions} ProviderErrorOptions */
+/** @typedef {import('./src/errors.js').TransactionErrorOptions} TransactionErrorOptions */
+/** @typedef {import('./src/errors.js').TransferErrorOptions} TransferErrorOptions */
+
 export { default } from './src/wallet-manager.js'
 
-export {
-  default as WalletAccountReadOnly,
-  IWalletAccountReadOnly
-} from './src/wallet-account-read-only.js'
+export { default as WalletAccountReadOnly, IWalletAccountReadOnly } from './src/wallet-account-read-only.js'
 
 export { IWalletAccount } from './src/wallet-account.js'
 
-export {
-  NotImplementedError,
-  SignerError,
-  UnsupportedOperationError,
-  ValueError,
-  NoSuchElementError
-} from './src/errors.js'
-
 export { ISigner } from './src/signer.js'
+
+export { AssertionError, InvalidTokenError, InvalidSignerError, MaximumFeeExceededError, NoSuchElementError, NotImplementedError, ProviderError, ProviderErrorReason, ProviderRequiredError, TransactionError, TransactionErrorReason, TransferError, TransferErrorReason, UnsupportedOperationError, ValueError, WdkError } from './src/errors.js'
