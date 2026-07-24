@@ -199,7 +199,7 @@ export class InvalidSignerError extends WdkError {
   constructor (message, options) {
     super(message, options)
 
-    this.name = 'SignerError'
+    this.name = 'InvalidSignerError'
   }
 }
 

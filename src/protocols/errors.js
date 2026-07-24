@@ -307,7 +307,7 @@ export class SupplyError extends WdkError {
    * Creates a new supply error.
    *
    * @param {string} message - The error's message.
-   * @param {BridgeErrorOptions & ErrorOptions} options - The error's options.
+   * @param {SupplyErrorOptions & ErrorOptions} options - The error's options.
    */
   constructor (message, options) {
     super(message, options)
