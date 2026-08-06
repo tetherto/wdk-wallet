@@ -49,15 +49,6 @@ import { NotImplementedError } from '../errors.js'
 /** @interface */
 export class IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlySimple {
   /**
-   * Returns the address of the signer associated with this wallet account.
-   *
-   * @returns {Promise<string | null>} The signer's address, or null if no signer is associated yet.
-   */
-  async getSignerAddress () {
-    throw new NotImplementedError('getSignerAddress()')
-  }
-
-  /**
    * Returns the multisig wallet account info.
    *
    * @returns {Promise<MultisigInfo>} The info.

@@ -1,12 +1,6 @@
 /** @interface */
 export interface IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlySimple {
     /**
-     * Returns the address of the signer associated with this wallet account.
-     *
-     * @returns {Promise<string | null>} The signer's address, or null if no signer is associated yet.
-     */
-    getSignerAddress(): Promise<string | null>;
-    /**
      * Returns the multisig wallet account info.
      *
      * @returns {Promise<MultisigInfo>} The info.
