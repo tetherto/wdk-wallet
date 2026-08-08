@@ -236,22 +236,43 @@ export default class WalletManager {
 
   /**
    * Disposes all wallet accounts and signers, clearing secret material from memory.
+   *
+   * Every account and signer is disposed on a best-effort basis: if one of them throws
+   * while disposing, the rest are still disposed and the internal maps are still cleared,
+   * so no secret is left un-wiped because of an unrelated failure. The first error
+   * encountered, if any, is re-thrown once cleanup has finished.
+   *
+   * @throws {Error} The first error thrown by an account's or signer's `dispose()`, if any.
    */
   dispose () {
-    for (const account of Object.values(this._accounts)) {
-      if (account.keyPair?.privateKey) {
-        account.dispose()
+    let firstError
+
+    const disposeSafely = (disposable) => {
+      try {
+        disposable?.dispose()
+      } catch (err) {
+        if (!firstError) {
+          firstError = err
+        }
       }
     }
 
-    this._defaultSigner?.dispose()
+    for (const account of Object.values(this._accounts)) {
+      disposeSafely(account)
+    }
+
+    disposeSafely(this._defaultSigner)
 
     for (const signer of Object.values(this._signers)) {
-      signer.dispose()
+      disposeSafely(signer)
     }
 
     this._accounts = {}
     this._defaultSigner = undefined
     this._signers = {}
+
+    if (firstError) {
+      throw firstError
+    }
   }
 }

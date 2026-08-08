@@ -179,5 +179,61 @@ describe('WalletManager', () => {
       expect(() => wallet.getSigner())
         .toThrow('No default signer registered.')
     })
+
+    test('should dispose every cached account regardless of its keyPair state', () => {
+      const wallet = new DummyWalletManager(SEED_PHRASE)
+
+      // An account whose keyPair has no private key (e.g. a hardware/remote signer
+      // that never exposes raw key material to memory) must still be disposed.
+      const accountWithoutPrivateKey = {
+        keyPair: { publicKey: new Uint8Array(), privateKey: null },
+        dispose: jest.fn()
+      }
+
+      // An account whose `keyPair` getter itself throws must not prevent the rest
+      // of the cache from being disposed.
+      const accountWithThrowingKeyPair = {
+        get keyPair () { throw new Error('keyPair is not available') },
+        dispose: jest.fn()
+      }
+
+      wallet._accounts = {
+        "0'/0/0": accountWithoutPrivateKey,
+        "0'/0/1": accountWithThrowingKeyPair
+      }
+
+      wallet.dispose()
+
+      expect(accountWithoutPrivateKey.dispose).toHaveBeenCalledTimes(1)
+      expect(accountWithThrowingKeyPair.dispose).toHaveBeenCalledTimes(1)
+      expect(wallet._accounts).toEqual({})
+    })
+
+    test('should dispose all remaining accounts and signers even if one throws, then re-throw the first error', () => {
+      const wallet = new DummyWalletManager(SEED_PHRASE)
+
+      const failingAccount = {
+        keyPair: { publicKey: new Uint8Array(), privateKey: new Uint8Array() },
+        dispose: jest.fn(() => { throw new Error('boom') })
+      }
+      const healthyAccount = {
+        keyPair: { publicKey: new Uint8Array(), privateKey: new Uint8Array() },
+        dispose: jest.fn()
+      }
+
+      const healthySigner = new DummySigner()
+      const disposeSpy = jest.spyOn(healthySigner, 'dispose')
+
+      wallet._accounts = { "0'/0/0": failingAccount, "0'/0/1": healthyAccount }
+      wallet.addSigner('backup', healthySigner)
+
+      expect(() => wallet.dispose()).toThrow('boom')
+
+      expect(failingAccount.dispose).toHaveBeenCalledTimes(1)
+      expect(healthyAccount.dispose).toHaveBeenCalledTimes(1)
+      expect(disposeSpy).toHaveBeenCalledTimes(1)
+      expect(wallet._accounts).toEqual({})
+      expect(wallet.getSigners()).toEqual({})
+    })
   })
 })
