@@ -1,6 +1,6 @@
 {
   "name": "@tetherto/wdk-wallet",
-  "version": "1.0.0-beta.14",
+  "version": "1.0.0-beta.16",
   "description": "A simple package to manage BIP-32 wallets.",
   "keywords": [
     "wdk",
@@ -42,6 +42,10 @@
     "./protocols": {
       "types": "./types/src/protocols/index.d.ts",
       "default": "./src/protocols/index.js"
+    },
+    "./multisig": {
+      "types": "./types/src/multisig/index.d.ts",
+      "default": "./src/multisig/index.js"
     },
     "./package": {
       "default": "./package.json"
