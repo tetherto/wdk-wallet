@@ -166,18 +166,23 @@ describe('WalletManager', () => {
   })
 
   describe('dispose', () => {
-    test('should delegate to WalletManager.dispose and clear signer maps', () => {
-      const signer = new DummySigner()
-      const disposeSpy = jest.spyOn(signer, 'dispose')
-      const wallet = new DummyWalletManager(signer)
-
-      expect(wallet.getSigner()).toBe(signer)
+    test('should clear signer references without disposing user-supplied signers', () => {
+      const defaultSigner = new DummySigner()
+      const namedSigner = new DummySigner()
+      const defaultDisposeSpy = jest.spyOn(defaultSigner, 'dispose')
+      const namedDisposeSpy = jest.spyOn(namedSigner, 'dispose')
+      const wallet = new DummyWalletManager(defaultSigner)
+      wallet.addSigner('ledger', namedSigner)
 
       wallet.dispose()
 
-      expect(disposeSpy).toHaveBeenCalledTimes(1)
+      expect(defaultDisposeSpy).not.toHaveBeenCalled()
+      expect(namedDisposeSpy).not.toHaveBeenCalled()
       expect(() => wallet.getSigner())
         .toThrow('No default signer registered.')
+      expect(() => wallet.getSigner('ledger'))
+        .toThrow('No signer registered with name "ledger".')
+      expect(wallet.getSigners()).toEqual({})
     })
   })
 })

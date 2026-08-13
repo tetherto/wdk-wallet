@@ -242,7 +242,7 @@ export default class WalletManager {
   }
 
   /**
-   * Disposes all wallet accounts and signers, clearing secret material from memory.
+   * Disposes all wallet accounts and clears references to registered signers.
    */
   dispose () {
     for (const account of Object.values(this._accounts)) {
@@ -251,14 +251,8 @@ export default class WalletManager {
       }
     }
 
-    this._defaultSigner?.dispose()
-
-    for (const signer of Object.values(this._signers)) {
-      signer.dispose()
-    }
-
     this._accounts = {}
-    this._defaultSigner = undefined
     this._signers = {}
+    this._defaultSigner = undefined
   }
 }
