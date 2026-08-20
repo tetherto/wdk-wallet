@@ -13,9 +13,14 @@
 // limitations under the License.
 'use strict'
 
-import { NotImplementedError } from '../errors.js'
+import { NotImplementedError } from './errors.js'
 
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigProposal */
+
+/** @typedef {import('./errors.js').AccountNotOwnerError} AccountNotOwnerError */
+/** @typedef {import('./errors.js').ProviderError} ProviderError */
+/** @typedef {import('./errors.js').ProviderRequiredError} ProviderRequiredError */
+/** @typedef {import('./errors.js').ValueError} ValueError */
 
 /**
  * @typedef {Object} MultisigOptions
@@ -34,7 +39,10 @@ export class IMultisigOwnerManagement {
    * @param {string} owner - The owner's address.
    * @param {MultisigOptions} [options] - The multisig options.
    * @returns {Promise<MultisigProposal>} The multisig proposal.
-   * @throws {Error} If the account is not an owner of the multisig wallet.
+   * @throws {ValueError} If the address or options are not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to add the owner.
+   * @throws {AccountNotOwnerError} If the account is not an owner of the multisig wallet.
    */
   async addOwner (owner, options) {
     throw new NotImplementedError('addOwner(owner, options)')
@@ -46,7 +54,10 @@ export class IMultisigOwnerManagement {
    * @param {string} owner - The owner's address.
    * @param {MultisigOptions} [options] - The multisig options.
    * @returns {Promise<MultisigProposal>} The multisig proposal.
-   * @throws {Error} If the account is not an owner of the multisig wallet.
+   * @throws {ValueError} If the address or options are not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to remove the owner.
+   * @throws {AccountNotOwnerError} If the account is not an owner of the multisig wallet.
    */
   async removeOwner (owner, options) {
     throw new NotImplementedError('removeOwner(owner, options)')
@@ -58,7 +69,10 @@ export class IMultisigOwnerManagement {
    * @param {string} oldOwner - The old owner.
    * @param {string} newOwner - The new owner.
    * @returns {Promise<MultisigProposal>} The multisig proposal.
-   * @throws {Error} If the account is not an owner of the multisig wallet.
+   * @throws {ValueError} If the addresses are not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to swap the two owners.
+   * @throws {AccountNotOwnerError} If the account is not an owner of the multisig wallet.
    */
   async swapOwner (oldOwner, newOwner) {
     throw new NotImplementedError('swapOwner(oldOwner, newOwner)')
@@ -69,7 +83,10 @@ export class IMultisigOwnerManagement {
    *
    * @param {number} newThreshold - The new threshold.
    * @returns {Promise<MultisigProposal>} The multisig proposal.
-   * @throws {Error} If the account is not an owner of the multisig wallet.
+   * @throws {ValueError} If the threshold is not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to change the threshold.
+   * @throws {AccountNotOwnerError} If the account is not an owner of the multisig wallet.
    */
   async changeThreshold (newThreshold) {
     throw new NotImplementedError('changeThreshold(newThreshold)')

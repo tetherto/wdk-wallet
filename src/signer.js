@@ -18,6 +18,8 @@ import { NotImplementedError } from './errors.js'
 import { IDisposable } from './disposable.js'
 
 /** @typedef {import('./wallet-account.js').KeyPair} KeyPair */
+/** @typedef {import('./errors.js').UnsupportedOperationError} UnsupportedOperationError */
+/** @typedef {import('./errors.js').ValueError} ValueError */
 
 /**
  * A minimal, cross-chain signer interface.
@@ -56,12 +58,13 @@ export class ISigner extends IDisposable {
   /**
    * Derive a child signer using a relative path (e.g., "0'/0/0").
    *
-   * @param {string} relPath - The relative derivation path.
+   * @param {string} path - The relative derivation path.
    * @returns {Promise<ISigner>} The derived signer.
-   * @throws {SignerError} If the signer does not support derivation.
+   * @throws {UnsupportedOperationError} If the signer does not support account derivation.
+   * @throws {ValueError} If the path is not valid.
    */
-  async derive (relPath) {
-    throw new NotImplementedError('derive(relPath)')
+  async derive (path) {
+    throw new NotImplementedError('derive(path)')
   }
 
   /**

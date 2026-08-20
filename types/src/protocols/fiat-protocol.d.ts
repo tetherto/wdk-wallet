@@ -1,50 +1,88 @@
-/**
- * @interface
- */
+/** @interface */
 export interface IFiatProtocol {
     /**
      * Gets a quote for a crypto asset purchase.
+     *
      * @param {Omit<BuyOptions, 'recipient'>} options - The options for the buy operation.
      * @returns {Promise<FiatQuote>} A quote for the transaction.
+     * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a purchase.
+     * @throws {ValueError} If the buy options are not valid.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to estimate the costs of the purchase.
+     * @throws {BuyError} If the purchase fails with an error.
      */
     quoteBuy(options: Omit<BuyOptions, "recipient">): Promise<FiatQuote>;
     /**
      * Generates a widget URL for a user to purchase a crypto asset with fiat currency.
+     *
      * @param {BuyOptions} options - The options for the buy operation.
      * @returns {Promise<BuyResult>} The operation's result.
+     * @throws {AccountRequiredError} If the protocol requires a full account to perform a purchase.
+     * @throws {ValueError} If the buy options are not valid.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to perform the purchase.
+     * @throws {BuyError} If the purchase fails with an error.
+     * @throws {MaximumFeeExceededError} If the the costs of the purchase exceeds the buy max. fee option.
      */
     buy(options: BuyOptions): Promise<BuyResult>;
     /**
      * Gets a quote for a crypto asset sale.
+     *
      * @param {Omit<SellOptions, 'refundAddress'>} options - The options for the sell operation.
      * @returns {Promise<FiatQuote>} A quote for the transaction.
+     * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a sale.
+     * @throws {ValueError} If the sell options are not valid.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to estimate the costs of the sale.
+     * @throws {SellError} If the sale fails with an error.
      */
     quoteSell(options: Omit<SellOptions, "refundAddress">): Promise<FiatQuote>;
     /**
      * Generates a widget URL for a user to sell a crypto asset for fiat currency.
+     *
      * @param {SellOptions} options - The options for the sell operation.
      * @returns {Promise<SellResult>} The operation's result.
+     * @throws {AccountRequiredError} If the protocol requires a full account to perform a sale.
+     * @throws {ValueError} If the buy options are not valid.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to perform the sale.
+     * @throws {SellError} If the sale fails with an error.
+     * @throws {MaximumFeeExceededError} If the the costs of the sale exceeds the sell max. fee option.
      */
     sell(options: SellOptions): Promise<SellResult>;
     /**
      * Retrieves the details of a specific transaction from the provider.
+     *
      * @param {string} txId - The unique identifier of the transaction.
      * @returns {Promise<FiatTransactionDetail>} The transaction details.
+     * @throws {ValueError} If the transaction's id is not valid.
+     * @throws {NoSuchElementError} If no transaction exists for the given id.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the transaction's details.
      */
     getTransactionDetail(txId: string): Promise<FiatTransactionDetail>;
     /**
      * Retrieves a list of supported crypto assets from the provider.
+     *
      * @returns {Promise<SupportedCryptoAsset[]>} An array of supported crypto assets.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the available crypto assets.
      */
     getSupportedCryptoAssets(): Promise<SupportedCryptoAsset[]>;
     /**
      * Retrieves a list of supported fiat currencies from the provider.
+     *
      * @returns {Promise<SupportedFiatCurrency[]>} An array of supported fiat currencies.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the available fiat currencies.
      */
     getSupportedFiatCurrencies(): Promise<SupportedFiatCurrency[]>;
     /**
      * Retrieves a list of supported countries from the provider.
+     *
      * @returns {Promise<SupportedCountry[]>} An array of supported countries.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the available countries.
      */
     getSupportedCountries(): Promise<SupportedCountry[]>;
 }
@@ -54,19 +92,26 @@ export interface IFiatProtocol {
  */
 export default abstract class FiatProtocol implements IFiatProtocol {
     /**
-     * Creates a new fiat protocol with read-only account.
+     * Creates a new interface to the protocol without binding it to a wallet account.
      *
      * @overload
-     * @param {IWalletAccountReadOnly} [account] - The wallet account to use to interact with the protocol.
+     * @param {undefined} [account] - The wallet account to use to interact with the protocol.
      */
-    constructor(account?: IWalletAccountReadOnly);
+    constructor(account?: undefined);
     /**
-     * Creates a new fiat protocol with read-only account.
+     * Creates a new read-only interface to the protocol.
      *
      * @overload
-     * @param {IWalletAccount} [account] - The wallet account to use to interact with the protocol.
+     * @param {IWalletAccountReadOnly} account - The wallet account to use to interact with the protocol.
      */
-    constructor(account?: IWalletAccount);
+    constructor(account: IWalletAccountReadOnly);
+    /**
+     * Creates a new interface to the protocol.
+     *
+     * @overload
+     * @param {IWalletAccount} account - The wallet account to use to interact with the protocol.
+     */
+    constructor(account: IWalletAccount);
     /**
      * The wallet account to use to interact with the protocol.
      *
@@ -76,60 +121,109 @@ export default abstract class FiatProtocol implements IFiatProtocol {
     protected _account: IWalletAccountReadOnly | IWalletAccount | undefined;
     /**
      * Gets a quote for a crypto asset purchase.
+     *
      * @abstract
      * @param {Omit<BuyOptions, 'recipient'>} options - The options for the buy operation.
      * @returns {Promise<FiatQuote>} A quote for the transaction.
+     * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a purchase.
+     * @throws {ValueError} If the buy options are not valid.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to estimate the costs of the purchase.
+     * @throws {BuyError} If the purchase fails with an error.
      */
     abstract quoteBuy(options: Omit<BuyOptions, "recipient">): Promise<FiatQuote>;
     /**
      * Generates a URL for a user to purchase a crypto asset with fiat currency.
+     *
      * @abstract
      * @param {BuyOptions} options - The options for the buy operation.
      * @returns {Promise<BuyResult>} The URL for the user to complete the purchase.
+     * @throws {AccountRequiredError} If the protocol requires a full account to perform a purchase.
+     * @throws {ValueError} If the buy options are not valid.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to perform the purchase.
+     * @throws {BuyError} If the purchase fails with an error.
+     * @throws {MaximumFeeExceededError} If the the costs of the purchase exceeds the buy max. fee option.
      */
     abstract buy(options: BuyOptions): Promise<BuyResult>;
     /**
      * Gets a quote for a crypto asset sale.
+     *
      * @abstract
      * @param {Omit<SellOptions, 'refundAddress'>} options - The options for the sell operation.
      * @returns {Promise<FiatQuote>} A quote for the transaction.
+     * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a sale.
+     * @throws {ValueError} If the sell options are not valid.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to estimate the costs of the sale.
+     * @throws {SellError} If the sale fails with an error.
      */
     abstract quoteSell(options: Omit<SellOptions, "refundAddress">): Promise<FiatQuote>;
     /**
      * Generates a URL for a user to sell a crypto asset for fiat currency.
+     *
      * @abstract
      * @param {SellOptions} options - The options for the sell operation.
      * @returns {Promise<SellResult>} The URL for the user to complete the sale.
+     * @throws {AccountRequiredError} If the protocol requires a full account to perform a sale.
+     * @throws {ValueError} If the buy options are not valid.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to perform the sale.
+     * @throws {SellError} If the sale fails with an error.
+     * @throws {MaximumFeeExceededError} If the the costs of the sale exceeds the sell max. fee option.
      */
     abstract sell(options: SellOptions): Promise<SellResult>;
     /**
      * Retrieves the details of a specific transaction from the provider.
+     *
      * @abstract
      * @param {string} txId - The unique identifier of the transaction.
      * @returns {Promise<FiatTransactionDetail>} The transaction details.
+     * @throws {ValueError} If the transaction's id is not valid.
+     * @throws {NoSuchElementError} If no transaction exists for the given id.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the transaction's details.
      */
     abstract getTransactionDetail(txId: string): Promise<FiatTransactionDetail>;
     /**
      * Retrieves a list of supported crypto assets from the provider.
+     *
      * @abstract
      * @returns {Promise<SupportedCryptoAsset[]>} An array of supported crypto assets.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the available crypto assets.
      */
     abstract getSupportedCryptoAssets(): Promise<SupportedCryptoAsset[]>;
     /**
      * Retrieves a list of supported fiat currencies from the provider.
+     *
      * @abstract
      * @returns {Promise<SupportedFiatCurrency[]>} An array of supported fiat currencies.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the available fiat currencies.
      */
     abstract getSupportedFiatCurrencies(): Promise<SupportedFiatCurrency[]>;
     /**
      * Retrieves a list of supported countries or regions from the provider.
+     *
      * @abstract
      * @returns {Promise<SupportedCountry[]>} An array of supported countries.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the available countries.
      */
     abstract getSupportedCountries(): Promise<SupportedCountry[]>;
 }
 export type IWalletAccountReadOnly = import("../wallet-account-read-only.js").IWalletAccountReadOnly;
 export type IWalletAccount = import("../wallet-account.js").IWalletAccount;
+export type AccountRequiredError = import("./errors.js").AccountRequiredError;
+export type BuyError = import("./errors.js").BuyError;
+export type MaximumFeeExceededError = import("./errors.js").MaximumFeeExceededError;
+export type NoSuchElementError = import("./errors.js").NoSuchElementError;
+export type ReadOnlyAccountRequiredError = import("./errors.js").ReadOnlyAccountRequiredError;
+export type ProviderError = import("./errors.js").ProviderError;
+export type ProviderRequiredError = import("./errors.js").ProviderRequiredError;
+export type SellError = import("./errors.js").SellError;
+export type ValueError = import("./errors.js").ValueError;
 /**
  * Standardized status for an on/off-ramp transaction.
  */

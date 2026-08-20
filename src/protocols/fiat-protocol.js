@@ -13,19 +13,31 @@
 // limitations under the License.
 'use strict'
 
-import { NotImplementedError } from '../errors.js'
+import { NotImplementedError } from './errors.js'
 
 /** @typedef {import('../wallet-account-read-only.js').IWalletAccountReadOnly} IWalletAccountReadOnly */
 
 /** @typedef {import('../wallet-account.js').IWalletAccount} IWalletAccount */
 
+/** @typedef {import('./errors.js').AccountRequiredError} AccountRequiredError */
+/** @typedef {import('./errors.js').BuyError} BuyError */
+/** @typedef {import('./errors.js').MaximumFeeExceededError} MaximumFeeExceededError */
+/** @typedef {import('./errors.js').NoSuchElementError} NoSuchElementError */
+/** @typedef {import('./errors.js').ReadOnlyAccountRequiredError} ReadOnlyAccountRequiredError */
+/** @typedef {import('./errors.js').ProviderError} ProviderError */
+/** @typedef {import('./errors.js').ProviderRequiredError} ProviderRequiredError */
+/** @typedef {import('./errors.js').SellError} SellError */
+/** @typedef {import('./errors.js').ValueError} ValueError */
+
 /**
  * Standardized status for an on/off-ramp transaction.
+ *
  * @typedef {'in_progress' | 'failed' | 'completed'} FiatTransactionStatus
  */
 
 /**
  * A protocol-agnostic, standardized object representing the details of an on/off-ramp transaction.
+ *
  * @typedef {Object} FiatTransactionDetail
  * @property {FiatTransactionStatus} status - The current status of the transaction.
  * @property {string} cryptoAsset - The provider-specific code of the crypto asset (e.g., 'btc').
@@ -34,6 +46,7 @@ import { NotImplementedError } from '../errors.js'
 
 /**
  * A protocol-agnostic, standardized object representing a supported crypto asset.
+ *
  * @typedef {Object} SupportedCryptoAsset
  * @property {string} code - Provider-specific asset code for the crypto asset.
  * @property {string} networkCode - The network code for the asset, if applicable (e.g., 'ethereum', 'tron').
@@ -116,6 +129,7 @@ import { NotImplementedError } from '../errors.js'
 
 /**
  * A protocol-agnostic, standardized object representing a quote for an on/off-ramp transaction.
+ *
  * @typedef {Object} FiatQuote
  * @property {bigint} cryptoAmount - The amount of the crypto asset, in its base unit (e.g., wei).
  * @property {bigint} fiatAmount - The amount of the fiat currency, in its smallest unit (e.g., cents).
@@ -123,14 +137,18 @@ import { NotImplementedError } from '../errors.js'
  * @property {string} rate - The effective exchange rate, expressed as a string to avoid precision loss (e.g., a rate of "3000.50" for ETH/USD means 1 ETH = 3000.50 USD). Note: This rate applies to the standard units (e.g., ETH and USD).
  */
 
-/**
- * @interface
- */
+/** @interface */
 export class IFiatProtocol {
   /**
    * Gets a quote for a crypto asset purchase.
+   *
    * @param {Omit<BuyOptions, 'recipient'>} options - The options for the buy operation.
    * @returns {Promise<FiatQuote>} A quote for the transaction.
+   * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a purchase.
+   * @throws {ValueError} If the buy options are not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to estimate the costs of the purchase.
+   * @throws {BuyError} If the purchase fails with an error.
    */
   async quoteBuy (options) {
     throw new NotImplementedError('quoteBuy(options)')
@@ -138,8 +156,15 @@ export class IFiatProtocol {
 
   /**
    * Generates a widget URL for a user to purchase a crypto asset with fiat currency.
+   *
    * @param {BuyOptions} options - The options for the buy operation.
    * @returns {Promise<BuyResult>} The operation's result.
+   * @throws {AccountRequiredError} If the protocol requires a full account to perform a purchase.
+   * @throws {ValueError} If the buy options are not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the purchase.
+   * @throws {BuyError} If the purchase fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the purchase exceeds the buy max. fee option.
    */
   async buy (options) {
     throw new NotImplementedError('buy(options)')
@@ -147,8 +172,14 @@ export class IFiatProtocol {
 
   /**
    * Gets a quote for a crypto asset sale.
+   *
    * @param {Omit<SellOptions, 'refundAddress'>} options - The options for the sell operation.
    * @returns {Promise<FiatQuote>} A quote for the transaction.
+   * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a sale.
+   * @throws {ValueError} If the sell options are not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to estimate the costs of the sale.
+   * @throws {SellError} If the sale fails with an error.
    */
   async quoteSell (options) {
     throw new NotImplementedError('quoteSell(options)')
@@ -156,8 +187,15 @@ export class IFiatProtocol {
 
   /**
    * Generates a widget URL for a user to sell a crypto asset for fiat currency.
+   *
    * @param {SellOptions} options - The options for the sell operation.
    * @returns {Promise<SellResult>} The operation's result.
+   * @throws {AccountRequiredError} If the protocol requires a full account to perform a sale.
+   * @throws {ValueError} If the buy options are not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the sale.
+   * @throws {SellError} If the sale fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the sale exceeds the sell max. fee option.
    */
   async sell (options) {
     throw new NotImplementedError('sell(options)')
@@ -165,8 +203,13 @@ export class IFiatProtocol {
 
   /**
    * Retrieves the details of a specific transaction from the provider.
+   *
    * @param {string} txId - The unique identifier of the transaction.
    * @returns {Promise<FiatTransactionDetail>} The transaction details.
+   * @throws {ValueError} If the transaction's id is not valid.
+   * @throws {NoSuchElementError} If no transaction exists for the given id.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the transaction's details.
    */
   async getTransactionDetail (txId) {
     throw new NotImplementedError('getTransactionDetail(txId)')
@@ -174,7 +217,10 @@ export class IFiatProtocol {
 
   /**
    * Retrieves a list of supported crypto assets from the provider.
+   *
    * @returns {Promise<SupportedCryptoAsset[]>} An array of supported crypto assets.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the available crypto assets.
    */
   async getSupportedCryptoAssets () {
     throw new NotImplementedError('getSupportedCryptoAssets()')
@@ -182,7 +228,10 @@ export class IFiatProtocol {
 
   /**
    * Retrieves a list of supported fiat currencies from the provider.
+   *
    * @returns {Promise<SupportedFiatCurrency[]>} An array of supported fiat currencies.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the available fiat currencies.
    */
   async getSupportedFiatCurrencies () {
     throw new NotImplementedError('getSupportedFiatCurrencies()')
@@ -190,7 +239,10 @@ export class IFiatProtocol {
 
   /**
    * Retrieves a list of supported countries from the provider.
+   *
    * @returns {Promise<SupportedCountry[]>} An array of supported countries.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the available countries.
    */
   async getSupportedCountries () {
     throw new NotImplementedError('getSupportedCountries()')
@@ -232,8 +284,15 @@ export default class FiatProtocol {
 
   /**
    * Gets a quote for a crypto asset purchase.
+   *
+   * @abstract
    * @param {Omit<BuyOptions, 'recipient'>} options - The options for the buy operation.
    * @returns {Promise<FiatQuote>} A quote for the transaction.
+   * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a purchase.
+   * @throws {ValueError} If the buy options are not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to estimate the costs of the purchase.
+   * @throws {BuyError} If the purchase fails with an error.
    */
   async quoteBuy (options) {
     throw new NotImplementedError('quoteBuy(options)')
@@ -241,8 +300,16 @@ export default class FiatProtocol {
 
   /**
    * Generates a URL for a user to purchase a crypto asset with fiat currency.
+   *
+   * @abstract
    * @param {BuyOptions} options - The options for the buy operation.
    * @returns {Promise<BuyResult>} The URL for the user to complete the purchase.
+   * @throws {AccountRequiredError} If the protocol requires a full account to perform a purchase.
+   * @throws {ValueError} If the buy options are not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the purchase.
+   * @throws {BuyError} If the purchase fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the purchase exceeds the buy max. fee option.
    */
   async buy (options) {
     throw new NotImplementedError('buy(options)')
@@ -250,8 +317,15 @@ export default class FiatProtocol {
 
   /**
    * Gets a quote for a crypto asset sale.
+   *
+   * @abstract
    * @param {Omit<SellOptions, 'refundAddress'>} options - The options for the sell operation.
    * @returns {Promise<FiatQuote>} A quote for the transaction.
+   * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a sale.
+   * @throws {ValueError} If the sell options are not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to estimate the costs of the sale.
+   * @throws {SellError} If the sale fails with an error.
    */
   async quoteSell (options) {
     throw new NotImplementedError('quoteSell(options)')
@@ -259,8 +333,16 @@ export default class FiatProtocol {
 
   /**
    * Generates a URL for a user to sell a crypto asset for fiat currency.
+   *
+   * @abstract
    * @param {SellOptions} options - The options for the sell operation.
    * @returns {Promise<SellResult>} The URL for the user to complete the sale.
+   * @throws {AccountRequiredError} If the protocol requires a full account to perform a sale.
+   * @throws {ValueError} If the buy options are not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to perform the sale.
+   * @throws {SellError} If the sale fails with an error.
+   * @throws {MaximumFeeExceededError} If the the costs of the sale exceeds the sell max. fee option.
    */
   async sell (options) {
     throw new NotImplementedError('sell(options)')
@@ -268,8 +350,14 @@ export default class FiatProtocol {
 
   /**
    * Retrieves the details of a specific transaction from the provider.
+   *
+   * @abstract
    * @param {string} txId - The unique identifier of the transaction.
    * @returns {Promise<FiatTransactionDetail>} The transaction details.
+   * @throws {ValueError} If the transaction's id is not valid.
+   * @throws {NoSuchElementError} If no transaction exists for the given id.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the transaction's details.
    */
   async getTransactionDetail (txId) {
     throw new NotImplementedError('getTransactionDetail(txId)')
@@ -277,7 +365,11 @@ export default class FiatProtocol {
 
   /**
    * Retrieves a list of supported crypto assets from the provider.
+   *
+   * @abstract
    * @returns {Promise<SupportedCryptoAsset[]>} An array of supported crypto assets.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the available crypto assets.
    */
   async getSupportedCryptoAssets () {
     throw new NotImplementedError('getSupportedCryptoAssets()')
@@ -285,7 +377,11 @@ export default class FiatProtocol {
 
   /**
    * Retrieves a list of supported fiat currencies from the provider.
+   *
+   * @abstract
    * @returns {Promise<SupportedFiatCurrency[]>} An array of supported fiat currencies.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the available fiat currencies.
    */
   async getSupportedFiatCurrencies () {
     throw new NotImplementedError('getSupportedFiatCurrencies()')
@@ -293,7 +389,11 @@ export default class FiatProtocol {
 
   /**
    * Retrieves a list of supported countries or regions from the provider.
+   *
+   * @abstract
    * @returns {Promise<SupportedCountry[]>} An array of supported countries.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to fetch the available countries.
    */
   async getSupportedCountries () {
     throw new NotImplementedError('getSupportedCountries()')

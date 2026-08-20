@@ -4,14 +4,19 @@ export interface IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlySi
      * Returns the multisig wallet account info.
      *
      * @returns {Promise<MultisigInfo>} The info.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the multisig wallet's info.
     */
     getMultisigInfo(): Promise<MultisigInfo>;
     /**
      * Returns a list of proposals by their identifiers.
      *
-     * @param {string[]} proposalIds - The list of proposal identifiers.
+     * @param {string[]} proposalIds - The list of proposal's identifiers.
      * @returns {Promise<Record<string, MultisigProposal | null>>} For each proposal id, the proposal details or
      *   null if the proposal has not been found.
+     * @throws {ValueError} If the list of proposal's identifiers contains an invalid id.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the proposals.
      */
     getProposals(proposalIds: string[]): Promise<Record<string, MultisigProposal | null>>;
     /**
@@ -19,32 +24,30 @@ export interface IWalletAccountReadOnlyMultisig extends IWalletAccountReadOnlySi
      *
      * @param {string} proposalId - The proposal's identifier.
      * @returns {Promise<MultisigProposal | null>} The proposal details, or null if it has not been found.
+     * @throws {ValueError} If the proposal's identifier is not a valid id.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to fetch the proposal.
      */
     getProposal(proposalId: string): Promise<MultisigProposal | null>;
-    /**
-     * Returns a list of message proposals by their hashes.
-     *
-     * @param {string[]} messageIds - The list of message hashes
-     * @returns {Promise<Record<string, MultisigMessageProposal | null>>} For each message hash, the message details or
-     *   null if the message has not been found.
-     */
-    getMessageProposals(messageIds: string[]): Promise<Record<string, MultisigMessageProposal | null>>;
-    /**
-     * Returns a message proposal by its identifier.
-     *
-     * @param {string} messageId - The message's hash.
-     * @returns {Promise<MultisigMessageProposal | null>} The message details, or null if it has not been found.
-     */
-    getMessageProposal(messageId: string): Promise<MultisigMessageProposal | null>;
     /**
      * Quotes the on-chain cost of executing a pending proposal.
      *
      * @param {string} proposalId - The proposal's id.
      * @returns {Promise<Omit<TransactionResult, 'hash'>>} The execution cost estimate.
+     * @throws {ValueError} If the proposal's identifier is not a valid id.
      * @throws {NoSuchElementError} If no proposal exists for the given id.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to estimate the costs of the transaction.
+     * @throws {TransactionError} If the transaction fails with an error.
      */
     quoteExecuteProposal(proposalId: string): Promise<Omit<TransactionResult, "hash">>;
 }
+export type TransactionResult = import("../wallet-account-read-only.js").TransactionResult;
+export type NoSuchElementError = import("./errors.js").NoSuchElementError;
+export type ProviderError = import("./errors.js").ProviderError;
+export type ProviderRequiredError = import("./errors.js").ProviderRequiredError;
+export type TransactionError = import("./errors.js").TransactionError;
+export type ValueError = import("./errors.js").ValueError;
 export type MultisigInfo = {
     /**
      * - The multisig wallet account address.
@@ -75,29 +78,6 @@ export type MultisigProposal = {
     /**
      * - The proposal's lifecycle state: `'pending'` while it still awaits confirmations or on-chain execution, `'executed'` once it has been executed on-chain.
      */
-    status: 'pending' | 'executed';
+    status: "pending" | "executed";
 };
-export type MultisigMessageProposal = {
-    /**
-     * - The message's hash.
-     */
-    messageId: string;
-    /**
-     * - The original message.
-     */
-    message: string;
-    /**
-     * - The current number of confirmations.
-     */
-    confirmations: number;
-    /**
-     * -  The minimum amount of confirmations to sign the message.
-     */
-    threshold: number;
-    /**
-     * - The final combined signature when the threshold is met.
-     */
-    combinedSignature: string | null;
-};
-export type TransactionResult = import("../wallet-account-read-only.js").TransactionResult;
 import { IWalletAccountReadOnlySimple } from '../wallet-account-read-only-simple.js';

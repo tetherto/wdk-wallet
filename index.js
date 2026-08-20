@@ -20,26 +20,25 @@
 /** @typedef {import('./src/wallet-account-read-only.js').TransactionResult} TransactionResult */
 /** @typedef {import('./src/wallet-account-read-only.js').TransferOptions} TransferOptions */
 /** @typedef {import('./src/wallet-account-read-only.js').TransferResult} TransferResult */
+/** @typedef {import('./src/wallet-account-read-only-simple.js').Finality} Finality */
+/** @typedef {import('./src/wallet-account-read-only-simple.js').TransactionReceipt} TransactionReceipt */
+/** @typedef {import('./src/wallet-account-read-only-simple.js').WaitForTransactionTarget} WaitForTransactionTarget */
+/** @typedef {import('./src/wallet-account-read-only-simple.js').WaitForTransactionOptions} WaitForTransactionOptions */
 
 /** @typedef {import('./src/wallet-account.js').KeyPair} KeyPair */
 
+/** @typedef {import('./src/errors.js').ProviderErrorOptions} ProviderErrorOptions */
+/** @typedef {import('./src/errors.js').TransactionErrorOptions} TransactionErrorOptions */
+/** @typedef {import('./src/errors.js').TransferErrorOptions} TransferErrorOptions */
+
 export { default } from './src/wallet-manager.js'
 
-export {
-  default as WalletAccountReadOnly,
-  IWalletAccountReadOnly
-} from './src/wallet-account-read-only.js'
+export { default as WalletAccountReadOnly, IWalletAccountReadOnly, FINALITY } from './src/wallet-account-read-only.js'
 
 export { IWalletAccount } from './src/wallet-account.js'
-
-export {
-  NotImplementedError,
-  SignerError,
-  UnsupportedOperationError,
-  ValueError,
-  NoSuchElementError
-} from './src/errors.js'
 
 export { ISigner } from './src/signer.js'
 
 export { IDisposable } from './src/disposable.js'
+
+export { AssertionError, InvalidTokenError, InvalidSignerError, MaximumFeeExceededError, NoSuchElementError, NotImplementedError, ProviderError, ProviderErrorReason, ProviderRequiredError, TimeoutError, TransactionError, TransactionErrorReason, TransferError, TransferErrorReason, UnsupportedOperationError, ValueError, WdkError } from './src/errors.js'

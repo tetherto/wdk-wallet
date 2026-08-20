@@ -15,7 +15,7 @@
 
 import { IWalletAccountReadOnlyMultisig } from './wallet-account-read-only-multisig.js'
 
-import { NotImplementedError } from '../errors.js'
+import { NotImplementedError } from './errors.js'
 
 /** @typedef {import('../wallet-account-read-only.js').Transaction} Transaction */
 /** @typedef {import('../wallet-account-read-only.js').TransactionResult} TransactionResult */
@@ -23,10 +23,15 @@ import { NotImplementedError } from '../errors.js'
 /** @typedef {import('../wallet-account.js').KeyPair} KeyPair */
 
 /** @typedef {import('./wallet-account-read-only-multisig.js').MultisigProposal} MultisigProposal */
-/** @typedef {import('./wallet-account-read-only-multisig.js').MultisigMessageProposal} MultisigMessageProposal */
 
-/** @typedef {import('../errors.js').NoSuchElementError} NoSuchElementError */
-/** @typedef {import('../errors.js').ValueError} ValueError */
+/** @typedef {import('./errors.js').AccountNotOwnerError} AccountNotOwnerError */
+/** @typedef {import('./errors.js').MaximumFeeExceededError} MaximumFeeExceededError */
+/** @typedef {import('./errors.js').NoSuchElementError} NoSuchElementError */
+/** @typedef {import('./errors.js').ProviderError} ProviderError */
+/** @typedef {import('./errors.js').ProviderRequiredError} ProviderRequiredError */
+/** @typedef {import('./errors.js').TransactionError} TransactionError */
+/** @typedef {import('./errors.js').ThresholdNotMetError} ThresholdNotMetError */
+/** @typedef {import('./errors.js').ValueError} ValueError */
 
 /**
  * @typedef {Object} MultisigTransactionOptions
@@ -36,11 +41,6 @@ import { NotImplementedError } from '../errors.js'
 /**
  * @typedef {Object} MultisigAutoExecuteResult
  * @property {TransactionResult} [transaction] - If auto execute is set to true and the method call triggers the execution of the proposal, this field is set to the corresponding transaction's result (i.e., hash and fee).
- */
-
-/**
- * @typedef {Object} MultisigSignature
- * @property {string} signature - The caller's signature.
  */
 
 /** @interface */
@@ -88,43 +88,24 @@ export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
    *
    * @param {Transaction} tx - The transaction.
    * @param {MultisigTransactionOptions} [transactionOptions] - The multisig transaction's options.
-   * @returns {Promise<MultisigProposal & MultisigAutoExecuteResult>} The created proposal; its `status` is `'executed'` when `autoExecute` ran to completion, otherwise `'pending'`.
-   * @throws {Error} If the account is not an owner of the multisig wallet.
+   * @returns {Promise<MultisigProposal>} The created proposal; its `status` is `'executed'` when `autoExecute` ran to completion, otherwise `'pending'`.
+   * @throws {ValueError} If the transaction is not valid.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to propose the transaction.
+   * @throws {AccountNotOwnerError} If the account is not an owner of the multisig wallet.
    */
   async propose (tx, transactionOptions) {
     throw new NotImplementedError('propose(tx, transactionOptions)')
   }
 
   /**
-   * Proposes signing a message.
-   *
-   * @param {string} message - The message to sign.
-   * @returns {Promise<MultisigMessageProposal & MultisigSignature>} The multisig message proposal.
-   * @throws {Error} If the account is not an owner of the multisig wallet.
-   */
-  async proposeMessage (message) {
-    throw new NotImplementedError('proposeMessage(message)')
-  }
-
-  /**
-   * Approves an existing message proposal.
-   *
-   * @param {string} messageId - The message's hash.
-   * @returns {Promise<MultisigMessageProposal & MultisigSignature>} The multisig message proposal.
-   * @throws {Error} If the account is not an owner of the multisig wallet.
-   * @throws {NoSuchElementError} If no message exists for the given id.
-   */
-  async approveMessageProposal (messageId) {
-    throw new NotImplementedError('approveMessageProposal(messageId)')
-  }
-
-  /**
    * Approves a pending proposal.
    *
    * @param {string} proposalId - The proposal's id.
-   * @returns {Promise<MultisigProposal & MultisigAutoExecuteResult>} The multisig proposal.
-   * @throws {Error} If the account is not an owner of the multisig wallet.
-   * @throws {NoSuchElementError} If no proposal exists for the given id.
+   * @returns {Promise<MultisigProposal>} The multisig proposal.
+   * @throws {ValueError} If the proposal's identifier is not a valid id.
+   * @throws {NoSuchElementError} If no message exists for the given id.
+   * @throws {AccountNotOwnerError} If the account is not an owner of the multisig wallet.
    */
   async approveProposal (proposalId) {
     throw new NotImplementedError('approveProposal(proposalId)')
@@ -135,7 +116,9 @@ export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
    *
    * @param {string} proposalId - The proposal's id.
    * @returns {Promise<MultisigProposal>} The multisig proposal.
-   * @throws {NoSuchElementError} If no proposal exists for the given id.
+   * @throws {ValueError} If the proposal's identifier is not a valid id.
+   * @throws {NoSuchElementError} If no message exists for the given id.
+   * @throws {AccountNotOwnerError} If the account is not an owner of the multisig wallet.
    */
   async rejectProposal (proposalId) {
     throw new NotImplementedError('rejectProposal(proposalId)')
@@ -146,8 +129,14 @@ export class IWalletAccountMultisig extends IWalletAccountReadOnlyMultisig {
    *
    * @param {string} proposalId - The proposal's id.
    * @returns {Promise<TransactionResult>} The on-chain transaction's result.
+   * @throws {ValueError} If the proposal's identifier is not a valid id.
    * @throws {NoSuchElementError} If no proposal exists for the given id.
-   * @throws {ValueError} If the proposal has not reached the approval threshold.
+   * @throws {ProviderRequiredError} If the method requires a provider.
+   * @throws {ProviderError} If the provider fails to execute the proposal.
+   * @throws {TransactionError} If the transaction fails with an error.
+   * @throws {AccountNotOwnerError} If the account is not an owner of the multisig wallet.
+   * @throws {ThresholdNotMetError} If the proposal's threshold has not been met yet.
+   * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the transaction max. fee option.
    */
   async executeProposal (proposalId) {
     throw new NotImplementedError('executeProposal(proposalId)')

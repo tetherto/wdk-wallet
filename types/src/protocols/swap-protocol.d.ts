@@ -5,6 +5,13 @@ export interface ISwapProtocol {
      *
      * @param {SwapOptions} options - The swap's options.
      * @returns {Promise<SwapResult>} The swap's result.
+     * @throws {AccountRequiredError} If the protocol requires a full account to perform a swap.
+     * @throws {ValueError} If the swap options are not valid.
+     * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to perform the swap.
+     * @throws {SwapError} If the swap fails with an error.
+     * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the swap max. fee option.
      */
     swap(options: SwapOptions): Promise<SwapResult>;
     /**
@@ -12,10 +19,19 @@ export interface ISwapProtocol {
      *
      * @param {SwapOptions} options - The swap's options.
      * @returns {Promise<Omit<SwapResult, 'hash'>>} The swap's quotes.
+     * @throws {ReadOnlyAccountRequiredError} If the protocol requires a read-only or full account to quote the costs of a swap.
+     * @throws {ValueError} If the swap options are not valid.
+     * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to estimate the costs of the swap.
+     * @throws {SwapError} If the swap fails with an error.
      */
     quoteSwap(options: SwapOptions): Promise<Omit<SwapResult, "hash">>;
 }
-/** @abstract */
+/**
+ * @abstract
+ * @implements {ISwapProtocol}
+ */
 export default abstract class SwapProtocol implements ISwapProtocol {
     /**
      * Creates a new read-only swap protocol.
@@ -53,6 +69,13 @@ export default abstract class SwapProtocol implements ISwapProtocol {
      * @abstract
      * @param {SwapOptions} options - The swap's options.
      * @returns {Promise<SwapResult>} The swap's result.
+     * @throws {AccountRequiredError} If the protocol requires a full account to perform a swap.
+     * @throws {ValueError} If the swap options are not valid.
+     * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to perform the swap.
+     * @throws {SwapError} If the swap fails with an error.
+     * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the swap max. fee option.
      */
     abstract swap(options: SwapOptions): Promise<SwapResult>;
     /**
@@ -61,11 +84,24 @@ export default abstract class SwapProtocol implements ISwapProtocol {
      * @abstract
      * @param {SwapOptions} options - The swap's options.
      * @returns {Promise<Omit<SwapResult, 'hash'>>} The swap's quotes.
+     * @throws {ValueError} If the swap options are not valid.
+     * @throws {InvalidTokenError} If the input or output tokens are not valid ERC 20 token's addresses.
+     * @throws {ProviderRequiredError} If the method requires a provider.
+     * @throws {ProviderError} If the provider fails to estimate the costs of the swap.
+     * @throws {SwapError} If the swap fails with an error.
      */
     abstract quoteSwap(options: SwapOptions): Promise<Omit<SwapResult, "hash">>;
 }
 export type IWalletAccountReadOnly = import("../wallet-account-read-only.js").IWalletAccountReadOnly;
 export type IWalletAccount = import("../wallet-account.js").IWalletAccount;
+export type AccountRequiredError = import("./errors.js").AccountRequiredError;
+export type InvalidTokenError = import("./errors.js").InvalidTokenError;
+export type MaximumFeeExceededError = import("./errors.js").MaximumFeeExceededError;
+export type ReadOnlyAccountRequiredError = import("./errors.js").ReadOnlyAccountRequiredError;
+export type ProviderError = import("./errors.js").ProviderError;
+export type ProviderRequiredError = import("./errors.js").ProviderRequiredError;
+export type SwapError = import("./errors.js").SwapError;
+export type ValueError = import("./errors.js").ValueError;
 export type SwapProtocolConfig = {
     /**
      * - The maximum fee amount for swap operations.
@@ -73,7 +109,7 @@ export type SwapProtocolConfig = {
     swapMaxFee?: number | bigint;
 };
 export type SwapOptions = SwapCommonOptions & (SwapBuyOptions | SwapSellOptions);
-type SwapCommonOptions = {
+export type SwapCommonOptions = {
     /**
      * - The address of the token to sell.
      */
@@ -91,7 +127,7 @@ type SwapCommonOptions = {
      */
     minAmountOut?: number | bigint;
 };
-type SwapBuyOptions = {
+export type SwapBuyOptions = {
     /**
      * - The amount of input tokens to sell (in base unit).
      */
@@ -101,7 +137,7 @@ type SwapBuyOptions = {
      */
     tokenOutAmount: number | bigint;
 };
-type SwapSellOptions = {
+export type SwapSellOptions = {
     /**
      * - The amount of input tokens to sell (in base unit).
      */
