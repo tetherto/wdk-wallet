@@ -20,6 +20,7 @@ import { NoSuchElementError, NotImplementedError, ValueError } from './errors.js
 /** @typedef {import('./wallet-account.js').IWalletAccount} IWalletAccount */
 
 /** @typedef {import('./signer.js').ISigner} ISigner */
+/** @typedef {import('./disposable.js').IDisposable} IDisposable */
 
 /** @typedef {import('./errors.js').InvalidSignerError} InvalidSignerError */
 /** @typedef {import('./errors.js').ProviderError} ProviderError */
@@ -37,7 +38,10 @@ import { NoSuchElementError, NotImplementedError, ValueError } from './errors.js
  * @property {bigint} fast - The fee rate for transaction sent with fast priority.
  */
 
-/** @abstract */
+/**
+ * @abstract
+ * @implements {IDisposable}
+ */
 export default class WalletManager {
   /**
    * Creates a new wallet manager from a BIP-39 seed.
@@ -251,7 +255,7 @@ export default class WalletManager {
   }
 
   /**
-   * Disposes all wallet accounts and signers, clearing secret material from memory.
+   * Disposes all wallet accounts and clears references to registered signers.
    */
   dispose () {
     for (const account of Object.values(this._accounts)) {
@@ -260,14 +264,8 @@ export default class WalletManager {
       }
     }
 
-    this._defaultSigner?.dispose()
-
-    for (const signer of Object.values(this._signers)) {
-      signer.dispose()
-    }
-
     this._accounts = {}
-    this._defaultSigner = undefined
     this._signers = {}
+    this._defaultSigner = undefined
   }
 }

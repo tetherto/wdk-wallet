@@ -1,5 +1,8 @@
-/** @abstract */
-export default abstract class WalletManager {
+/**
+ * @abstract
+ * @implements {IDisposable}
+ */
+export default abstract class WalletManager implements IDisposable {
     /**
      * Returns a random [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) seed phrase.
      *
@@ -147,7 +150,13 @@ export default abstract class WalletManager {
      */
     abstract getFeeRates(): Promise<FeeRates>;
     /**
-     * Disposes all wallet accounts and signers, clearing secret material from memory.
+     * Disposes all wallet accounts and clears references to registered signers.
+     *
+     * Signers are user-supplied and therefore not owned by the wallet manager; this
+     * method only drops the internal references so they can be garbage-collected
+     * once the caller also releases them. Downstream chain-specific wallet managers
+     * that create their own signers internally should override this method to
+     * dispose them.
      */
     dispose(): void;
 }
@@ -176,3 +185,4 @@ export type FeeRates = {
      */
     fast: bigint;
 };
+import { IDisposable } from "./disposable.js";
