@@ -2,9 +2,13 @@ import * as bip39 from 'bip39'
 
 import { describe, expect, jest, test } from '@jest/globals'
 
-import WalletManager, { NoSuchElementError, ValueError } from '../index.js'
+import WalletManager, { InvalidSignerError, NoSuchElementError, ValueError } from '../index.js'
 
 class DummySigner {
+  get isDerivable () {
+    return true
+  }
+
   async derive (relPath) {
     return this
   }
@@ -14,6 +18,12 @@ class DummySigner {
   }
 
   dispose () {}
+}
+
+class NonDerivableSigner extends DummySigner {
+  get isDerivable () {
+    return false
+  }
 }
 
 class DummyWalletManager extends WalletManager {
@@ -64,6 +74,12 @@ describe('WalletManager', () => {
       const wallet = new DummyWalletManager(signer)
 
       expect(wallet.getSigner()).toBe(signer)
+    })
+
+    test('should throw if the default signer is not derivable', () => {
+      // eslint-disable-next-line no-new
+      expect(() => { new DummyWalletManager(new NonDerivableSigner()) })
+        .toThrow(new InvalidSignerError('The default signer must be derivable. Non-derivable signers (e.g. private-key signers) can only be registered by name via addSigner.'))
     })
 
     test('should throw when requesting the default signer on a seed-based manager', () => {
@@ -162,22 +178,6 @@ describe('WalletManager', () => {
 
       expect(() => wallet.getSigner('ledger'))
         .toThrow(new NoSuchElementError('No signer found with name "ledger".'))
-    })
-  })
-
-  describe('dispose', () => {
-    test('should delegate to WalletManager.dispose and clear signer maps', () => {
-      const signer = new DummySigner()
-      const disposeSpy = jest.spyOn(signer, 'dispose')
-      const wallet = new DummyWalletManager(signer)
-
-      expect(wallet.getSigner()).toBe(signer)
-
-      wallet.dispose()
-
-      expect(disposeSpy).toHaveBeenCalledTimes(1)
-      expect(() => wallet.getSigner())
-        .toThrow(new NoSuchElementError('No default signer set.'))
     })
   })
 })

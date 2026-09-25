@@ -3,7 +3,27 @@
  *
  * @interface
  */
-export class ISigner {
+export class ISigner extends IDisposable {
+    /**
+     * Whether the signer supports account derivation via {@link derive}.
+     *
+     * @type {boolean}
+     */
+    get isDerivable(): boolean;
+    /**
+     * The signer's key pair, or null if the signer does not allow retrieving
+     * key material (e.g. hardware signers).
+     *
+     * @type {KeyPair | null}
+     */
+    get keyPair(): KeyPair | null;
+    /**
+     * The BIP 0032 derivation path, or null if the signer is not bound to a derivation position
+     * (e.g. private-key signers).
+     *
+     * @type {string | null}
+     */
+    get path(): string | null;
     /**
      * Derive a child signer using a relative path (e.g., "0'/0/0").
      *
@@ -20,9 +40,14 @@ export class ISigner {
      */
     getAddress(): Promise<string>;
     /**
-     * Disposes the signer and clears any secret material from memory.
+     * Signs a message.
+     *
+     * @param {string} message - The message to sign.
+     * @returns {Promise<string>} The message's signature.
      */
-    dispose(): void;
+    sign(message: string): Promise<string>;
 }
+export type KeyPair = import("./wallet-account.js").KeyPair;
+import { IDisposable } from "./disposable.js";
 export type UnsupportedOperationError = import("./errors.js").UnsupportedOperationError;
 export type ValueError = import("./errors.js").ValueError;

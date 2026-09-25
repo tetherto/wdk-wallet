@@ -12,6 +12,7 @@ export type TransactionReceipt = import("./src/wallet-account-read-only-simple.j
 export type WaitForTransactionTarget = import("./src/wallet-account-read-only-simple.js").WaitForTransactionTarget;
 export type WaitForTransactionOptions = import("./src/wallet-account-read-only-simple.js").WaitForTransactionOptions;
 export type KeyPair = import("./src/wallet-account.js").KeyPair;
+export { IDisposable } from "./src/disposable.js";
 export type ProviderErrorOptions = import("./src/errors.js").ProviderErrorOptions;
 export type TransactionErrorOptions = import("./src/errors.js").TransactionErrorOptions;
 export type TransferErrorOptions = import("./src/errors.js").TransferErrorOptions;

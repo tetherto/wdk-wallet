@@ -15,13 +15,13 @@
 
 import * as bip39 from 'bip39'
 
-import { NoSuchElementError, NotImplementedError, ValueError } from './errors.js'
+import { InvalidSignerError, NoSuchElementError, NotImplementedError, ValueError } from './errors.js'
 
 /** @typedef {import('./wallet-account.js').IWalletAccount} IWalletAccount */
 
 /** @typedef {import('./signer.js').ISigner} ISigner */
+/** @typedef {import('./disposable.js').IDisposable} IDisposable */
 
-/** @typedef {import('./errors.js').InvalidSignerError} InvalidSignerError */
 /** @typedef {import('./errors.js').ProviderError} ProviderError */
 /** @typedef {import('./errors.js').ProviderRequiredError} ProviderRequiredError */
 
@@ -37,7 +37,11 @@ import { NoSuchElementError, NotImplementedError, ValueError } from './errors.js
  * @property {bigint} fast - The fee rate for transaction sent with fast priority.
  */
 
-/** @abstract */
+/**
+ * @abstract
+ * @template {ISigner} [TSigner=ISigner]
+ * @implements {IDisposable}
+ */
 export default class WalletManager {
   /**
    * Creates a new wallet manager from a seed.
@@ -52,13 +56,11 @@ export default class WalletManager {
    * Creates a new wallet manager from a default signer.
    *
    * @overload
-   * @param {ISigner} signer - The default signer.
+   * @param {TSigner} signer - The default signer.
    * @param {WalletConfig} [config] - The wallet configuration.
    * @throws {InvalidSignerError} If the given signer doesn't support account derivation.
    */
   constructor (seedOrSigner, config = {}) {
-    // TODO: Add check to assert that the default signer is derivable.
-
     if (typeof seedOrSigner === 'string') {
       if (!WalletManager.isValidSeedPhrase(seedOrSigner)) {
         throw new ValueError('Invalid seed phrase.')
@@ -69,6 +71,10 @@ export default class WalletManager {
 
     const isSeed = seedOrSigner instanceof Uint8Array
 
+    if (!isSeed && !seedOrSigner.isDerivable) {
+      throw new InvalidSignerError('The default signer must be derivable. Non-derivable signers (e.g. private-key signers) can only be registered by name via addSigner.')
+    }
+
     /** @private */
     this._seed = isSeed ? seedOrSigner : undefined
 
@@ -76,7 +82,7 @@ export default class WalletManager {
      * The default signer.
      *
      * @protected
-     * @type {ISigner | undefined}
+     * @type {TSigner | undefined}
      */
     this._defaultSigner = isSeed ? undefined : seedOrSigner
 
@@ -84,7 +90,7 @@ export default class WalletManager {
      * A map between signer names and signers added via {@link addSigner}.
      *
      * @protected
-     * @type {Record<string, ISigner>}
+     * @type {Record<string, TSigner>}
      */
     this._signers = {}
 
@@ -142,8 +148,8 @@ export default class WalletManager {
    * Registers a signer with the given name.
    *
    * @param {string} signerName - The signer name.
-   * @param {ISigner} signer - The signer.
-   * @returns {WalletManager} The wallet manager.
+   * @param {TSigner} signer - The signer.
+   * @returns {this} The wallet manager.
    * @throws {ValueError} If the signer name is an empty or blank string.
    */
   addSigner (signerName, signer) {
@@ -160,7 +166,7 @@ export default class WalletManager {
    * Returns the default signer, or the signer with the given name.
    *
    * @param {string} [signerName] - If set, returns the signer with the given name.
-   * @returns {ISigner} The signer.
+   * @returns {TSigner} The signer.
    * @throws {NoSuchElementError} If the default signer is not set, or no signers are found for the given name.
    */
   getSigner (signerName) {
@@ -186,7 +192,7 @@ export default class WalletManager {
    * The default signer is not included; use {@link getSigner} with no arguments
    * to retrieve it.
    *
-   * @returns {Record<string, ISigner>} A map of signer names to signers. Empty if no signers have been registered.
+   * @returns {Record<string, TSigner>} A map of signer names to signers. Empty if no signers have been registered.
    */
   getSigners () {
     return { ...this._signers }
@@ -251,7 +257,7 @@ export default class WalletManager {
   }
 
   /**
-   * Disposes all wallet accounts and signers, clearing secret material from memory.
+   * Disposes all wallet accounts, clearing secret material from memory.
    */
   dispose () {
     for (const account of Object.values(this._accounts)) {
@@ -260,14 +266,6 @@ export default class WalletManager {
       }
     }
 
-    this._defaultSigner?.dispose()
-
-    for (const signer of Object.values(this._signers)) {
-      signer.dispose()
-    }
-
     this._accounts = {}
-    this._defaultSigner = undefined
-    this._signers = {}
   }
 }

@@ -1,5 +1,9 @@
-/** @abstract */
-export default abstract class WalletManager {
+/**
+ * @abstract
+ * @template {ISigner} [TSigner=ISigner]
+ * @implements {IDisposable}
+ */
+export default abstract class WalletManager<TSigner extends ISigner = ISigner> implements IDisposable {
     /**
      * Returns a random [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) seed phrase.
      *
@@ -27,27 +31,27 @@ export default abstract class WalletManager {
      * Creates a new wallet manager from a default signer.
      *
      * @overload
-     * @param {ISigner} signer - The default signer.
+     * @param {TSigner} signer - The default signer.
      * @param {WalletConfig} [config] - The wallet configuration.
      * @throws {InvalidSignerError} If the given signer doesn't support account derivation.
      */
-    constructor(signer: ISigner, config?: WalletConfig);
+    constructor(signer: TSigner, config?: WalletConfig);
     /** @private */
     private _seed;
     /**
      * The default signer.
      *
      * @protected
-     * @type {ISigner | undefined}
+     * @type {TSigner | undefined}
      */
-    protected _defaultSigner: ISigner | undefined;
+    protected _defaultSigner: TSigner | undefined;
     /**
      * A map between signer names and signers added via {@link addSigner}.
      *
      * @protected
-     * @type {Record<string, ISigner>}
+     * @type {Record<string, TSigner>}
      */
-    protected _signers: Record<string, ISigner>;
+    protected _signers: Record<string, TSigner>;
     /**
      * A map between derivation paths and wallet accounts. The {@link dispose} method will automatically dispose
      * all the accounts in this map, so developers are encouraged to map all accounts accessed through the
@@ -74,27 +78,27 @@ export default abstract class WalletManager {
      * Registers a signer with the given name.
      *
      * @param {string} signerName - The signer name.
-     * @param {ISigner} signer - The signer.
-     * @returns {WalletManager} The wallet manager.
+     * @param {TSigner} signer - The signer.
+     * @returns {this} The wallet manager.
      * @throws {ValueError} If the signer name is an empty or blank string.
      */
-    addSigner(signerName: string, signer: ISigner): WalletManager;
+    addSigner(signerName: string, signer: TSigner): this;
     /**
      * Returns the default signer, or the signer with the given name.
      *
      * @param {string} [signerName] - If set, returns the signer with the given name.
-     * @returns {ISigner} The signer.
+     * @returns {TSigner} The signer.
      * @throws {NoSuchElementError} If the default signer is not set, or no signers are found for the given name.
      */
-    getSigner(signerName?: string): ISigner;
+    getSigner(signerName?: string): TSigner;
     /**
      * Returns a shallow copy of the map of signers registered via {@link addSigner}.
      * The default signer is not included; use {@link getSigner} with no arguments
      * to retrieve it.
      *
-     * @returns {Record<string, ISigner>} A map of signer names to signers. Empty if no signers have been registered.
+     * @returns {Record<string, TSigner>} A map of signer names to signers. Empty if no signers have been registered.
      */
-    getSigners(): Record<string, ISigner>;
+    getSigners(): Record<string, TSigner>;
     /**
      * Returns the wallet account at a specific index (see [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)).
      *
@@ -147,7 +151,7 @@ export default abstract class WalletManager {
      */
     abstract getFeeRates(): Promise<FeeRates>;
     /**
-     * Disposes all wallet accounts and signers, clearing secret material from memory.
+     * Disposes all wallet accounts, clearing secret material from memory.
      */
     dispose(): void;
 }
@@ -176,3 +180,4 @@ export type FeeRates = {
      */
     fast: bigint;
 };
+import { IDisposable } from "./disposable.js";
