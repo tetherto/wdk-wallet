@@ -1,6 +1,6 @@
 {
   "name": "@tetherto/wdk-wallet",
-  "version": "1.0.0-beta.22",
+  "version": "1.0.0-beta.23",
   "description": "Base wallet and protocol classes for WDK (Wallet Development Kit) by Tether. For internal use only.",
   "homepage": "https://docs.wdk.tether.io/",
   "keywords": [
