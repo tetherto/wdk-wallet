@@ -1,5 +1,8 @@
 export type SwapProtocolConfig = import("./swap-protocol.js").SwapProtocolConfig;
 export type SwapOptions = import("./swap-protocol.js").SwapOptions;
+export type SwapCommonOptions = import("./swap-protocol.js").SwapCommonOptions;
+export type SwapBuyOptions = import("./swap-protocol.js").SwapBuyOptions;
+export type SwapSellOptions = import("./swap-protocol.js").SwapSellOptions;
 export type SwapResult = import("./swap-protocol.js").SwapResult;
 export type BridgeProtocolConfig = import("./bridge-protocol.js").BridgeProtocolConfig;
 export type BridgeOptions = import("./bridge-protocol.js").BridgeOptions;

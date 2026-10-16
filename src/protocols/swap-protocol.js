@@ -39,23 +39,34 @@ import { NotImplementedError } from './errors.js'
  */
 
 /**
+ * The options shared by exact-input and exact-output swaps.
+ *
  * @typedef {Object} SwapCommonOptions
  * @property {string} tokenIn - The address of the token to sell.
  * @property {string} tokenOut - The address of the token to buy.
  * @property {string} [to] - The address that will receive the output tokens. If not set, the account itself will receive the funds.
- * @property {number | bigint} [minAmountOut] - The minimum acceptable amount of destination tokens to receive (in base unit).
  */
 
 /**
+ * The options of an exact-output swap: the amount of output tokens to buy is fixed, and the amount of input tokens
+ * spent is bounded by a maximum.
+ *
  * @typedef {Object} SwapBuyOptions
- * @property {never} [tokenInAmount] - The amount of input tokens to sell (in base unit).
  * @property {number | bigint} tokenOutAmount - The amount of output tokens to buy (in base unit).
+ * @property {number | bigint} maxAmountIn - The maximum acceptable amount of input tokens to spend (in base unit).
+ * @property {never} [tokenInAmount] - Not applicable for exact-output swaps.
+ * @property {never} [minAmountOut] - Not applicable for exact-output swaps.
  */
 
 /**
+ * The options of an exact-input swap: the amount of input tokens to sell is fixed, and the amount of output tokens
+ * received can be bounded by a minimum.
+ *
  * @typedef {Object} SwapSellOptions
  * @property {number | bigint} tokenInAmount - The amount of input tokens to sell (in base unit).
- * @property {never} [tokenOutAmount] - The amount of output tokens to buy (in base unit).
+ * @property {number | bigint} [minAmountOut] - The minimum acceptable amount of output tokens to receive (in base unit).
+ * @property {never} [tokenOutAmount] - Not applicable for exact-input swaps.
+ * @property {never} [maxAmountIn] - Not applicable for exact-input swaps.
  */
 
 /**
