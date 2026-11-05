@@ -148,7 +148,7 @@ export default class WalletAccountReadOnly {
    * Creates a new read-only wallet account.
    *
    * @param {string} [address] - The account's address.
-   * @param {Record<string, unknown>} [config] - The account's configuration.
+   * @param {Record<string, unknown>} [config] - The account's configuration (default: an empty object).
    */
   constructor (address, config = {}) {
     /** @private */

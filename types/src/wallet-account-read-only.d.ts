@@ -50,7 +50,7 @@ export default abstract class WalletAccountReadOnly implements IWalletAccountRea
      * Creates a new read-only wallet account.
      *
      * @param {string} [address] - The account's address.
-     * @param {Record<string, unknown>} [config] - The account's configuration.
+     * @param {Record<string, unknown>} [config] - The account's configuration (default: an empty object).
      */
     constructor(address?: string, config?: Record<string, unknown>);
     /**
