@@ -119,7 +119,6 @@ export class IWalletAccountReadOnly extends IWalletAccountReadOnlySimple {
 
 /**
  * @abstract
- * @template {Record<string, unknown>} [TConfig=Record<string, unknown>]
  * @implements {IWalletAccountReadOnly}
  */
 export default class WalletAccountReadOnly {
@@ -149,7 +148,7 @@ export default class WalletAccountReadOnly {
    * Creates a new read-only wallet account.
    *
    * @param {string} [address] - The account's address.
-   * @param {TConfig} [config] - The account's configuration.
+   * @param {Record<string, unknown>} [config] - The account's configuration.
    */
   constructor (address, config = {}) {
     /** @private */
@@ -159,7 +158,7 @@ export default class WalletAccountReadOnly {
      * The account's configuration.
      *
      * @protected
-     * @type {TConfig}
+     * @type {Record<string, unknown>}
      */
     this._config = config
   }
@@ -177,7 +176,7 @@ export default class WalletAccountReadOnly {
   /**
    * The account's configuration.
    *
-   * @type {Readonly<TConfig>}
+   * @type {Readonly<Record<string, unknown>>}
    */
   get config () {
     return this._config
