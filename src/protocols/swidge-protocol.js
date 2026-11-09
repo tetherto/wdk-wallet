@@ -57,26 +57,37 @@ import { BridgeError, NotImplementedError, SwapError, SwidgeError } from './erro
  */
 
 /**
+ * The options shared by exact-in and exact-out swidges.
+ *
  * @typedef {Object} SwidgeCommonOptions
  * @property {string} fromToken - The provider-specific identifier or address of the source token.
  * @property {string} toToken - The provider-specific identifier or address of the destination token.
  * @property {string | number} [toChain] - The identifier of the destination chain. If omitted, defaults to the source chain (same-chain swap).
  * @property {string} [recipient] - The address that will receive the output tokens.
  * @property {string} [refundAddress] - The address that will receive refunds if the tx cannot complete.
- * @property {number} [slippage] - The maximum acceptable slippage as a decimal (e.g., 0.01 for 1%).
- * @property {number | bigint} [minAmountOut] - The minimum acceptable amount of destination tokens to receive (in base unit).
+ * @property {number} [slippage] - The maximum acceptable slippage as a decimal (e.g., 0.01 for 1%). An absolute limit (minAmountOut or maxAmountIn) always takes precedence.
  */
 
 /**
+ * The options of an exact-in swidge: the amount of source tokens to spend is fixed, and the amount of destination
+ * tokens received can be bounded by a minimum.
+ *
  * @typedef {Object} SwidgeExactInOptions
  * @property {number | bigint} fromTokenAmount - The exact amount of source tokens to spend (in base unit).
+ * @property {number | bigint} [minAmountOut] - The minimum acceptable amount of destination tokens to receive (in base unit).
  * @property {never} [toTokenAmount] - Not applicable for exact-in operations.
+ * @property {never} [maxAmountIn] - Not applicable for exact-in operations.
  */
 
 /**
+ * The options of an exact-out swidge: the amount of destination tokens to receive is fixed, and the amount of source
+ * tokens spent is bounded by a maximum.
+ *
  * @typedef {Object} SwidgeExactOutOptions
- * @property {never} [fromTokenAmount] - Not applicable for exact-out operations.
  * @property {number | bigint} toTokenAmount - The exact amount of destination tokens to receive (in base unit).
+ * @property {number | bigint} maxAmountIn - The maximum acceptable amount of source tokens to spend (in base unit).
+ * @property {never} [fromTokenAmount] - Not applicable for exact-out operations.
+ * @property {never} [minAmountOut] - Not applicable for exact-out operations.
  */
 
 /**
@@ -105,6 +116,7 @@ import { BridgeError, NotImplementedError, SwapError, SwidgeError } from './erro
  * @property {bigint} fromTokenAmount - The amount of source tokens to spend.
  * @property {bigint} toTokenAmount - The estimated amount of destination tokens to receive.
  * @property {bigint} toTokenAmountMin - The minimum guaranteed amount after slippage.
+ * @property {bigint} [fromTokenAmountMax] - The maximum source amount after slippage. Always set for exact-out operations.
  * @property {SwidgeFee[]} fees - Itemised fee breakdown.
  * @property {number} [estimatedDuration] - Estimated duration in seconds.
  * @property {number} [expiry] - Unix timestamp (seconds) at which the quote expires.

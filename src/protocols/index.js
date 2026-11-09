@@ -15,6 +15,9 @@
 
 /** @typedef {import('./swap-protocol.js').SwapProtocolConfig} SwapProtocolConfig */
 /** @typedef {import('./swap-protocol.js').SwapOptions} SwapOptions */
+/** @typedef {import('./swap-protocol.js').SwapCommonOptions} SwapCommonOptions */
+/** @typedef {import('./swap-protocol.js').SwapBuyOptions} SwapBuyOptions */
+/** @typedef {import('./swap-protocol.js').SwapSellOptions} SwapSellOptions */
 /** @typedef {import('./swap-protocol.js').SwapResult} SwapResult */
 
 /** @typedef {import('./bridge-protocol.js').BridgeProtocolConfig} BridgeProtocolConfig */

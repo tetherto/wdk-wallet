@@ -112,6 +112,9 @@ export type SwapProtocolConfig = {
     swapMaxFee?: number | bigint;
 };
 export type SwapOptions = SwapCommonOptions & (SwapBuyOptions | SwapSellOptions);
+/**
+ * The options shared by exact-input and exact-output swaps.
+ */
 export type SwapCommonOptions = {
     /**
      * - The address of the token to sell.
@@ -125,30 +128,50 @@ export type SwapCommonOptions = {
      * - The address that will receive the output tokens. If not set, the account itself will receive the funds.
      */
     to?: string;
-    /**
-     * - The minimum acceptable amount of destination tokens to receive (in base unit).
-     */
-    minAmountOut?: number | bigint;
 };
+/**
+ * The options of an exact-output swap: the amount of output tokens to buy is fixed, and the amount of input tokens
+ * spent is bounded by a maximum.
+ */
 export type SwapBuyOptions = {
-    /**
-     * - The amount of input tokens to sell (in base unit).
-     */
-    tokenInAmount?: never;
     /**
      * - The amount of output tokens to buy (in base unit).
      */
     tokenOutAmount: number | bigint;
+    /**
+     * - The maximum acceptable amount of input tokens to spend (in base unit).
+     */
+    maxAmountIn: number | bigint;
+    /**
+     * - Not applicable for exact-output swaps.
+     */
+    tokenInAmount?: never;
+    /**
+     * - Not applicable for exact-output swaps.
+     */
+    minAmountOut?: never;
 };
+/**
+ * The options of an exact-input swap: the amount of input tokens to sell is fixed, and the amount of output tokens
+ * received can be bounded by a minimum.
+ */
 export type SwapSellOptions = {
     /**
      * - The amount of input tokens to sell (in base unit).
      */
     tokenInAmount: number | bigint;
     /**
-     * - The amount of output tokens to buy (in base unit).
+     * - The minimum acceptable amount of output tokens to receive (in base unit).
+     */
+    minAmountOut?: number | bigint;
+    /**
+     * - Not applicable for exact-input swaps.
      */
     tokenOutAmount?: never;
+    /**
+     * - Not applicable for exact-input swaps.
+     */
+    maxAmountIn?: never;
 };
 export type SwapResult = {
     /**

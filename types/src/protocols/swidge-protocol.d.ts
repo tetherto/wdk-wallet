@@ -253,6 +253,9 @@ export type SwidgeProtocolConfig = {
     maxProtocolFeeBps?: number | bigint;
 };
 export type SwidgeOptions = SwidgeCommonOptions & (SwidgeExactInOptions | SwidgeExactOutOptions);
+/**
+ * The options shared by exact-in and exact-out swidges.
+ */
 export type SwidgeCommonOptions = {
     /**
      * - The provider-specific identifier or address of the source token.
@@ -275,33 +278,53 @@ export type SwidgeCommonOptions = {
      */
     refundAddress?: string;
     /**
-     * - The maximum acceptable slippage as a decimal (e.g., 0.01 for 1%).
+     * - The maximum acceptable slippage as a decimal (e.g., 0.01 for 1%). An absolute limit (minAmountOut or maxAmountIn) always takes precedence.
      */
     slippage?: number;
-    /**
-     * - The minimum acceptable amount of destination tokens to receive (in base unit).
-     */
-    minAmountOut?: number | bigint;
 };
+/**
+ * The options of an exact-in swidge: the amount of source tokens to spend is fixed, and the amount of destination
+ * tokens received can be bounded by a minimum.
+ */
 export type SwidgeExactInOptions = {
     /**
      * - The exact amount of source tokens to spend (in base unit).
      */
     fromTokenAmount: number | bigint;
     /**
+     * - The minimum acceptable amount of destination tokens to receive (in base unit).
+     */
+    minAmountOut?: number | bigint;
+    /**
      * - Not applicable for exact-in operations.
      */
     toTokenAmount?: never;
+    /**
+     * - Not applicable for exact-in operations.
+     */
+    maxAmountIn?: never;
 };
+/**
+ * The options of an exact-out swidge: the amount of destination tokens to receive is fixed, and the amount of source
+ * tokens spent is bounded by a maximum.
+ */
 export type SwidgeExactOutOptions = {
+    /**
+     * - The exact amount of destination tokens to receive (in base unit).
+     */
+    toTokenAmount: number | bigint;
+    /**
+     * - The maximum acceptable amount of source tokens to spend (in base unit).
+     */
+    maxAmountIn: number | bigint;
     /**
      * - Not applicable for exact-out operations.
      */
     fromTokenAmount?: never;
     /**
-     * - The exact amount of destination tokens to receive (in base unit).
+     * - Not applicable for exact-out operations.
      */
-    toTokenAmount: number | bigint;
+    minAmountOut?: never;
 };
 export type SwidgeFee = {
     /**
@@ -361,6 +384,10 @@ export type SwidgeQuote = {
      * - The minimum guaranteed amount after slippage.
      */
     toTokenAmountMin: bigint;
+    /**
+     * - The maximum source amount after slippage. Always set for exact-out operations.
+     */
+    fromTokenAmountMax?: bigint;
     /**
      * - Itemised fee breakdown.
      */
