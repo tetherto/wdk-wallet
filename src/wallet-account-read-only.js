@@ -79,6 +79,15 @@ async function sleep (amount) {
 /** @interface */
 export class IWalletAccountReadOnly extends IWalletAccountReadOnlySimple {
   /**
+   * The account's configuration.
+   *
+   * @type {Readonly<Record<string, unknown>>}
+   */
+  get config () {
+    throw new NotImplementedError('config')
+  }
+
+  /**
    * Quotes the costs of a send transaction operation.
    *
    * @param {Transaction} tx - The transaction.
@@ -139,10 +148,19 @@ export default class WalletAccountReadOnly {
    * Creates a new read-only wallet account.
    *
    * @param {string} [address] - The account's address.
+   * @param {Record<string, unknown>} [config] - The account's configuration (default: an empty object).
    */
-  constructor (address) {
+  constructor (address, config = {}) {
     /** @private */
     this.__address = address
+
+    /**
+     * The account's configuration.
+     *
+     * @protected
+     * @type {Record<string, unknown>}
+     */
+    this._config = config
   }
 
   /**
@@ -153,6 +171,15 @@ export default class WalletAccountReadOnly {
    */
   get _address () {
     return this.__address
+  }
+
+  /**
+   * The account's configuration.
+   *
+   * @type {Readonly<Record<string, unknown>>}
+   */
+  get config () {
+    return this._config
   }
 
   /**

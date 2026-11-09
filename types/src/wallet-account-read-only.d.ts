@@ -12,6 +12,12 @@ export namespace FINALITY {
 /** @interface */
 export interface IWalletAccountReadOnly extends IWalletAccountReadOnlySimple {
     /**
+     * The account's configuration.
+     *
+     * @type {Readonly<Record<string, unknown>>}
+     */
+    get config(): Readonly<Record<string, unknown>>;
+    /**
      * Quotes the costs of a send transaction operation.
      *
      * @param {Transaction} tx - The transaction.
@@ -44,8 +50,9 @@ export default abstract class WalletAccountReadOnly implements IWalletAccountRea
      * Creates a new read-only wallet account.
      *
      * @param {string} [address] - The account's address.
+     * @param {Record<string, unknown>} [config] - The account's configuration (default: an empty object).
      */
-    constructor(address?: string);
+    constructor(address?: string, config?: Record<string, unknown>);
     /**
      * The default poll cadence for {@link waitForTransaction}, in milliseconds,
      * applied when the caller doesn't provide an `interval`. Subclasses override
@@ -71,6 +78,19 @@ export default abstract class WalletAccountReadOnly implements IWalletAccountRea
      * @type {string | undefined}
      */
     protected get _address(): string | undefined;
+    /**
+     * The account's configuration.
+     *
+     * @protected
+     * @type {Record<string, unknown>}
+     */
+    protected _config: Record<string, unknown>;
+    /**
+     * The account's configuration.
+     *
+     * @type {Readonly<Record<string, unknown>>}
+     */
+    get config(): Readonly<Record<string, unknown>>;
     /**
      * Returns the account's address.
      *

@@ -72,6 +72,20 @@ describe('WalletAccountReadOnly', () => {
     })
   })
 
+  describe('config', () => {
+    test('should return the account configuration', () => {
+      const account = new DummyWalletAccountReadOnly(ADDRESS, { provider: 'https://rpc.example.com', transferMaxFee: 1_000n })
+
+      expect(account.config).toEqual({ provider: 'https://rpc.example.com', transferMaxFee: 1_000n })
+    })
+
+    test('should return an empty configuration if none is provided', () => {
+      const account = new DummyWalletAccountReadOnly(ADDRESS)
+
+      expect(account.config).toEqual({})
+    })
+  })
+
   describe('FINALITY', () => {
     test('orders finalities so stronger settlement compares higher', () => {
       expect(FINALITY.pending).toBeLessThan(FINALITY.confirmed)
