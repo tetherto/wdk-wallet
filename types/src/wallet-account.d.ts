@@ -107,7 +107,7 @@ export type KeyPair = {
      */
     publicKey: Uint8Array;
     /**
-     * - The private key (null if the account has been disposed).
+     * - The private key (null if the signer exposes none or has been disposed).
      */
     privateKey: Uint8Array | null;
 };

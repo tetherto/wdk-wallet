@@ -34,7 +34,7 @@ import { NotImplementedError } from './errors.js'
 /**
  * @typedef {Object} KeyPair
  * @property {Uint8Array} publicKey - The public key.
- * @property {Uint8Array | null} privateKey - The private key (null if the account has been disposed).
+ * @property {Uint8Array | null} privateKey - The private key (null if the signer exposes none or has been disposed).
  */
 
 /** @typedef {import('./disposable.js').IDisposable} IDisposable */

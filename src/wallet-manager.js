@@ -96,8 +96,8 @@ export default class WalletManager {
 
     /**
      * A map between derivation paths and wallet accounts. The {@link dispose} method will automatically dispose
-     * all the accounts in this map, so developers are encouraged to map all accounts accessed through the
-     * {@link getAccount} and {@link getAccountByPath} methods.
+     * the accounts in this map that hold a private key, so developers are encouraged to map all accounts accessed
+     * through the {@link getAccount} and {@link getAccountByPath} methods.
      *
      * @protected
      * @type {Record<string, IWalletAccount>}
@@ -277,7 +277,9 @@ export default class WalletManager {
   }
 
   /**
-   * Disposes all wallet accounts, clearing secret material from memory.
+   * Disposes the cached wallet accounts that hold a private key. An account created directly on a signer added via
+   * {@link addSigner} keeps its key. Signers supplied by the caller (as the default signer or via {@link addSigner})
+   * are never disposed, and the seed stored by this class is not cleared.
    */
   dispose () {
     if (this._disposed) return
