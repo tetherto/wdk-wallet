@@ -7,7 +7,7 @@ export class IDisposable {
      */
     get disposed(): boolean;
     /**
-     * Disposes the object along with all its data (cleaning up any sensitive field from memory).
+     * Disposes the object. Each implementation documents which secret material it clears from memory.
      */
     dispose(): void;
 }
