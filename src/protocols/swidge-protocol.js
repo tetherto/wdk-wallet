@@ -35,6 +35,7 @@ import { BridgeError, NotImplementedError, SwapError, SwidgeError } from './erro
 /** @typedef {import('./errors.js').ReadOnlyAccountRequiredError} ReadOnlyAccountRequiredError */
 /** @typedef {import('./errors.js').ProviderError} ProviderError */
 /** @typedef {import('./errors.js').ProviderRequiredError} ProviderRequiredError */
+/** @typedef {import('./errors.js').UnsupportedOperationError} UnsupportedOperationError */
 /** @typedef {import('./errors.js').ValueError} ValueError */
 
 /**
@@ -161,7 +162,6 @@ import { BridgeError, NotImplementedError, SwapError, SwidgeError } from './erro
 
 /**
  * @interface
- * @extends {ISwapProtocol}
  * @extends {IBridgeProtocol}
  */
 export class ISwidgeProtocol {
@@ -244,7 +244,6 @@ export class ISwidgeProtocol {
 /**
  * @abstract
  * @implements {ISwidgeProtocol}
- * @implements {ISwapProtocol}
  * @implements {IBridgeProtocol}
  */
 export default class SwidgeProtocol {
@@ -302,6 +301,7 @@ export default class SwidgeProtocol {
    * @throws {ProviderError} If the provider fails to perform the swap.
    * @throws {SwapError} If the swap fails with an error.
    * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the max. network or protocol fee options.
+   * @throws {UnsupportedOperationError} If the protocol only supports cross-chain swaps.
    */
   async swap (options) {
     try {
@@ -337,6 +337,7 @@ export default class SwidgeProtocol {
    * @throws {ProviderRequiredError} If the method requires a provider.
    * @throws {ProviderError} If the provider fails to estimate the costs of the swap.
    * @throws {SwapError} If the swap fails with an error.
+   * @throws {UnsupportedOperationError} If the protocol only supports cross-chain swaps.
    */
   async quoteSwap (options) {
     try {
