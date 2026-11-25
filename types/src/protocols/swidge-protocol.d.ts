@@ -1,5 +1,5 @@
 /** @interface */
-export interface ISwidgeProtocol extends ISwapProtocol, IBridgeProtocol {
+export interface ISwidgeProtocol extends IBridgeProtocol {
     /**
      * Quotes the estimated costs and output of a cross-chain swap/bridge operation.
      * Returns a non-binding quote; the actual execution is performed
@@ -62,7 +62,7 @@ export interface ISwidgeProtocol extends ISwapProtocol, IBridgeProtocol {
     getSupportedTokens(options?: SwidgeSupportedTokensOptions): Promise<SwidgeSupportedToken[]>;
 }
 /** @abstract */
-export default abstract class SwidgeProtocol implements ISwidgeProtocol, ISwapProtocol, IBridgeProtocol {
+export default abstract class SwidgeProtocol implements ISwidgeProtocol, IBridgeProtocol {
     /**
      * Creates a new swidge protocol without binding it to a wallet account.
      *
@@ -114,6 +114,7 @@ export default abstract class SwidgeProtocol implements ISwidgeProtocol, ISwapPr
      * @throws {ProviderError} If the provider fails to perform the swap.
      * @throws {SwapError} If the swap fails with an error.
      * @throws {MaximumFeeExceededError} If the the costs of the transaction exceeds the max. network or protocol fee options.
+     * @throws {UnsupportedOperationError} If the protocol only supports cross-chain swaps.
      */
     swap(options: SwapOptions): Promise<SwapResult>;
     /**
@@ -127,6 +128,7 @@ export default abstract class SwidgeProtocol implements ISwidgeProtocol, ISwapPr
      * @throws {ProviderRequiredError} If the method requires a provider.
      * @throws {ProviderError} If the provider fails to estimate the costs of the swap.
      * @throws {SwapError} If the swap fails with an error.
+     * @throws {UnsupportedOperationError} If the protocol only supports cross-chain swaps.
      */
     quoteSwap(options: SwapOptions): Promise<Omit<SwapResult, "hash">>;
     /**
@@ -239,6 +241,7 @@ export type NoSuchElementError = import("./errors.js").NoSuchElementError;
 export type ReadOnlyAccountRequiredError = import("./errors.js").ReadOnlyAccountRequiredError;
 export type ProviderError = import("./errors.js").ProviderError;
 export type ProviderRequiredError = import("./errors.js").ProviderRequiredError;
+export type UnsupportedOperationError = import("./errors.js").UnsupportedOperationError;
 export type ValueError = import("./errors.js").ValueError;
 export type SwidgeStatus = "pending" | "action-required" | "completed" | "failed" | "refund-pending" | "refunded" | "cancelled" | "expired" | "partial";
 export type SwidgeFeeType = "network" | "protocol" | "affiliate" | "other";
