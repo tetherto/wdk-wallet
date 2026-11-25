@@ -179,6 +179,21 @@ describe('WalletManager', () => {
       expect(() => wallet.addSigner('ledger', signer))
         .toThrow(new DisposalError('The wallet manager has been disposed.'))
     })
+
+    test.each(['constructor', 'toString', '__proto__'])('should register a signer named "%s"', (signerName) => {
+      const signer = new DummySigner()
+      const wallet = new DummyWalletManager(SEED_PHRASE)
+
+      wallet.addSigner(signerName, signer)
+
+      expect(wallet.getSigner(signerName)).toBe(signer)
+
+      const signers = wallet.getSigners()
+
+      expect(Object.keys(signers)).toEqual([signerName])
+      expect(Object.hasOwn(signers, signerName)).toBe(true)
+      expect(signers[signerName]).toBe(signer)
+    })
   })
 
   describe('getSigner', () => {
@@ -188,6 +203,21 @@ describe('WalletManager', () => {
 
       expect(() => wallet.getSigner('ledger'))
         .toThrow(new NoSuchElementError('No signer found with name "ledger".'))
+    })
+
+    test.each(['constructor', 'toString', 'hasOwnProperty', '__proto__'])('should throw when requesting an unregistered signer named "%s"', (signerName) => {
+      const wallet = new DummyWalletManager(new DummySigner())
+
+      expect(() => wallet.getSigner(signerName))
+        .toThrow(new NoSuchElementError(`No signer found with name "${signerName}".`))
+    })
+  })
+
+  describe('getSigners', () => {
+    test('should return an empty map when no signers have been registered', () => {
+      const wallet = new DummyWalletManager(new DummySigner())
+
+      expect(wallet.getSigners()).toEqual({})
     })
   })
 
@@ -200,6 +230,17 @@ describe('WalletManager', () => {
       wallet.dispose()
 
       expect(wallet.disposed).toBe(true)
+    })
+
+    test('should keep the account map free of inherited properties after disposal', () => {
+      const wallet = new DummyWalletManager(new DummySigner())
+
+      expect(wallet._accounts.constructor).toBeUndefined()
+
+      wallet.dispose()
+
+      expect(wallet._accounts.constructor).toBeUndefined()
+      expect(Object.keys(wallet._accounts)).toEqual([])
     })
   })
 })

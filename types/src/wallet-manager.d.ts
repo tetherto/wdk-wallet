@@ -46,7 +46,8 @@ export default abstract class WalletManager<TSigner extends ISigner = ISigner> i
      */
     protected _defaultSigner: TSigner | undefined;
     /**
-     * A map between signer names and signers added via {@link addSigner}.
+     * A map between signer names and signers added via {@link addSigner}. It has a null prototype, so names
+     * such as "constructor" or "__proto__" are treated as plain keys.
      *
      * @protected
      * @type {Record<string, TSigner>}
@@ -55,7 +56,8 @@ export default abstract class WalletManager<TSigner extends ISigner = ISigner> i
     /**
      * A map between derivation paths and wallet accounts. The {@link dispose} method will automatically dispose
      * the accounts in this map that hold a private key, so developers are encouraged to map all accounts accessed
-     * through the {@link getAccount} and {@link getAccountByPath} methods.
+     * through the {@link getAccount} and {@link getAccountByPath} methods. It has a null prototype, so lookups
+     * never resolve to inherited object properties.
      *
      * @protected
      * @type {Record<string, IWalletAccount>}
