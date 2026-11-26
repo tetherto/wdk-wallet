@@ -191,10 +191,10 @@ export type FeeRates = {
     /**
      * - The fee rate for transaction sent with normal priority.
      */
-    normal: bigint;
+    normal: number | bigint;
     /**
      * - The fee rate for transaction sent with fast priority.
      */
-    fast: bigint;
+    fast: number | bigint;
 };
 import { IDisposable } from "./disposable.js";

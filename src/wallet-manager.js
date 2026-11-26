@@ -33,8 +33,8 @@ import { DisposalError, InvalidSignerError, NoSuchElementError, NotImplementedEr
 
 /**
  * @typedef {Object} FeeRates
- * @property {bigint} normal - The fee rate for transaction sent with normal priority.
- * @property {bigint} fast - The fee rate for transaction sent with fast priority.
+ * @property {number | bigint} normal - The fee rate for transaction sent with normal priority.
+ * @property {number | bigint} fast - The fee rate for transaction sent with fast priority.
  */
 
 /**
